@@ -1,0 +1,39 @@
+<form [formGroup]="registerForm" (ngSubmit)="createUser()" novalidate="">
+  <div>
+    <label>Nombre: </label>
+    <input type="text" formControlName="name" />
+  </div>
+
+  <div>
+    <label>Teléfono: </label>
+    <input type="text" formControlName="phone" />
+  </div>
+
+  <div>
+    <label>Foto de perfil: </label>
+    <input type="file" />
+  </div>
+
+  <div>
+    <label>Fecha de nacimiento: </label>
+    <input type="date" formControlName="dateBirth" />
+  </div>
+
+  <div>
+    <label>Email: </label>
+    <input type="email" formControlName="email" />
+  </div>
+
+  <div>
+    <label>Contraseña: </label>
+    <input type="password" formControlName="password" />
+  </div>
+  <div>
+    <label>Repetir contraseña: </label>
+    <input type="password" formControlName="repeatPassword" />
+  </div>
+  <div *ngIf="registerForm.hasError('passwordsMismatch')">
+    <p>Las contraseñas no coinciden</p>
+  </div>
+  <button type="submit" [disabled]="registerForm.invalid">Registrarse</button>
+</form>

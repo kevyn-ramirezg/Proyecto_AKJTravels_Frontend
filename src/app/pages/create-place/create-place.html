@@ -1,0 +1,49 @@
+<form [formGroup]="createPlaceForm" (ngSubmit)="createPlace()" novalidate="">
+
+  <div>
+    <label>Título: </label>
+    <input type="text" formControlName="title" />
+  </div>
+
+  <div>
+    <label>Descripción: </label>
+    <textarea formControlName="description">
+
+    </textarea>
+  </div>
+
+  <div>
+    <label>Ciudad: </label>
+    <select formControlName="city">
+        <option value="" disabled> Seleccione una ciudad</option>
+        <option *ngFor="let item of cities" [value]="item">{{item}}</option>
+    </select>
+  </div>
+
+  <div>
+    <label>Dirección: </label>
+    <input type="text" formControlName="address" />
+  </div>
+
+  <div>
+    <label>Ubicación: </label>
+    <input type="text" formControlName="location" />
+  </div>
+
+  <div>
+    <label>Precio por noche: </label>
+    <input type="number" formControlName="pricePerNight"/>
+  </div>
+
+  <div>
+    <label>Máximo de huéspedes: </label>
+    <input type="number" formControlName="maxGuests" />
+  </div>
+
+  <div>
+    <label>Imágenes del alojamiento: </label>
+    <input type="file" multiple (change)="onFileChange($event)" />
+  </div>
+
+  <button type="submit" [disabled]="createPlaceForm.invalid">Crear alojamiento</button>
+</form>
