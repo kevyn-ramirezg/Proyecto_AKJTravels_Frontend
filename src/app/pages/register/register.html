@@ -1,39 +1,77 @@
-<form [formGroup]="registerForm" (ngSubmit)="createUser()" novalidate="">
-  <div>
-    <label>Nombre: </label>
-    <input type="text" formControlName="name" />
-  </div>
+<div class="register-page">
+  <header class="topbar">
+    <div class="logo">AKJ<span>Travel</span></div>
+  </header>
+  <head>
+    <!-- Google Fonts: Poppins bold/black -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800;900&display=swap" rel="stylesheet">
 
-  <div>
-    <label>Teléfono: </label>
-    <input type="text" formControlName="phone" />
-  </div>
+  </head>
+  <main class="register-main">
+    <div class="card">
+      <h1 class="title">Crea una cuenta</h1>
+      <p class="subtitle">¿Ya estás registrado? <a routerLink="/login">Ingresa</a></p>
 
-  <div>
-    <label>Foto de perfil: </label>
-    <input type="file" />
-  </div>
+      <form [formGroup]="registerForm" (ngSubmit)="createUser()" novalidate>
+        <div class="grid">
+          <div class="col">
+            <div class="form-group">
+              <label for="name">Nombre</label>
+              <input id="name" type="text" formControlName="name" placeholder="Alex" autocomplete="given-name" />
+            </div>
 
-  <div>
-    <label>Fecha de nacimiento: </label>
-    <input type="date" formControlName="dateBirth" />
-  </div>
+            <div class="form-group">
+              <label for="email">Correo electrónico</label>
+              <input id="email" type="email" formControlName="email" placeholder="hola@sitioincreible.com.ar" autocomplete="email" />
+            </div>
 
-  <div>
-    <label>Email: </label>
-    <input type="email" formControlName="email" />
-  </div>
+            <div class="form-group">
+              <label for="role">Rol</label>
+              <select id="role" formControlName="role">
+                <option value="Huésped">Huésped</option>
+                <option value="Anfitrión">Anfitrión</option>
+              </select>
+            </div>
 
-  <div>
-    <label>Contraseña: </label>
-    <input type="password" formControlName="password" />
-  </div>
-  <div>
-    <label>Repetir contraseña: </label>
-    <input type="password" formControlName="repeatPassword" />
-  </div>
-  <div *ngIf="registerForm.hasError('passwordsMismatch')">
-    <p>Las contraseñas no coinciden</p>
-  </div>
-  <button type="submit" [disabled]="registerForm.invalid">Registrarse</button>
-</form>
+            <div class="form-group">
+              <label for="dateBirth">Fecha de nacimiento</label>
+              <input id="dateBirth" type="date" formControlName="dateBirth" />
+            </div>
+          </div>
+
+          <div class="col">
+            <div class="form-group">
+              <label for="surname">Apellido</label>
+              <input id="surname" type="text" formControlName="surname" placeholder="Gutiérrez" autocomplete="family-name" />
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Número telefónico</label>
+              <input id="phone" type="tel" inputmode="numeric" formControlName="phone" placeholder="3145976670" autocomplete="tel" />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Clave</label>
+              <input id="password" type="password" formControlName="password" placeholder="********" autocomplete="new-password" />
+            </div>
+
+            <div class="form-group">
+              <label for="repeatPassword">Confirmar clave</label>
+              <input id="repeatPassword" type="password" formControlName="repeatPassword" placeholder="********" autocomplete="new-password" />
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="registerForm.hasError('passwordsMismatch')" class="form-error">
+          Las contraseñas no coinciden
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn btn-primary btn-gradient">Registrarse</button>
+
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
