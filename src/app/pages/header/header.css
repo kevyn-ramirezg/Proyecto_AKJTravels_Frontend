@@ -1,0 +1,52 @@
+/* 1) El gradiente sólo en el navbar */
+.navbar-gradient {
+  background-image: linear-gradient(90deg, #004aad, #cb6ce6);
+  background-color: transparent;
+  box-shadow: 0 2px 8px rgba(0,0,0,.15);
+
+}
+
+/* 2) Asegura que nada dentro del navbar tenga fondo sólido */
+.navbar-gradient .container,
+.navbar-gradient .container-fluid,
+.navbar-gradient .navbar-collapse,
+.navbar-gradient .navbar-nav,
+.navbar-gradient .navbar-brand {
+  background: transparent !important;
+}
+
+/* Si por HTML añadiste utilidades .bg-* dentro del navbar, anúlalas aquí */
+.navbar-gradient .bg-primary,
+.navbar-gradient .bg-light,
+.navbar-gradient .bg-white,
+.navbar-gradient .bg-body,
+.navbar-gradient .bg-body-tertiary {
+  background-color: transparent !important;
+}
+
+/* 3) Colores de texto/enlaces dentro del navbar para buena legibilidad */
+.navbar-gradient .navbar-brand,
+.navbar-gradient .nav-link {
+  color: #fff !important;
+}
+.navbar-gradient .nav-link:hover,
+.navbar-gradient .nav-link:focus {
+  color: rgba(255,255,255,0.85) !important;
+}
+
+/* 4) Botones dentro del navbar */
+.navbar-gradient .btn-outline-light{
+  --bs-btn-color:#fff;
+  --bs-btn-border-color:#fff;
+  --bs-btn-hover-bg:rgba(255,255,255,0.15);
+  --bs-btn-hover-color:#fff;
+  --bs-btn-active-bg:rgba(255,255,255,0.2);
+  --bs-btn-active-color:#fff;
+}
+
+/* Si usas .btn-light para "Crear cuenta", que no quede fondo blanco puro */
+.navbar-gradient .btn-light{
+  --bs-btn-bg: rgba(255,255,255,0.85);
+  --bs-btn-color:#004aad;
+  --bs-btn-hover-bg: rgba(255,255,255,0.95);
+}
