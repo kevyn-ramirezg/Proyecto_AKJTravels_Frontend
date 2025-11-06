@@ -1,0 +1,61 @@
+<div class="container pt-5 pb-5">
+  <h5 class="mb-0 d-flex align-items-center">
+    <span class="material-symbols-rounded filled fs-2 me-3">apartment</span>
+    Gestión de alojamientos
+  </h5>
+  <hr/>
+
+  <div class="card-body">
+    <div class="mb-3">
+      <button type="button"
+              routerLink="/create-place"
+              class="btn btn-success d-flex align-items-center justify-content-center gap-1">
+        <span class="material-symbols-rounded filled me-1">add</span>
+        Crear nuevo
+      </button>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table align-middle table-striped table-hover mb-0">
+        <thead class="text-center">
+        <tr>
+          <th>ID</th>
+          <th>Título</th>
+          <th>Imagen</th>
+          <th>Ciudad</th>
+          <th>Precio</th>
+          <th class="text-center">Acciones</th>
+        </tr>
+        </thead>
+        <tbody class="table-group-divider">
+          @for (item of places; track $index) {
+            <tr>
+              <td class="text-muted text-center">{{ item.id }}</td>
+              <td class="fw-semibold">{{ item.title }}</td>
+              <td class="text-center">
+                <img [src]="item.photo_url" [alt]="item.title"
+                     class="img-thumbnail rounded"
+                     style="width: 90px; height: 60px; object-fit: cover;"/>
+              </td>
+              <td>{{ item.city }}</td>
+              <td>\${{ item.price | number:'1.0-0' }}</td>
+              <td class="text-center">
+                <a routerLink="/place/{{item.id}}" class="btn btn-outline-primary btn-icon me-1" title="Ver">
+                  <span class="material-symbols-rounded">visibility</span>
+                </a>
+                <button routerLink="/edit-place/{{item.id}}" type="button"
+                        class="btn btn-outline-success btn-icon me-1" title="Editar">
+                  <span class="material-symbols-rounded">edit</span>
+                </button>
+                <button (click)="onDelete(item.id)" type="button"
+                        class="btn btn-outline-danger btn-icon" title="Eliminar">
+                  <span class="material-symbols-rounded">delete</span>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
