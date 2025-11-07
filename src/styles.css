@@ -1,4 +1,6 @@
 /* (ya lo tienes) Material Symbols */
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
 
 .material-symbols-rounded {

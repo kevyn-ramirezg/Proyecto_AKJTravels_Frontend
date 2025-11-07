@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, NavigationEnd, RouterModule } from '@angular/router';
+import { filter, map, takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import Swal from 'sweetalert2';
 import { PlacesApiService } from '../../services/places-api-service';
 import { PlaceListItemDTO } from '../../model/place-list-item-dto';
@@ -12,15 +14,41 @@ import { PlaceListItemDTO } from '../../model/place-list-item-dto';
   templateUrl: './my-places.html',
   styleUrl: './my-places.css'
 })
-export class MyPlaces implements OnInit {
+export class MyPlaces implements OnInit, OnDestroy {
   places: PlaceListItemDTO[] = [];
+  private destroy$ = new Subject<void>();
 
-  constructor(private api: PlacesApiService) {}
+  constructor(
+    private api: PlacesApiService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
+    // Carga inicial solo si estás en /my-places
+    if (this.router.url.startsWith('/my-places')) {
+      this.load();
+    }
+
+    // Recarga SOLO cuando la navegación termina en /my-places
+    this.router.events
+      .pipe(
+        filter(e => e instanceof NavigationEnd),
+        map(() => this.router.url),
+        filter(url => url.startsWith('/my-places')),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => this.load());
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private load(): void {
     this.api.getAll().subscribe({
-      next: (items) => this.places = items,
-      error: () => Swal.fire('Error', 'No fue posible cargar los alojamientos', 'error')
+      next: (items: PlaceListItemDTO[]) => (this.places = items),
+      error: () => Swal.fire('Error', 'No fue posible cargar los alojamientos', 'error'),
     });
   }
 
