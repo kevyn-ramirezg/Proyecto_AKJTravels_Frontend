@@ -1,2 +1,126 @@
-<span class="material-symbols-rounded">home</span>
-<span class="material-symbols-rounded filled">home</span>
+<div class="home">
+  <!-- HERO ancho debajo del navbar -->
+  <section class="hero-banner force-hero" style="--hero-h: 280px">
+    <div class="home-container hero-inner">
+      <h1 class="hero-title">Encuentra tu alojamiento…</h1>
+      <p class="hero-subtitle">Busca ofertas en alojamientos, casas y demás…</p>
+    </div>
+  </section>
+
+  <!-- Barra de búsqueda flotando sobre el borde del hero -->
+  <div class="search-wrap">
+    <form class="search-bar no-validate-icons" novalidate>
+
+      <!-- Destino (AUTOCOMPLETE) -->
+      <div class="search-item" id="destBox">
+        <span class="material-symbols-rounded icon">travel_explore</span>
+        <label class="field-label">¿A dónde vas?</label>
+
+        <input
+          id="destInput"
+          class="field-input form-control"
+          type="text"
+          placeholder="Ciudad, región o país"
+          [value]="destQuery"
+          (input)="onDestInput($event)"
+          (focus)="openDest()"
+          (keydown)="onDestKey($event)"
+          autocomplete="off"
+          role="combobox"
+          aria-autocomplete="list"
+          [attr.aria-expanded]="destOpen"
+          aria-controls="dest-listbox"
+        />
+
+        @if (destOpen && filteredDestinations.length > 0) {
+          <ul
+            id="dest-listbox"
+            class="suggest-panel"
+            role="listbox"
+            aria-label="Sugerencias de destinos"
+          >
+            @for (opt of filteredDestinations; track opt.label; let i = $index) {
+              <li
+                class="suggest-item"
+                role="option"
+                [attr.aria-selected]="i === destActiveIndex"
+                [class.active]="i === destActiveIndex"
+                (mousedown)="pickDestination(opt)"
+              >
+                <span class="material-symbols-rounded">location_on</span>
+                <div class="suggest-text">
+                  <strong>{{ opt.label }}</strong>
+                  <small>{{ opt.type }}</small>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      <!-- Fechas -->
+      <div class="search-item" id="datesBox">
+        <span class="material-symbols-rounded icon">calendar_month</span>
+        <label class="field-label">Fecha de entrada – salida</label>
+
+        <!-- input visible que abre el picker -->
+        <input
+          id="dateRange"
+          class="field-input form-control"
+          type="text"
+          placeholder="dd/mm/aaaa – dd/mm/aaaa"
+          readonly
+          (focus)="openPicker()"
+          (click)="openPicker()"
+        />
+
+        <!-- (opcional) inputs ocultos para usar en la búsqueda -->
+        <input type="hidden" id="checkin" />
+        <input type="hidden" id="checkout" />
+      </div>
+
+      <!-- Huéspedes -->
+      <!-- Huéspedes -->
+      <div class="search-item" id="guestsBox">
+        <span class="material-symbols-rounded icon">group</span>
+        <label class="field-label">Huéspedes</label>
+        <input
+          id="guestsInput"
+          class="field-input form-control guests-number"
+          type="number"
+          inputmode="numeric"
+          placeholder="2"
+          [value]="guests"
+          min="1"
+          max="16"
+          step="1"
+          (input)="onGuestsInput($event)"
+        />
+      </div>
+
+      <!-- Filtro -->
+      <button type="button" class="filter-btn">
+        <span class="material-symbols-rounded">tune</span> Filtro
+      </button>
+    </form>
+  </div>
+
+  <!-- Sugerencias -->
+  <section class="suggestions">
+    <div class="home-container">
+      <div class="cards">
+        @for (s of suggestions; track s.city) {
+          <article class="card">
+            <div class="thumb">
+              <img [src]="s.img" [alt]="s.city" loading="lazy" />
+            </div>
+            <div class="meta">
+              <h6 class="city">{{ s.city | uppercase }}</h6>
+              <p class="desc">{{ s.desc }}</p>
+            </div>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+</div>

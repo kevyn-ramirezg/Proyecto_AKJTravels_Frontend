@@ -1,49 +1,47 @@
 <!-- register.component.html -->
 <div class="register-page">
   <div class="container pt-5 pb-5">
-    <h5 class="mb-0 d-flex align-items-center">
-      <span class="material-symbols-rounded filled fs-1 me-3">account_circle</span>
-      Crear cuenta
-    </h5>
-    <hr />
 
     <div class="card">
       <div class="card-body">
-        <form class="row g-3" [formGroup]="registerForm" (ngSubmit)="createUser()" novalidate>
+        <!-- Título y subtítulo con el mismo estilo del login -->
+        <h1 class="title">Crear cuenta</h1>
+        <p class="subtitle">Completa los datos para registrarte</p>
 
+        <form class="row gy-3 gx-5" [formGroup]="registerForm" (ngSubmit)="createUser()" novalidate style="--bs-gutter-x: 12rem" >
           <!-- Nombre -->
           <div class="col-12 col-sm-6">
             <label for="name" class="form-label">Nombre</label>
-            <input id="name" type="text" class="form-control"
-                   formControlName="name" placeholder="Alex" autocomplete="given-name" />
+            <input id="name" type="text" class="form-control" formControlName="name"
+                   placeholder="Alex" autocomplete="given-name"/>
           </div>
 
           <!-- Apellido -->
           <div class="col-12 col-sm-6">
             <label for="surname" class="form-label">Apellido</label>
-            <input id="surname" type="text" class="form-control"
-                   formControlName="surname" placeholder="Gutiérrez" autocomplete="family-name" />
+            <input id="surname" type="text" class="form-control" formControlName="surname"
+                   placeholder="Gutiérrez" autocomplete="family-name"/>
           </div>
 
           <!-- Correo -->
           <div class="col-12 col-sm-6">
             <label for="email" class="form-label">Correo electrónico</label>
-            <input id="email" type="email" class="form-control"
-                   formControlName="email" placeholder="hola@sitioincreible.com.ar" autocomplete="email" />
+            <input id="email" type="email" class="form-control" formControlName="email"
+                   placeholder="hola@sitioincreible.com.ar" autocomplete="email"/>
           </div>
 
           <!-- Teléfono -->
           <div class="col-12 col-sm-6">
             <label for="phone" class="form-label">Número telefónico</label>
-            <input id="phone" type="tel" inputmode="numeric" class="form-control"
-                   formControlName="phone" placeholder="3145976670" autocomplete="tel" />
+            <input id="phone" type="tel" inputmode="numeric" class="form-control" formControlName="phone"
+                   placeholder="3145976670" autocomplete="tel"/>
           </div>
 
           <!-- Rol -->
           <div class="col-12 col-sm-6">
             <label for="role" class="form-label">Rol</label>
             <select id="role" class="form-select" formControlName="role">
-              <option value="" disabled selected>Seleccione un rol</option>
+              <option value="" disabled>Seleccione un rol</option>
               <option value="Huésped">Huésped</option>
               <option value="Anfitrión">Anfitrión</option>
             </select>
@@ -52,48 +50,43 @@
           <!-- Fecha de nacimiento -->
           <div class="col-12 col-sm-6">
             <label for="dateBirth" class="form-label">Fecha de nacimiento</label>
-            <input id="dateBirth" type="date" class="form-control" formControlName="dateBirth" />
+            <input id="dateBirth" type="date" class="form-control" formControlName="dateBirth"/>
           </div>
 
           <!-- Clave -->
           <div class="col-12 col-sm-6">
             <label for="password" class="form-label">Clave</label>
-            <input id="password" type="password" class="form-control"
-                   formControlName="password" placeholder="********" autocomplete="new-password" />
+            <input id="password" type="password" class="form-control" formControlName="password"
+                   placeholder="********" autocomplete="new-password"/>
           </div>
 
           <!-- Confirmar clave -->
           <div class="col-12 col-sm-6">
             <label for="repeatPassword" class="form-label">Confirmar clave</label>
-            <input id="repeatPassword" type="password" class="form-control"
-                   formControlName="repeatPassword" placeholder="********" autocomplete="new-password" />
+            <input id="repeatPassword" type="password" class="form-control" formControlName="repeatPassword"
+                   placeholder="********" autocomplete="new-password"/>
           </div>
 
-          <!-- Error de contraseñas (Angular v17: @if) -->
+          <!-- Error de contraseñas -->
           @if (registerForm.hasError('passwordsMismatch')) {
             <div class="col-12">
               <div class="alert alert-danger" role="alert">Las contraseñas no coinciden</div>
             </div>
           }
-          <!-- Si prefieres *ngIf:
-          <div class="col-12" *ngIf="registerForm.hasError('passwordsMismatch')">
-            <div class="alert alert-danger" role="alert">Las contraseñas no coinciden</div>
-          </div>
-          -->
 
           <!-- CTA -->
-          <div class="col-12 d-flex justify-content-center">
+          <div class="col-12">
             <button type="submit"
-                    class="btn btn-primary btn-gradient d-flex align-items-center justify-content-center"
+                    class="btn btn-primary btn-gradient d-block mx-auto"
                     [disabled]="registerForm.invalid">
-              <span class="material-symbols-rounded">check</span>
               Registrarse
             </button>
           </div>
 
           <!-- Enlace a login -->
           <div class="col-12 text-center">
-            <p class="mb-0">¿Ya estás registrado?
+            <p class="mb-0">
+              ¿Ya estás registrado?
               <a routerLink="/login">Ingresa</a>
             </p>
           </div>

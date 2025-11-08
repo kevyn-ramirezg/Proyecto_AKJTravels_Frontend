@@ -1,0 +1,444 @@
+:root{
+  --primary-start:#004aad;
+  --primary-end:#cb6ce6;
+  --border-strong:#bdbdbd;
+  --muted:#6b6b6b;
+  --card:#ffffff;
+}
+
+/* Contenedor ancho SOLO para Home */
+.home-container{
+  max-width: 1240px;
+  margin-inline: auto;
+  padding-inline: 16px;
+}
+
+/* ================= HERO ================= */
+.hero-banner{
+  background: linear-gradient(90deg, var(--primary-start), var(--primary-end));
+  color:#fff;
+  padding: 72px 0 160px;                 /* alto del hero */
+  border-bottom-left-radius: 22px;
+  border-bottom-right-radius: 22px;
+
+  /* asegura que ocupe espacio y no quede tapado */
+  display:block;
+  position: relative;
+}
+.hero-title{
+  margin: 0;
+  font-size: 48px;
+  line-height: 1.1;
+  font-weight: 600;                      /* Poppins más delgado */
+}
+.hero-subtitle{
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: rgba(255,255,255,.92);
+}
+
+/* Barra de búsqueda pegada al borde inferior del hero */
+.search-wrap{
+  margin-top: -110px;                    /* “pega” la barra al hero */
+}
+.search-bar{
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 18px;
+  padding: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 16px;
+  box-shadow: 0 22px 50px rgba(0,0,0,.12);
+  border: 2px solid rgba(203,108,230,.35);
+}
+
+/* Items e inputs (estilo unificado del proyecto) */
+.search-item{
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 8px;
+  align-items: center;
+  border: 1px solid rgba(0,0,0,.06);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.03);
+}
+.icon{ font-size:22px; color:#444; display:flex; align-items:center; justify-content:center; }
+.field-label{
+  grid-column: 2 / -1;
+  font-size: 11px;
+  letter-spacing: .08em;
+  font-weight: 700;
+  color:#444;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.field-input{
+  grid-column: 2 / -1;
+  height: 42px;
+  border: 2px solid var(--border-strong) !important;
+  border-radius: 10px !important;
+  padding: 0 14px;
+  font-size: 14px;
+  background: #fff;
+  outline: none;
+  transition: box-shadow .2s ease, border-color .2s ease;
+}
+.field-input::placeholder{ color:#9aa0a6; }
+.field-input:focus{
+  border-color: transparent !important;
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 4px rgba(25,118,210,.25),
+    0 6px 16px rgba(0,0,0,.06) !important;
+}
+
+/* Botón Filtro */
+.filter-btn{
+  align-self: center;
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 2px solid var(--border-strong);
+  background: #fff;
+  color: #333;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: box-shadow .2s ease, transform .04s ease;
+}
+.filter-btn:hover{
+  box-shadow: 0 6px 16px rgba(0,0,0,.08);
+  transform: translateY(-1px);
+}
+
+/* ================= SUGERENCIAS ================= */
+.suggestions{
+  padding: 36px 0 64px;
+  background: linear-gradient(180deg,#fafafa 0%, #fff 100%);
+}
+.cards{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+.card{
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--card);
+  box-shadow: 0 14px 32px rgba(0,0,0,.08);
+}
+.thumb{
+  width: 84px; height: 64px; border-radius: 10px;
+  background: linear-gradient(135deg, #e9eefb, #f4e8ff);
+}
+.city{ margin:0 0 4px; font-size:12px; letter-spacing:.06em; color:#5d5d5d; font-weight:800; }
+.desc{ margin:0; font-size:14px; color:#333; }
+
+/* Estilos para control de Huéspedes */
+.guest-control{ display:flex; flex-direction:column; gap:6px; grid-column: 2 / -1; }
+.guest-input-wrap{ position:relative; }
+.guests-input{ padding-right:48px; /* espacio para las flechas a la derecha */ }
+
+/* Oculta los spinners nativos de inputs type=number */
+.guests-input::-webkit-outer-spin-button,
+.guests-input::-webkit-inner-spin-button{ -webkit-appearance: none; margin: 0; }
+.guests-input{ -moz-appearance: textfield; appearance: textfield; }
+
+.guest-arrows{
+  position:absolute;
+  right:8px;
+  top:50%;
+  transform:translateY(-50%);
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
+.guest-arrows .arrow{
+  width:32px;
+  height:20px;
+  padding:0;
+  border-radius:8px;
+  border: none;
+  background: linear-gradient(180deg, rgba(108,59,230,1), rgba(84,48,183,1));
+  color:#fff;
+  font-weight:700;
+  font-size:12px;
+  line-height:1;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  box-shadow: 0 6px 14px rgba(108,59,230,.18);
+}
+.guest-arrows .arrow:active{ transform: translateY(1px); }
+.guest-arrows .arrow:hover{ filter:brightness(1.03); }
+
+/* Flechas con estilo diferenciado (menos saturado en hover) */
+.guest-arrows .arrow.up{ border-bottom-left-radius:6px; border-bottom-right-radius:6px; }
+.guest-arrows .arrow.down{ }
+
+.guest-summary{ font-size:13px; color:var(--muted); }
+
+@media (max-width: 1200px){
+  .home-container, .search-bar{ max-width: 1080px; }
+}
+@media (max-width: 992px){
+  .hero-title{ font-size: 40px; }
+  .search-wrap{ margin-top: -90px; }
+  .search-bar{ grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px){
+  .hero-title{ font-size: 34px; }
+  .search-wrap{ margin-top: -72px; }
+  .search-bar{ grid-template-columns: 1fr; }
+  .guest-arrows{ right:6px; }
+  .guest-arrows .arrow{ width:28px; height:18px; font-size:11px; }
+}
+/* === HERO a prueba de overrides === */
+.force-hero{
+  position: relative;
+  min-height: var(--hero-h, 260px);
+  display: flex;
+  align-items: flex-end;    /* título pegado abajo como en el mockup */
+  background: transparent !important; /* evitamos que otra regla lo ponga blanco */
+  border-bottom-left-radius: 22px;
+  border-bottom-right-radius: 22px;
+  isolation: isolate;       /* crea nuevo contexto de apilamiento */
+}
+
+/* Degradado real va en el pseudo-elemento para ganar especificidad */
+.force-hero::before{
+  content: "";
+  position: absolute;
+  inset: 0;                 /* top/right/bottom/left:0 */
+  background: linear-gradient(90deg, #004aad, #cb6ce6);
+  border-bottom-left-radius: 22px;
+  border-bottom-right-radius: 22px;
+  z-index: 0;               /* detrás del contenido, delante del fondo blanco */
+}
+
+/* Asegura texto blanco encima del degradado */
+.force-hero .hero-title,
+.force-hero .hero-subtitle{
+  position: relative;
+  z-index: 1;
+  color: #fff !important;
+}
+
+/* Ajusta la barra de búsqueda para que se “pegue” al hero */
+.search-wrap{
+  margin-top: -80px;        /* si queda lejos, incrementa (más negativo) */
+}
+/* La barra debe ir POR ENCIMA del hero */
+.search-wrap{
+  position: relative;
+  z-index: 5;          /* encima del hero */
+  margin-top: -30px;   /* ajusta si la quieres más cerca/lejos */
+}
+
+/* El hero queda al fondo y su degradado no bloquea clics */
+.force-hero{ z-index: 0; }
+.force-hero::before{
+  pointer-events: none; /* no tapa inputs */
+}
+/* ====== Tema del Litepicker acorde a AKJ ====== */
+.litepicker {
+  font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  border-radius: 14px;
+  box-shadow: 0 16px 36px rgba(0,0,0,.14);
+}
+
+/* Días redondos */
+.litepicker .day-item{
+  border-radius: 999px;
+}
+.litepicker .is-start-date,
+.litepicker .is-end-date{
+  background: #6c3be6 !important; /* morado intenso */
+  color: #fff !important;
+}
+.litepicker .is-in-range{
+  background: rgba(108,59,230,.12) !important; /* morado claro */
+  color: #222;
+}
+
+/* header y nav */
+.litepicker .month-item-header{
+  border-bottom: 0;
+  padding-bottom: 6px;
+  font-weight: 600;
+}
+
+/* Panel lateral Entrada/Salida (como tu imagen) */
+.akj-sidepanel{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  padding: 8px 12px 12px;
+  min-width: 220px;
+  border-left: 1px solid rgba(0,0,0,.06);
+}
+.akj-sidepanel label{
+  font-size: 13px;
+  color: #666;
+  margin: 0 0 4px;
+}
+.akj-date{
+  font-weight: 800;
+  font-size: 16px;
+}
+
+/* Footer con Limpiar / Siguiente */
+.akj-footer{
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 10px 12px 12px;
+  border-top: 1px solid rgba(0,0,0,.06);
+}
+.akj-clear{
+  background:#fff;
+  border:1px solid #d7d7d7;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-weight: 600;
+}
+.akj-apply{
+  border-radius: 10px !important;
+  height: 40px;
+  padding: 0 18px;
+}
+
+/* Layout del picker: calendario + panel lateral */
+.litepicker .container__main{
+  display: grid;
+  grid-template-columns: auto 240px; /* calendario | panel lateral */
+}
+@media (max-width: 520px){
+  .litepicker .container__main{
+    grid-template-columns: 1fr;
+  }
+  .akj-sidepanel{
+    border-left: none;
+    border-top: 1px solid rgba(0,0,0,.06);
+  }
+}
+/* El search-item sirve de ancla del panel */
+.search-item{ position: relative; }
+
+/* Panel dropdown */
+.suggest-panel{
+  position: absolute;
+  left: 40px;                 /* deja el icono a la izquierda */
+  right: 12px;
+  top: calc(100% + 6px);
+  background: #fff;
+  border: 2px solid rgba(0,0,0,.06);
+  border-radius: 14px;
+  box-shadow: 0 16px 36px rgba(0,0,0,.12);
+  padding: 6px;
+  margin: 0;
+  list-style: none;
+  z-index: 15;
+  max-height: 280px;
+  overflow: auto;
+}
+
+.suggest-item{
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.suggest-item:hover,
+.suggest-item.active{
+  background: rgba(108,59,230,.10);
+}
+.suggest-item .material-symbols-rounded{
+  font-size: 22px;
+  color: #333;
+}
+.suggest-text strong{ display:block; font-weight:600; line-height:1.1; }
+.suggest-text small{ color:#6b6b6b; }
+/* Fuerza a que los spinners nativos de number se muestren */
+input[type="number"] {
+  appearance: auto;          /* estándar */
+  -webkit-appearance: auto;  /* Safari/Chrome */
+  -moz-appearance: auto;     /* Firefox */
+  padding-right: 2.2rem;     /* deja espacio para las flechitas */
+}
+
+/* Por si alguna normalización anterior los ocultó */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  opacity: 1;
+  height: auto;
+}
+
+/* Alineación y altura coherente con tu estilo */
+.guests-number {
+  text-align: left;
+  height: 42px;
+}
+/* Contenedor para colocar un sufijo dentro del input */
+.with-suffix { position: relative; }
+
+/* deja espacio a la derecha del número para el sufijo */
+.with-suffix .field-input { padding-right: 7.5rem; text-align: left; }
+
+/* sufijo posicionado dentro del campo */
+.suffix{
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b6b6b;
+  font-size: 14px;
+  pointer-events: none; /* no bloquea clics ni focus */
+}
+
+/* spinners visibles y altura coherente */
+input[type="number"] {
+  appearance: auto;
+  -webkit-appearance: auto;
+  -moz-appearance: auto;
+}
+.guests-number { height: 42px; text-align: left; }
+/* Mover el título/subtítulo del hero un poco a la izquierda (solo desktop) */
+@media (min-width: 992px){
+  .hero-banner .hero-inner{
+    transform: translate(-24px,28px); /* prueba -24px, -40px, etc. */
+  }
+}
+
+/* Si quieres que en pantallas muy grandes se mueva un poco más */
+@media (min-width: 1400px){
+  .hero-banner .hero-inner{
+    transform: translate(-240px, 60px); /* prueba -240px, -260px, etc. */
+  }
+}
+/* Imagen dentro del thumb */
+.thumb{
+  width: 84px; height: 64px;
+  border-radius: 10px; overflow: hidden;
+  background: #eee;            /* fallback si tarda */
+}
+.thumb img{
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+}
+

@@ -1,54 +1,59 @@
 import { Component } from '@angular/core';
-import {FormBuilder, FormGroup, Validators, ReactiveFormsModule} from '@angular/forms';
-import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  Validators,
+  FormControl,
+  FormGroup
+} from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+
+type LoginForm = FormGroup<{
+  email: FormControl<string>;
+  password: FormControl<string>;
+}>;
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
 export class Login {
-  loginForm!: FormGroup;
-  hide = true;
+  loginForm: LoginForm;
   loading = false;
   error: string | null = null;
 
-  constructor(private formBuilder: FormBuilder, private router: Router) {
-    this.createForm();
+  constructor(private fb: FormBuilder, private router: Router) {
+    this.loginForm = this.fb.nonNullable.group({
+      email: this.fb.nonNullable.control('', {
+        validators: [Validators.required, Validators.email]
+      }),
+      password: this.fb.nonNullable.control('', {
+        validators: [Validators.required]
+      })
+    });
   }
 
-  private createForm(){
-    this.loginForm = this.formBuilder.group({
-      email:['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]],
-      remember: [false]
-    })
+  get f() {
+    return this.loginForm.controls;
   }
 
-  public toggleHide() {
-    this.hide = !this.hide;
-  }
-
-  public onSubmit() {
+  onSubmit() {
+    this.loginForm.markAllAsTouched();
     if (this.loginForm.invalid) return;
 
     this.loading = true;
     this.error = null;
 
-    // Mock de envío: simula llamada al backend
+    // Simulación de login
     setTimeout(() => {
       this.loading = false;
-      const { email, password } = this.loginForm.value;
-      // Mock simple: acepta cualquier credencial que no esté vacía
-      if (email && password) {
-        // simulamos éxito y navegamos al inicio
-        this.router.navigate(['/']);
-      } else {
-        this.error = 'Credenciales inválidas';
-      }
-    }, 900);
+      const { email, password } = this.loginForm.getRawValue();
+      if (email && password) this.router.navigate(['/']);
+      else this.error = 'Credenciales inválidas';
+    }, 700);
   }
 }

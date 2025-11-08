@@ -1,49 +1,122 @@
-form {
-  max-width: 420px;
-  margin: 16px auto;
-  padding: 12px;
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  background: #fff;
+:root{
+  --card-bg:#ffffff;
+  --muted:#6b6b6b;
+  --border-strong:#bdbdbd;
 }
 
-div {
-  margin-bottom: 10px;
+/* Página centrada bajo el header con gradiente superior */
+.login-page{
+  min-height: calc(100vh - 64px);
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
 }
 
-label {
-  display: block;
+/* Tarjeta central */
+.login-card{
+  width:100%;
+  max-width:520px;
+  margin:96px 16px 40px;
+  background:var(--card-bg);
+  border-radius:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
+  padding:40px 36px;
+}
+
+/* Título más delgado con Poppins */
+.title{
+  margin:0;
+  font-size:40px;
+  line-height:1.1;
+  text-align:center;
+  font-weight:600;       /* antes 800 -> ahora más delgado */
+  letter-spacing:-.3px;
+  font-family: 'Poppins', inherit; /* asegura la fuente aquí también */
+}
+
+.subtitle{
+  margin:8px 0 24px;
+  text-align:center;
+  color:var(--muted);
+  font-size:14px;
+}
+
+/* Formulario */
+.form{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:8px;
+}
+
+/* Labels en mayúsculas y con tracking */
+.field-label{
+  font-size:12px;
+  color:#444;
+  letter-spacing:.08em;
+  font-weight:700;
+  margin-top:8px;
+}
+
+/* Inputs con borde claro + focus visible (mantiene .form-control para tus reglas globales) */
+.field-input{
+  height:42px;
+  border:2px solid var(--border-strong) !important;
+  background:#fff;
+  border-radius:10px !important;
+  outline:none;
+  padding:0 14px;
+  font-size:14px;
+  transition: box-shadow .2s ease, border-color .2s ease;
+}
+.field-input::placeholder{ color:#9aa0a6; }
+.field-input:focus{
+  border-color:transparent !important;
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 4px rgba(25,118,210,.25),
+    0 6px 16px rgba(0,0,0,.06) !important;
+}
+
+/* Errores */
+.field-error{
+  color:#c62828;
+  font-size:12px;
+  min-height:16px;
+}
+
+/* Texto auxiliar inferior */
+.helper{
+  text-align:center;
+  font-size:13px;
+  color:var(--muted);
+  margin-top:18px;
+}
+.helper a{
+  font-weight:700;
+  text-decoration:none;
+  background:linear-gradient(90deg, #004aad, #cb6ce6);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+
+/* Responsivo */
+@media (max-width:480px){
+  .login-card{ margin:72px 12px 32px; padding:28px 22px; }
+  .title{ font-size:32px; }
+}
+/* Botón más pequeño y centrado dentro de la tarjeta del login */
+.login-card .btn-gradient{
+  width: 180px;          /* tamaño más pequeño */
+  height: 40px;
+  display: block;        /* para poder centrarlo con margin auto */
+  margin: 16px auto 0;   /* centrado */
+  border-radius: 10px;
+  font-weight: 700;
+  padding: 0;            /* el alto manda */
+}
+
+/* (Opcional) texto del botón un pelín más fino */
+.login-card .btn-gradient span{
   font-weight: 600;
-  margin-bottom: 4px;
 }
-
-input[type="text"],
-input[type="email"],
-input[type="password"],
-textarea, select {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-button[type="submit"] {
-  padding: 10px 14px;
-  background: #1976d2;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button[type="button"] {
-  margin-left: 8px;
-}
-
-.error {
-  color: #b00020;
-  font-weight: 600;
-}
-
-small { color: #b00020 }

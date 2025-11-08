@@ -1,0 +1,648 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap');/* Styles for Create Place wizard (matches mock gradients and layout) */
+:root{
+  --primary-start: #004aad;
+  --primary-end: #cb6ce6;
+  --card-bg: #ffffff;
+  --muted: #8a8a8a;
+}
+
+.create-place-page {
+  /* Full-width gradient header background to match mock */
+  background: linear-gradient(90deg, var(--primary-start), var(--primary-end));
+  padding: 36px 0 60px;
+}
+
+
+.heading{
+  position: relative;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:#fff;
+  padding: 18px 24px;
+}
+.heading h2{ font-size:34px; font-weight:800; margin:0; color:#fff }
+.title-icon{ font-size:48px; margin-right:10px }
+.logo{ position:absolute; left:20px; top:50%; transform: translateY(-50%); }
+
+/* Stepper sits visually on top of the white card: pull it up with negative margin */
+/*.stepper{ display:flex; gap:18px; align-items:center; justify-content:space-between; margin:-22px 0 8px; z-index:2 }
+.stepper .step{ flex:1; position:relative; text-align:center; font-size:12px; color:var(--muted); padding-top:18px }
+.stepper .step::before{ content:''; position:absolute; left:12%; right:12%; top:6px; height:8px; background:#e6e6e6; border-radius:12px }
+.stepper .step.active::before{ background: linear-gradient(90deg, var(--primary-start), var(--primary-end)) }*/
+
+
+.card.wizard{ border-radius:18px; padding: 28px; background:var(--card-bg); box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
+.card.wizard .card-body{ padding:0 }
+
+.grid{ display:grid; grid-template-columns: 1fr; gap:18px }
+@media(min-width:900px){ .grid{ grid-template-columns: 1fr 1fr } }
+
+.form-label{ display:block; font-weight:700; margin-bottom:8px }
+.form-control{ width:100%; padding:12px; border-radius:8px; border:1px solid #dcdcdc }
+
+.counter{ display:flex; align-items:center; gap:12px }
+.counter button{ width:36px; height:36px; border-radius:50%; border:1px solid #ccc; background:#fff; cursor:pointer }
+.counter .value{ min-width:38px; text-align:center }
+
+.amenities-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px }
+.amenity{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; border-radius:8px; border:1px solid #dcdcdc; background:#fff; cursor:pointer }
+.amenity.active{ background: linear-gradient(90deg, var(--primary-start), var(--primary-end)); color:#fff; border-color:transparent }
+.amenity .check{ font-size:20px }
+
+.chips{ display:flex; gap:8px; flex-wrap:wrap }
+.chip{ background:#f3f3f3; padding:6px 10px; border-radius:999px; font-size:13px }
+.chip.selected{ background:linear-gradient(90deg,var(--primary-start),var(--primary-end)); color:#fff }
+
+.price-text{ margin-top:8px; color:var(--muted) }
+
+.map-ph{ height:90px; background:#f2f2f2; border-radius:8px; border:1px dashed #ddd; display:flex; align-items:center; justify-content:center; color:#aaa }
+.drop-zone{ height:160px; background:#f2f2f2; border-radius:8px; border:1px dashed #ddd; display:flex; align-items:center; justify-content:center; color:#888; margin-top:12px }
+.previews{ display:flex; gap:8px; margin-top:12px }
+.previews img{ width:100px; height:70px; object-fit:cover; border-radius:6px }
+
+.summary.card-lite{ background:#f8fbff; padding:12px; border-radius:8px; border:1px solid #e8eef8 }
+.summary-title{ font-weight:800; margin-bottom:8px }
+
+.actions{ display:flex; gap:12px; justify-content:flex-end; margin-top:20px }
+.actions .btn{ min-width:110px }
+.btn-outline{ background:#fff; border:1px solid #dcdcdc; padding:10px 14px; border-radius:8px }
+
+.boton-gradientm{ display:inline-flex; align-items:center; gap:8px }
+
+@media(max-width:899px){ .actions{ justify-content:center } }
+
+
+.create-place-page{ min-height:100vh; display:flex; flex-direction: column; background:linear-gradient(180deg,#0f4db2 0%, #b067ff 100%); }
+.create-place-page .container{  max-width:1400px; margin: auto }
+
+/* Header */
+.heading{ display:flex; align-items:center; gap:12px; color:#fff; margin-bottom:8px; }
+.heading h2{ font-weight:800; letter-spacing:.3px; margin:0; }
+.title-icon{ font-size:40px; }
+
+/* Stepper estilo barra de progreso segmentada */
+/* STEPper — versión única y estable */
+.card.wizard .stepper{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:18px;
+  margin:0 0 20px;              /* evita márgenes negativos */
+}
+
+.card.wizard .stepper .step{
+  position:relative;
+  text-align:center;
+  font-size:12px;
+  color:#000000;
+  padding-top:18px;             /* espacio para el texto */
+  background:none;              /* nada detrás */
+}
+
+/* Barra base gris */
+.card.wizard .stepper .step::before{
+  content:"";
+  position:absolute;
+  left:12%;
+  right:12%;
+  top:0;
+  height:8px;
+  border-radius:999px;
+  background-color:#e8e8e8;     /* SOLO color */
+  background-image:none;        /* limpia imágenes previas */
+  transition:background-color .2s ease, box-shadow .2s ease, opacity .2s ease;
+}
+
+/* Activo/completado: fuerza el gradiente encima del card */
+.card.wizard .stepper .step.active::before{
+  background-color:transparent;
+  background-image:linear-gradient(90deg,var(--primary-start),var(--primary-end)) !important;
+  box-shadow:0 0 10px rgba(176,103,255,.35);
+}
+
+
+/* Card */
+.card.wizard{ min-height: 570px; border-radius:22px; border:1px solid rgba(255,255,255,.5); overflow:hidden; background:#fff; box-shadow:0 14px 40px rgba(0,0,0,.12); position:relative; z-index:2 }
+.card .card-body{ padding:28px; }
+
+/* Grid utilitaria */
+.grid{ display:grid; grid-template-columns:repeat(12,1fr); gap:18px; }
+.col-span-12{ grid-column:span 12; }
+.col-lg-8{ grid-column:span 12; }
+.col-lg-4{ grid-column:span 12; }
+@media (min-width: 992px){ .col-lg-8{ grid-column:span 8; } .col-lg-4{ grid-column:span 4; } }
+
+/* Labels e inputs */
+.form-label{ font-size:13px; letter-spacing:.5px; font-weight:700; color:#222; margin-bottom:8px; }
+.form-control, textarea{ background:#fff; border:1px solid #cfd4dc; border-radius:10px; padding:.75rem 1rem; }
+.form-control:focus, textarea:focus{ border-color:var(--primary-end); box-shadow:0 0 0 .2rem rgba(176,103,255,.15); outline:none; }
+
+/* Counter */
+.counter{ display:inline-flex; align-items:center; gap:10px; border:1px solid #cfd4dc; border-radius:12px; padding:6px 10px; background:#fff; }
+.counter button{ width:34px; height:34px; border-radius:10px; border:1px solid #cfd4dc; background:#fff; font-size:18px; }
+.counter .value{ width:40px; text-align:center; font-weight:700; }
+
+/* Map placeholder */
+.map-ph{ height:120px; border:1px dashed #cfd4dc; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#9aa4b2; background:#f6f7fb; }
+
+/* Amenities chips */
+.amenities-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+@media (min-width: 768px){ .amenities-grid{ grid-template-columns:repeat(4,1fr); } }
+.amenity{ display:flex; align-items:center; justify-content:flex-start; gap:8px; padding:12px 16px; border-radius:12px; background:#fff; border:1px solid #cfd4dc; font-weight:700; position: relative; }
+.amenity .check{ margin-left:auto; font-size:20px; }
+.amenity.active{ border:none; color:#fff; background:linear-gradient(90deg,var(--primary-start),var(--primary-end)); box-shadow:0 10px 22px rgba(23,118,210,.22); }
+.amenity.active .material-symbols-rounded{ color:#fff; }
+
+/* Chips estados */
+.chip.selected{ background:#e6f4ea; border:1px solid #a6d8b5; color:#0f5132; }
+
+/* Actions fixes: asegurar que el botón sea visible sobre el fondo */
+.actions .btn.btn-gradient{ color:#fff; }
+
+/* Summary */
+.card-lite{ border:1px solid #cfd4dc; border-radius:12px; padding:14px; background:#f8faff; }
+.summary-title{ font-weight:800; margin-bottom:8px; }
+.summary-item{ margin-bottom:8px; color:#222; }
+.summary-sub{ font-weight:700; margin-bottom:6px; }
+.chips{ display:flex; flex-wrap:wrap; gap:8px; }
+.chip{ background:#e9edf9; border:1px solid #c9d3ff; border-radius:999px; padding:4px 10px; font-size:12px; }
+
+/* Actions */
+.actions{ display:flex; justify-content:space-between; gap:12px; margin-top:18px; }
+.btn{ border-radius:12px; padding:.7rem 1.2rem; font-weight:700; }
+.btn-outline{ background:#fff; border:1px solid #cfd4dc; }
+.btn-primary.gradient{ background:linear-gradient(135deg,var(--primary-start),var(--primary-end)); border:none; color:#fff; }
+.create-place-page footer,
+.create-place-page .app-footer,
+.create-place-page .footer {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+:root {
+  --primary-start: #004aad;
+  --primary-end: #cb6ce6;
+  --card-bg: #ffffff;
+}
+
+/* Fondo del page (mismo gradiente que el header) */
+.create-place-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(90deg, var(--primary-start, #004aad), var(--primary-end, #cb6ce6)) !important;
+  padding: 36px 0 60px;
+}
+
+/* Asegura que el container no pinte un fondo blanco sobre el gradiente */
+.create-place-page > .container,
+.create-place-page .container {
+  background: transparent !important;
+}
+
+/* Mantener la tarjeta blanca encima del gradiente */
+
+.card.wizard .stepper .step.active::before{
+  /* ... */
+  background: none !important; /* limpia shorthand de alguna regla previa */
+  background-image:linear-gradient(90deg,var(--primary-start),var(--primary-end)) !important;
+}
+.card.wizard .stepper .step .bar{
+  position:absolute; left:12%; right:12%; top:0;
+  height:10px; border-radius:999px; background:#e8e8e8;
+  overflow:hidden; /* recorta el fill dentro de la pastilla */
+}
+
+/* el relleno con gradiente vive en su propio elemento */
+.card.wizard .stepper .step .bar .fill{
+  position:absolute; inset:0; display:block; border-radius:inherit;
+  background-image: linear-gradient(90deg,  #5170ff, #ff66c4);
+  /* por si alguna regla pone backgrounds raros */
+  background-color: transparent !important;
+}
+
+/* sólo mostramos el fill cuando está activo / done */
+.card.wizard .stepper .step:not(.active):not(.done) .bar .fill{ display:none; }
+
+/* glow opcional */
+.card.wizard .stepper .step.active .bar .fill,
+.card.wizard .stepper .step.done .bar .fill{
+  box-shadow: 0 0 12px rgba(81,112,255,.28);
+}
+.card.wizard .stepper .step .bar .fill{
+  transition: opacity .25s ease, box-shadow .25s ease;
+}
+.card.wizard .stepper .step:hover .bar .fill{
+  opacity:.95;
+  box-shadow:0 0 16px rgba(81,112,255,.35);
+}
+
+/* 2) Diferenciar “done” vs “active” (active un poco más intenso) */
+.card.wizard .stepper .step.done .bar .fill{
+  filter: saturate(0.9);
+}
+.card.wizard .stepper .step.active .bar .fill{
+  filter: saturate(1.1);
+}
+
+/* 3) Accesibilidad: respetar reduce motion */
+@media (prefers-reduced-motion: reduce){
+  .card.wizard .stepper .step .bar .fill{ transition:none; }
+}
+
+
+/* 2) Fuente global */
+html{
+  font-family: "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell,
+  "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji",
+  "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+/* 3) Asegura herencia en elementos de formulario y botones */
+body, input, select, textarea, button,
+.btn, .form-control, .form-label {
+  font-family: inherit !important;
+}
+
+/* 4) Mantén los íconos de Material Symbols sin afectar */
+.material-symbols-rounded{
+  font-family: "Material Symbols Rounded" !important;
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* (Opcional) títulos unificados con weight 600, como tu guía */
+h1, h2, h3, .h1, .h2, .h3 { font-weight: 600; }
+
+/*
+
+ */
+
+/*
+
+ */
+:root{
+  --step-start:#ff66c4;
+  --step-end:#5170ff;
+}
+
+/* Amenity base */
+.amenity{
+  position: relative;
+  overflow: hidden;
+  background:#fff;
+  border:1px solid #cfd4dc;
+  transition: box-shadow .2s ease, border-color .2s ease, color .2s ease, background .2s ease;
+  -webkit-appearance:none; appearance:none;
+}
+
+/* Capa de gradiente (detrás del contenido) */
+.amenity .fill{
+  position:absolute; inset:0;
+  border-radius: inherit;
+  background-image: linear-gradient(90deg, var(--step-start), var(--step-end));
+  opacity:0;                                   /* oculta por defecto */
+  pointer-events:none;
+  z-index:0;
+  transition: opacity .25s ease, filter .25s ease, box-shadow .25s ease;
+}
+
+/* Asegurar que el contenido quede arriba del gradiente */
+.amenity > *:not(.fill){ position:relative; z-index:1; }
+
+/* Estado ACTIVO: se muestra el gradiente */
+.amenity.active{
+  background: transparent !important;          /* por si algo pone blanco */
+  border-color: transparent !important;
+  box-shadow: 0 10px 22px rgba(81,112,255,.22);
+  color:#fff !important;
+}
+.amenity.active .fill{ opacity:1; filter:saturate(1.05); }
+.amenity.active .material-symbols-rounded,
+.amenity.active .amenity-label,
+.amenity.active .check{ color:#fff !important; }
+
+/* (Opcional) Hover sutil */
+.amenity:hover{ box-shadow: 0 6px 16px rgba(0,0,0,.06); }
+
+/* Chips “Servicios seleccionados” con misma técnica */
+.chip.selected{
+  position:relative; overflow:hidden;
+  border:none !important; color:#fff !important;
+  background: transparent !important;
+}
+.chip.selected::after{
+  content:""; position:absolute; inset:0; border-radius:999px;
+  background-image: linear-gradient(90deg, var(--step-start), var(--step-end));
+  z-index:0;
+}
+.chip.selected > *{ position:relative; z-index:1; }
+
+
+.amenity,
+.amenity *:not(.fill){
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Reafirma el gradiente del fill (gana a lo anterior) */
+.amenity .fill{
+  position:absolute; inset:0; border-radius:inherit;
+  background-image: linear-gradient(90deg, #ff66c4, #5170ff) !important;
+  opacity:0; pointer-events:none; z-index:1;
+  transition: opacity .25s ease, filter .25s ease, box-shadow .25s ease;
+}
+
+/* Contenido por encima del fill */
+.amenity > *:not(.fill){ position:relative; z-index:2; }
+
+/* Activo: muestra el gradiente */
+.amenity.active{
+  border-color: transparent !important;
+  box-shadow: 0 10px 22px rgba(81,112,255,.22);
+  color:#fff !important;
+}
+.amenity.active .fill{ opacity:1; filter:saturate(1.05); }
+.amenity.active .material-symbols-rounded,
+.amenity.active .amenity-label,
+.amenity.active .check{ color:#fff !important; }
+
+
+:root{ --step-start:#ff66c4; --step-end:#5170ff; }
+
+/* Reset con mayor especificidad dentro del wizard */
+.card.wizard .card-body .chips .chip,
+.card.wizard .card-body .chips .chip.selected{
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Layout + stacking para los nuevos chips */
+.chips .gchip{
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  position: relative;
+  isolation: isolate;           /* asegura z-index interno */
+  overflow: hidden;
+  padding: .35rem .6rem;
+  border-radius: 999px;
+  line-height: 1;
+  color: #fff !important;       /* texto blanco sobre gradiente */
+}
+
+/* Capa de fondo real (no pseudo) con el gradiente */
+.chips .gchip .fill{
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 0;
+  background-image: linear-gradient(90deg, var(--step-start), var(--step-end)) !important;
+}
+
+/* Contenido por encima del gradiente */
+.chips .gchip > *:not(.fill){ position: relative; z-index: 1; }
+.chips .gchip .material-symbols-rounded{ color:#fff !important; }
+
+gchip{
+  display: inline-flex !important;
+  align-items: center;
+  gap: .35rem;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: .35rem .6rem;
+  border-radius: 999px;
+  line-height: 1;
+  color: #fff !important;
+}
+
+/* 2) Capa de fondo real con el gradiente */
+.card.wizard .card-body .chips .gchip .fill{
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 0;
+  background-image: linear-gradient(90deg, var(--step-start), var(--step-end)) !important;
+}
+
+/* 3) Contenido por encima del gradiente */
+.card.wizard .card-body .chips .gchip > *:not(.fill){
+  position: relative; z-index: 1;
+}
+.card.wizard .card-body .chips .gchip .material-symbols-rounded{
+  color:#fff !important;
+}
+.card.wizard .card-body .chips .chip.gchip.selected{
+  display: inline-flex !important;
+  align-items: center;
+  gap: .35rem;
+  padding: .35rem .6rem;
+  border-radius: 999px;
+
+  /* mata cualquier fondo previo y PINTA el gradiente */
+  background-image: linear-gradient(90deg, #ff66c4, #5170ff) !important;
+  background-color: transparent !important;
+  border: none !important;
+
+  color: #fff !important;
+  line-height: 1;
+}
+
+/* asegura el color del icono/check */
+.card.wizard .card-body .chips .chip.gchip.selected .material-symbols-rounded{
+  color:#fff !important;
+}
+/* Título con icono */
+.step-photos .section-title{
+  display:flex; align-items:center; gap:8px;
+  font-weight:800; font-size:18px; margin-bottom:10px;
+}
+.step-photos .section-title .material-symbols-rounded{ font-size:22px; }
+
+/* Input file simple pero limpio */
+.step-photos .uploader input[type="file"]{
+  display:block; width:100%;
+  border:1.5px solid #cfd4dc; border-radius:10px;
+  padding:.7rem 1rem; background:#fff;
+}
+
+/* Drop zone amplia y suave */
+.step-photos .drop-zone{
+  height:220px; border:1.5px dashed #cfd4dc; border-radius:12px;
+  background:#f3f5f9; color:#6b7280;
+  display:flex; align-items:center; justify-content:center;
+  margin-top:12px;
+}
+
+/* Card Resumen: fondo azulado y bordes suaves */
+.summary.card-lite{
+  background:#f8fbff; border:1px solid #e3e9ff;
+  border-radius:14px; padding:16px 18px;
+  box-shadow:0 10px 22px rgba(23,118,210,.06);
+  overflow-wrap: break-word; word-break: normal;   /* evita cortes raros */
+}
+.summary-title{ font-weight:800; margin-bottom:8px; }
+.summary-item{ margin-bottom:8px; }
+
+/* Chips del Resumen: pastillas claras (no gradiente) */
+.summary .chips{ display:flex; flex-wrap:wrap; gap:8px; }
+.summary .chips .chip{
+  background:#eef2ff !important;
+  border:1px solid #d8e0ff !important;
+  color:#1f2937 !important;
+  border-radius:999px; padding:.3rem .6rem; font-weight:600;
+}
+
+/* Mantén el panel fijo en desktop como la referencia */
+@media (min-width: 992px){
+  .summary.sticky{ position:sticky; top:90px; }
+}
+
+/* Previews un poco más prolijas (opcional) */
+.previews{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+.previews img{ width:120px; height:80px; object-fit:cover; border-radius:8px; }
+
+/*imagenes dentro del drop zone*/
+.step-photos .drop-zone{
+  min-height: 220px;
+  border: 1.5px dashed #cfd4dc;
+  border-radius: 12px;
+  background:#f3f5f9;
+  color:#6b7280;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  margin-top: 12px;
+  position: relative;
+}
+
+/* Cuando hay previews, el recuadro deja de centrar y muestra grilla */
+.step-photos .drop-zone.has-previews{
+  display: block;
+  padding: 14px;
+  color: inherit;
+}
+
+/* Mensaje placeholder */
+.step-photos .drop-zone .dz-hint{
+  user-select: none;
+  opacity: .8;
+}
+
+/* Grid de miniaturas dentro del recuadro */
+.step-photos .drop-zone .previews{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+}
+
+/* Tarjeta de miniatura */
+.step-photos .drop-zone .thumb{
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px rgba(0,0,0,.06);
+}
+
+/* Imagen cover */
+.step-photos .drop-zone .thumb img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Botón eliminar */
+.step-photos .drop-zone .thumb-remove{
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 50%;
+  background: #ffffffee;
+  cursor: pointer;
+  line-height: 1;
+  font-weight: 700;
+}
+.step-photos .drop-zone .dz-badge{
+  position:absolute; top:8px; right:10px;
+  font-weight:700; font-size:12px;
+  background:#fff; border:1px solid #cfd4dc; border-radius:999px;
+  padding:2px 8px; box-shadow:0 1px 2px rgba(0,0,0,.05);
+}
+
+/* Estado dragover (enfatiza el borde) */
+.step-photos .drop-zone.dragover{
+  background:#eef3ff;
+  border-color: transparent;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(0,74,173,.22);
+}
+
+/* Thumbs un poco más amplias y limpias */
+.step-photos .drop-zone .previews{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap:12px;
+}
+.step-photos .drop-zone .thumb{
+  position:relative;
+  aspect-ratio: 1 / 1;
+  border-radius:10px;
+  overflow:hidden;
+  background:#fff;
+  border:1px solid #e2e8f0;
+  box-shadow:0 1px 2px rgba(0,0,0,.06);
+}
+.step-photos .drop-zone .thumb img{
+  width:100%; height:100%; object-fit:cover; display:block;
+}
+.step-photos .drop-zone .thumb-remove{
+  position:absolute; top:6px; right:6px;
+  width:26px; height:26px; border:0; border-radius:50%;
+  background:#ffffffee; cursor:pointer; line-height:1; font-weight:700;
+}
+.step-photos .drop-zone .thumb-remove:hover{ transform:scale(1.06); }
+
+.aside.sticky{
+  position: sticky;
+  top: 90px;
+  display: grid;
+  gap: 12px;
+}
+
+/* Unifica estilo de cards derechas */
+.aside .card-lite{
+  background:#f8fbff;
+  border:1px solid #e3e9ff;
+  border-radius:14px;
+  padding:16px 18px;
+  box-shadow:0 10px 22px rgba(23,118,210,.06);
+}
+
+/* Chips de servicios en la segunda card */
+.services-card .chips{
+  display:flex; flex-wrap:wrap; gap:8px;
+}
+.services-card .chip{
+  background:#eef2ff !important;
+  border:1px solid #d8e0ff !important;
+  color:#1f2937 !important;
+  border-radius:999px; padding:.3rem .6rem; font-weight:600;
+}
+.services-card .chip.muted{
+  opacity:.7;
+}
+
+@media (min-width: 992px){
+  .col-lg-7{ grid-column: span 7; }
+  .col-lg-5{ grid-column: span 5; }
+}

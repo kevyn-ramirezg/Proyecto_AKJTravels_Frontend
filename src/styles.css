@@ -1,34 +1,52 @@
-/* (ya lo tienes) Material Symbols */
+/* Bootstrap */
 @import 'bootstrap/dist/css/bootstrap.min.css';
 
+/* Google Fonts: Poppins (para la app) + Material Symbols (iconos) */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
 
+/* Fuente global de la app */
+body {
+  font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell,
+  'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji',
+  'Segoe UI Symbol', 'Noto Color Emoji';
+  font-weight: 400;
+}
+
+/* Material Symbols (no se ven afectados por Poppins) */
 .material-symbols-rounded {
   font-family: 'Material Symbols Rounded';
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
 }
 .material-symbols-rounded.filled { font-variation-settings: 'FILL' 1; }
 
-/* === VALIDACIÓN Angular + Bootstrap (de la guía) === */
-.form-control.ng-dirty {
-  padding-right: 2rem;
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 1rem;
+/* === VALIDACIÓN Angular + Bootstrap (SIN ICONOS en toda la app) === */
+.form-control.ng-dirty,
+.form-control.ng-touched {
+  background-image: none !important;      /* sin checks ni iconos */
+  background-position: initial !important;
+  background-size: initial !important;
+  padding-right: .75rem !important;        /* quita el espacio extra */
   transition: border-color .2s ease, box-shadow .2s ease;
 }
 
-.form-control.ng-invalid.ng-dirty {
-  border-color: var(--bs-form-invalid-border-color);
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545'/%3e%3c/svg%3e");
+/* Inválido: deja solo el borde rojo (sin íconos ni brillos) */
+.form-control.ng-invalid.ng-dirty,
+.form-control.ng-invalid.ng-touched {
+  background-image: none !important;
+  border-color: var(--bs-form-invalid-border-color) !important;
+  box-shadow: none !important;
 }
 
-.form-control.ng-valid.ng-dirty {
-  border-color: var(--bs-form-valid-border-color);
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23198754' viewBox='0 0 8 8'%3e%3cpath d='M2.3 6.7.6 4.5c-.4-1 .5-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.6 1.6-.3 1.2.7l-4 4.6c-.4.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+/* Válido: sin íconos ni borde verde */
+.form-control.ng-valid.ng-dirty,
+.form-control.ng-valid.ng-touched {
+  background-image: none !important;
+  border-color: inherit !important;  /* evita borde verde */
+  box-shadow: none !important;
 }
 
-/* === Tu botón gradiente para usar JUNTO a .btn y .btn-primary === */
+/* === Botón gradiente (reutilizable con .btn .btn-primary) === */
 .btn-gradient{
   /* anula el fondo de .btn-primary de Bootstrap */
   --bs-btn-bg: transparent;
@@ -37,13 +55,13 @@
   --bs-btn-active-bg: transparent;
   --bs-gradient: none;
 
-  background-image: linear-gradient(90deg, #004aad, #cb6ce6) !important; /* o usa tus vars */
+  background-image: linear-gradient(90deg, #004aad, #cb6ce6) !important;
   color:#fff !important;
   border: none !important;
   box-shadow: 0 8px 16px rgba(0,0,0,.12);
   border-radius: 10px !important;
   padding: 12px 28px;
-  font-weight: 800;
+  font-weight: 700; /* acorde a Poppins */
   transition: transform .04s, box-shadow .2s, filter .2s;
   display: inline-flex;           /* alinea icono + texto bonito */
   align-items: center;
@@ -57,7 +75,23 @@
 .btn-gradient:active{
   filter: brightness(0.98);
 }
-.btn-gradient:disabled{
-  opacity: .65;
+
+/* === Estado DESHABILITADO: gris claro (sin gradiente) === */
+.btn-gradient:disabled,
+.btn-gradient[disabled],
+.btn-gradient.disabled{
+  background-image: none !important;
+  background-color: #e9ecef !important;   /* gris claro */
+  color: #9aa0a6 !important;               /* texto gris */
+  border-color: transparent !important;
+  box-shadow: none !important;
   cursor: not-allowed;
+  transform: none !important;
+  filter: none !important;
+}
+.btn-gradient:disabled:hover,
+.btn-gradient:disabled:active{
+  background-image: none !important;
+  background-color: #e9ecef !important;
+  color: #9aa0a6 !important;
 }

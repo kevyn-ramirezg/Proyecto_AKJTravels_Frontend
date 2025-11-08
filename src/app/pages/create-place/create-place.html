@@ -1,49 +1,214 @@
-<form [formGroup]="createPlaceForm" (ngSubmit)="createPlace()" novalidate="">
+<div class="create-place-page">
+  <div class="container pt-5 pb-5">
 
-  <div>
-    <label>Título: </label>
-    <input type="text" formControlName="title" />
+    <!-- Header -->
+    <div class="heading">
+      <span class="material-symbols-rounded filled title-icon">bed</span>
+      <h2>Registra tu alojamiento</h2>
+    </div>
+
+    <!-- Stepper -->
+
+
+    <div class="card wizard">
+      <div class="card-body">
+        <div class="stepper">
+          <div class="step" [class.done]="0 < step" [class.active]="0 === step">
+            <span class="bar" aria-hidden="true"><span class="fill"></span></span>
+            <span class="label">Info básica</span>
+          </div>
+          <div class="step" [class.done]="1 < step" [class.active]="1 === step">
+            <span class="bar" aria-hidden="true"><span class="fill"></span></span>
+            <span class="label">Ubicación</span>
+          </div>
+
+          <div class="step" [class.done]="2 < step" [class.active]="2 === step">
+            <span class="bar" aria-hidden="true"><span class="fill"></span></span>
+            <span class="label">Servicios</span>
+          </div>
+
+          <div class="step" [class.done]="3 < step" [class.active]="3 === step">
+            <span class="bar" aria-hidden="true"><span class="fill"></span></span>
+            <span class="label">Imágenes y resumen</span>
+          </div>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+          <!-- PASO 0: Info básica -->
+          @if (step === 0) {
+            <div class="grid">
+              <div class="col-span-12">
+                <label class="form-label" for="title">Nombre del alojamiento</label>
+                <input id="title" class="form-control" type="text" placeholder="Ej. ApartaHotel AKJA Centro" formControlName="title" />
+              </div>
+
+              <div class="col-span-12">
+                <label class="form-label">Capacidad máxima</label>
+                <div class="counter">
+                  <button type="button" (click)="decGuests()">−</button>
+                  <div class="value">{{ form.value.guests }}</div>
+                  <button type="button" (click)="incGuests()">+</button>
+                </div>
+              </div>
+
+              <div class="col-span-12">
+                <label class="form-label" for="description">Descripción detallada</label>
+                <textarea id="description" class="form-control" rows="5" placeholder="Cuéntale a tus huéspedes qué hace único tu espacio..." formControlName="description"></textarea>
+              </div>
+            </div>
+          }
+
+          <!-- PASO 1: Ubicación -->
+          @if (step === 1) {
+            <div class="grid">
+              <div class="col-span-12">
+                <label class="form-label" for="street">Dirección</label>
+                <input id="street" class="form-control" type="text" placeholder="Calle 10 norte # 18-71" formControlName="street" />
+              </div>
+              <div class="col-span-12">
+                <label class="form-label" for="city">Ciudad</label>
+                <input id="city" class="form-control" type="text" placeholder="Armenia, Quindío" formControlName="city" />
+              </div>
+              <div class="col-span-12">
+                <label class="form-label">Mapa (placeholder)</label>
+                <div class="map-ph">aquí irá el selector de ubicación / pin.</div>
+              </div>
+            </div>
+          }
+
+          <!-- PASO 2: Servicios -->
+          @if (step === 2) {
+            <div class="grid">
+              <div class="col-span-12">
+                <label class="form-label" for="services">Selecciona los servicios incluidos</label>
+                <div class="amenities-grid">
+                  <button type="button"
+                          class="amenity"
+                          *ngFor="let s of servicesList; index as i"
+                          [class.active]="amenityActive(i)"
+                          (click)="toggleAmenity(i)"
+                          [attr.aria-pressed]="amenityActive(i)">
+
+                    <span class="fill" aria-hidden="true"></span>  <!-- capa de gradiente -->
+
+                    <span class="material-symbols-rounded me-2">{{ s.icon }}</span>
+                    <span class="amenity-label">{{ s.label }}</span>
+                    <span class="material-symbols-rounded check" *ngIf="amenityActive(i)">check</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-span-12" *ngIf="hasSelectedAmenities()">
+                <div class="form-label">Servicios seleccionados</div>
+                <div class="chips">
+                  <ng-container *ngFor="let s of servicesList; index as i">
+                  <span class="chip gchip selected" *ngIf="amenityActive(i)">
+                    <span class="fill" aria-hidden="true"></span>
+                      <span class="material-symbols-rounded me-1">check</span>{{ s.label }}
+                     </span>
+                  </ng-container>
+                </div>
+              </div>
+
+              <div class="col-span-12">
+                <label class="form-label" for="placeType">Tipo de alojamiento</label>
+                <select id="placeType" class="form-control" formControlName="placeType">
+                  <option *ngFor="let t of placeTypes" [value]="t">{{ t | titlecase }}</option>
+                </select>
+              </div>
+
+              <div class="col-span-12">
+                <label class="form-label" for="pricePerNight">Precio por noche</label>
+                <input id="pricePerNight" type="range" min="50000" max="2000000" step="5000" formControlName="pricePerNight" />
+                <div class="price-text">Precio: <strong>{{ currencyCOP(form.value.pricePerNight) }}</strong></div>
+              </div>
+            </div>
+          }
+
+          <!-- PASO 3: Fotos y resumen -->
+          @if (step === 3) {
+            <div class="grid">
+
+              <!-- Galería (col izquierda) -->
+              <div class="col-span-12 col-lg-7 step-photos">
+                <div class="section-title label-caps">
+                  <span class="material-symbols-rounded">image</span>
+                  Galería (máx 10)
+                </div>
+
+                <div class="uploader">
+                  <input class="form-control file-42"
+                         type="file"
+                         multiple
+                         accept="image/*"
+                         (change)="onFilesSelected($event)" />
+                </div>
+
+                <div class="drop-zone"
+                     [class.has-previews]="previews.length > 0"
+                     [class.dragover]="isDragOver"
+                     (dragover)="onDragOver($event)"
+                     (dragleave)="onDragLeave($event)"
+                     (drop)="onDrop($event)">
+                  <span class="dz-badge">{{ previews.length }}/10</span>
+
+                  <ng-container *ngIf="!previews.length; else thumbs">
+                    <span class="dz-hint">Sube o arrastra imágenes aquí</span>
+                  </ng-container>
+
+                  <ng-template #thumbs>
+                    <div class="previews">
+                      <div class="thumb" *ngFor="let src of previews; let i = index">
+                        <img [src]="src" alt="preview {{ i + 1 }}" />
+                        <button type="button" class="thumb-remove" (click)="remove(i)" aria-label="Eliminar imagen">×</button>
+                      </div>
+                    </div>
+                  </ng-template>
+                </div>
+              </div> <!-- 👈 CERRAR la columna izquierda -->
+
+              <!-- Columna derecha -->
+              <div class="col-span-12 col-lg-5">
+                <aside class="aside sticky">
+                  <!-- Card: Resumen -->
+                  <div class="card-lite summary">
+                    <div class="summary-title">Resumen</div>
+                    <div class="summary-item">
+                      <strong>{{ form.value.title || 'Alojamiento sin nombre' }}</strong>
+                    </div>
+                    <div class="summary-item">
+                      {{ form.value.placeType | titlecase }} – {{ form.value.guests }} huéspedes
+                    </div>
+                    <div class="summary-item">{{ form.value.city || 'Armenia' }}</div>
+                    <div class="summary-item">{{ currencyCOP(form.value.pricePerNight) }} / noche</div>
+                  </div>
+
+                  <!-- Card: Servicios incluidos -->
+                  <div class="card-lite services-card">
+                    <div class="summary-title">Servicios incluidos</div>
+                    <div class="chips">
+                      <ng-container *ngFor="let s of servicesList; index as i">
+                        <span class="chip" *ngIf="amenityActive(i)">{{ s.label }}</span>
+                      </ng-container>
+                      <span class="chip muted" *ngIf="!hasSelectedAmenities()">Sin servicios seleccionados</span>
+                    </div>
+                  </div>
+                </aside>
+              </div>
+
+            </div>
+          }
+
+          <!-- Footer actions -->
+          <div class="actions">
+            <button type="button" class="btn btn-outline" (click)="back()" [disabled]="step===0">Atrás</button>
+            <button class="btn btn-gradient" type="submit" [disabled]="!canNext()">
+              {{ step < 3 ? 'Siguiente' : 'Guardar' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
-
-  <div>
-    <label>Descripción: </label>
-    <textarea formControlName="description">
-
-    </textarea>
-  </div>
-
-  <div>
-    <label>Ciudad: </label>
-    <select formControlName="city">
-        <option value="" disabled> Seleccione una ciudad</option>
-        <option *ngFor="let item of cities" [value]="item">{{item}}</option>
-    </select>
-  </div>
-
-  <div>
-    <label>Dirección: </label>
-    <input type="text" formControlName="address" />
-  </div>
-
-  <div>
-    <label>Ubicación: </label>
-    <input type="text" formControlName="location" />
-  </div>
-
-  <div>
-    <label>Precio por noche: </label>
-    <input type="number" formControlName="pricePerNight"/>
-  </div>
-
-  <div>
-    <label>Máximo de huéspedes: </label>
-    <input type="number" formControlName="maxGuests" />
-  </div>
-
-  <div>
-    <label>Imágenes del alojamiento: </label>
-    <input type="file" multiple (change)="onFileChange($event)" />
-  </div>
-
-  <button type="submit" [disabled]="createPlaceForm.invalid">Crear alojamiento</button>
-</form>
+</div>

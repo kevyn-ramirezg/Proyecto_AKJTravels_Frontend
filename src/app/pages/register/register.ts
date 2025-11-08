@@ -23,7 +23,7 @@ export class Register {
       surname: ['', [Validators.maxLength(60)]],
       phone: ['', [
         Validators.required,
-        Validators.pattern(/^\d{7,10}$/)   // 7–10 dígitos
+        Validators.pattern(/^\d{7,10}$/) // 7–10 dígitos
       ]],
       photoUrl: [''],
       dateBirth: ['', [Validators.required]],
@@ -43,6 +43,6 @@ export class Register {
   public createUser(): void {
     if (this.registerForm.invalid) return;
     console.log(this.registerForm.value);
-    // TODO: llamar a tu servicio de registro aquí
+    // TODO: servicio de registro
   }
 }
