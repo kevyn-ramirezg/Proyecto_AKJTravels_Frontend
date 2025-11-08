@@ -8,6 +8,7 @@ import { CreatePlaceDTO } from '../model/create-place-dto';
 import { EditPlaceDTO } from '../model/edit-place-dto';
 import { ListPlaceDTO } from '../model/list-place-dto';
 import {PlaceDTO} from '../model/place-dto';
+import * as sweetalert2 from 'sweetalert2';
 
 @Injectable({ providedIn: 'root' })
 export class PlacesApiService {

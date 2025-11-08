@@ -33,7 +33,7 @@
           </div>
         </div>
 
-        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <form [formGroup]="createPlaceForm" (ngSubmit)="submit()" novalidate>
 
           <!-- PASO 0: Info básica -->
           @if (step === 0) {
@@ -47,7 +47,7 @@
                 <label class="form-label">Capacidad máxima</label>
                 <div class="counter">
                   <button type="button" (click)="decGuests()">−</button>
-                  <div class="value">{{ form.value.guests }}</div>
+                  <div class="value">{{ createPlaceForm.value.guests }}</div>
                   <button type="button" (click)="incGuests()">+</button>
                 </div>
               </div>
@@ -71,8 +71,8 @@
                 <input id="city" class="form-control" type="text" placeholder="Armenia, Quindío" formControlName="city" />
               </div>
               <div class="col-span-12">
-                <label class="form-label">Mapa (placeholder)</label>
-                <div class="map-ph">aquí irá el selector de ubicación / pin.</div>
+                <label class="form-label">Ubicación: </label>
+                <div id="map"></div>
               </div>
             </div>
           }
@@ -121,7 +121,7 @@
               <div class="col-span-12">
                 <label class="form-label" for="pricePerNight">Precio por noche</label>
                 <input id="pricePerNight" type="range" min="50000" max="2000000" step="5000" formControlName="pricePerNight" />
-                <div class="price-text">Precio: <strong>{{ currencyCOP(form.value.pricePerNight) }}</strong></div>
+                <div class="price-text">Precio: <strong>{{ currencyCOP(createPlaceForm.value.pricePerNight) }}</strong></div>
               </div>
             </div>
           }
@@ -175,13 +175,13 @@
                   <div class="card-lite summary">
                     <div class="summary-title">Resumen</div>
                     <div class="summary-item">
-                      <strong>{{ form.value.title || 'Alojamiento sin nombre' }}</strong>
+                      <strong>{{ createPlaceForm.value.title || 'Alojamiento sin nombre' }}</strong>
                     </div>
                     <div class="summary-item">
-                      {{ form.value.placeType | titlecase }} – {{ form.value.guests }} huéspedes
+                      {{ createPlaceForm.value.placeType | titlecase }} – {{ createPlaceForm.value.guests }} huéspedes
                     </div>
-                    <div class="summary-item">{{ form.value.city || 'Armenia' }}</div>
-                    <div class="summary-item">{{ currencyCOP(form.value.pricePerNight) }} / noche</div>
+                    <div class="summary-item">{{ createPlaceForm.value.city || 'Armenia' }}</div>
+                    <div class="summary-item">{{ currencyCOP(createPlaceForm.value.pricePerNight) }} / noche</div>
                   </div>
 
                   <!-- Card: Servicios incluidos -->

@@ -1,6 +1,10 @@
-import { Component } from '@angular/core';
+import {Component, OnInit, OnDestroy, ChangeDetectorRef} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Subscription } from 'rxjs';
+
+// ⬇️ Ajusta esta ruta a la real en tu proyecto
+import { MapService } from '../../services/map-service';
 
 interface ServiceItem { code: string; label: string; icon?: string }
 
@@ -11,15 +15,17 @@ interface ServiceItem { code: string; label: string; icon?: string }
   templateUrl: './create-place.html',
   styleUrls: ['./create-place.css']
 })
-export class CreatePlace {
-  form!: FormGroup;
-  step = 0; // 0: info, 1: ubicacion, 2: servicios, 3: fotos/precio
+export class CreatePlace implements OnInit, OnDestroy {
+  createPlaceForm!: FormGroup;
+  private markerSub?: Subscription;
+  private mapCreatedForStep1= false;
+  step = 0;// 0: info, 1: ubicacion, 2: servicios, 3: fotos/precio
 
   placeTypes: string[] = ['APARTMENT', 'HOUSE', 'FARM'];
 
   // Enum Services del backend
   servicesList: ServiceItem[] = [
-    { code: 'WIFI', label: 'Wi‑Fi', icon: 'wifi' },
+    { code: 'WIFI', label: 'Wi-Fi', icon: 'wifi' },
     { code: 'BREAKFAST_INCLUDED', label: 'Desayuno', icon: 'restaurant' },
     { code: 'AIR_CONDITIONING', label: 'Aire acondicionado', icon: 'ac_unit' },
     { code: 'POOL', label: 'Piscina', icon: 'pool' },
@@ -33,22 +39,26 @@ export class CreatePlace {
 
   previews: string[] = [];
   isDragOver = false;
-  files:File[] = [];
+  files: File[] = [];
 
-  constructor(private fb: FormBuilder) { this.buildForm(); }
 
-  private buildForm(): void {
-    this.form = this.fb.group({
+
+  constructor(private fb: FormBuilder, private mapService: MapService,private cdr: ChangeDetectorRef ) {
+    this.createForm();
+  }
+
+  private createForm(): void {
+    this.createPlaceForm = this.fb.group({
       // Paso 0 – Info básica
       title: ['', [Validators.required, Validators.maxLength(120)]],
       guests: [1, [Validators.required, Validators.min(1), Validators.max(50)]],
       description: ['', [Validators.required, Validators.maxLength(2000)]],
 
-      // Paso 1 – Ubicación
+      // Paso 1 – Ubicación (form plano)
       street: ['', [Validators.required, Validators.maxLength(80)]],
       city: ['', [Validators.required, Validators.maxLength(60)]],
-      latitude: [null],
-      longitude: [null],
+      latitude: [''],
+      longitude: [''],
 
       // Paso 2 – Servicios y tipo
       placeType: [this.placeTypes[0], Validators.required],
@@ -61,19 +71,16 @@ export class CreatePlace {
   }
 
   // Helpers
-  get amenitiesFA(): FormArray { return this.form.get('amenities') as FormArray; }
+  get amenitiesFA(): FormArray { return this.createPlaceForm.get('amenities') as FormArray; }
   amenityActive(i: number): boolean { return !!this.amenitiesFA.at(i).value; }
   toggleAmenity(i: number): void { this.amenitiesFA.at(i).setValue(!this.amenitiesFA.at(i).value); }
 
-  // Lista derivada de servicios seleccionados (para mostrar chips y visibilidad)
-  get selectedServices() {
-    return this.servicesList.filter((_, i) => this.amenityActive(i));
-  }
+  get selectedServices() { return this.servicesList.filter((_, i) => this.amenityActive(i)); }
   hasSelectedAmenities(): boolean { return this.selectedServices.length > 0; }
 
   // Contador de huéspedes
-  decGuests(): void { const v = this.form.value.guests || 1; if (v > 1) this.form.patchValue({ guests: v - 1 }); }
-  incGuests(): void { const v = this.form.value.guests || 1; this.form.patchValue({ guests: v + 1 }); }
+  decGuests(): void { const v = this.createPlaceForm.value.guests || 1; if (v > 1) this.createPlaceForm.patchValue({ guests: v - 1 }); }
+  incGuests(): void { const v = this.createPlaceForm.value.guests || 1; this.createPlaceForm.patchValue({ guests: v + 1 }); }
 
   // Wizard
   canNext(): boolean { return this.currentGroupValid(); }
@@ -81,9 +88,9 @@ export class CreatePlace {
 
   private currentGroupValid(): boolean {
     switch (this.step) {
-      case 0: return this.form.get('title')!.valid && this.form.get('guests')!.valid && this.form.get('description')!.valid;
-      case 1: return this.form.get('street')!.valid && this.form.get('city')!.valid; // lat/long opcionales
-      case 2: return this.form.get('placeType')!.valid && this.form.get('pricePerNight')!.valid;
+      case 0: return this.createPlaceForm.get('title')!.valid && this.createPlaceForm.get('guests')!.valid && this.createPlaceForm.get('description')!.valid;
+      case 1: return this.createPlaceForm.get('street')!.valid && this.createPlaceForm.get('city')!.valid; // lat/long opcionales
+      case 2: return this.createPlaceForm.get('placeType')!.valid && this.createPlaceForm.get('pricePerNight')!.valid;
       case 3: return true;
       default: return false;
     }
@@ -94,32 +101,21 @@ export class CreatePlace {
     const input = ev.target as HTMLInputElement;
     if (!input.files) return;
     this.addFiles(Array.from(input.files));
-    input.value = ''; // permite re-seleccionar los mismos
+    input.value = '';
   }
-  onDragOver(e: DragEvent) {
-    e.preventDefault();
-    this.isDragOver = true;
-  }
-
-  onDragLeave(_: DragEvent) {
-    this.isDragOver = false;
-  }
-
+  onDragOver(e: DragEvent) { e.preventDefault(); this.isDragOver = true; }
+  onDragLeave(_: DragEvent) { this.isDragOver = false; }
   onDrop(e: DragEvent) {
-    e.preventDefault();
-    this.isDragOver = false;
+    e.preventDefault(); this.isDragOver = false;
     if (!e.dataTransfer) return;
     this.addFiles(Array.from(e.dataTransfer.files));
   }
-
   private addFiles(list: File[]) {
     const images = list.filter(f => f.type.startsWith('image/'));
     const remaining = Math.max(0, 10 - this.previews.length);
     const toAdd = images.slice(0, remaining);
-
     toAdd.forEach(f => {
       this.files.push(f);
-      // Puedes mantener FileReader si prefieres, pero con URL es más ligero:
       const url = URL.createObjectURL(f);
       this.previews.push(url);
     });
@@ -137,31 +133,80 @@ export class CreatePlace {
       .filter(Boolean) as string[];
 
     return {
-      title: this.form.value.title,
-      description: this.form.value.description,
-      guests: Number(this.form.value.guests),
-      street: this.form.value.street,
-      city: this.form.value.city,
-      latitude: this.form.value.latitude ?? null,
-      longitude: this.form.value.longitude ?? null,
-      placeType: this.form.value.placeType,
+      title: this.createPlaceForm.value.title,
+      description: this.createPlaceForm.value.description,
+      guests: Number(this.createPlaceForm.value.guests),
+      street: this.createPlaceForm.value.street,
+      city: this.createPlaceForm.value.city,
+      latitude: this.createPlaceForm.value.latitude ?? null,
+      longitude: this.createPlaceForm.value.longitude ?? null,
+      placeType: this.createPlaceForm.value.placeType,
       amenities: selectedAmenities,
-      pricePerNight: Number(this.form.value.pricePerNight),
-      // fotos reales: súbelas por multipart en tu servicio; aquí sólo previews
+      pricePerNight: Number(this.createPlaceForm.value.pricePerNight),
     };
   }
 
   submit(): void {
     if (!this.currentGroupValid()) return;
-    if (this.step < 3) { this.step++; return; }
+
+    if (this.step < 3) {
+      this.step++;
+
+      // 👇 Cuando acabas de pasar al paso 1, crea el mapa
+      if (this.step === 1 && !this.mapCreatedForStep1) {
+        // Fuerza render del DOM del paso 1
+        this.cdr.detectChanges();
+        // Espera al siguiente tick para que exista <div id="map">
+        requestAnimationFrame(() => this.initStep1Map());
+      }
+
+      return;
+    }
+
     const payload = this.buildPayload();
     console.log('CreatePlaceDTO', payload);
-    // TODO: this.http.post('/api/places', formData or payload)
+    // TODO: this.placesApi.create(payload).subscribe(...)
+  }
+
+  private initStep1Map(): void {
+    this.mapService.create('map'); // el ID existe ahora (step === 1)
+    this.mapService.mapInstance?.on('load', () => {
+      // Si el stepper oculta/animó contenedores, re-calcula tamaño
+      this.mapService.mapInstance?.resize();
+    });
+
+    // Suscríbete y guarda la sub para limpiar luego
+    this.markerSub = this.mapService.addMarker().subscribe((lngLat) => {
+      // 👇 Setea los controles que SÍ existen en tu form
+      this.createPlaceForm.patchValue({
+        latitude: lngLat.lat,
+        longitude: lngLat.lng,
+      });
+    });
+
+    this.mapCreatedForStep1 = true;
   }
 
   // UI
   currencyCOP(v: number | null | undefined): string {
     const n = Number(v || 0);
     return n.toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
+  }
+
+  // ============= MAPA =============
+  ngOnInit(): void {
+    // Inicializa el mapa con la configuración predeterminada
+    //this.mapService.create();
+    // Se suscribe al evento de agregar marcador y actualiza el formulario
+    //this.mapService.addMarker().subscribe((marker) => {
+      //this.createPlaceForm.get('location')?.setValue({
+        //latitude: marker.lat,
+        //longitude: marker.lng,
+      //});
+   // });
+  }
+
+  ngOnDestroy(): void {
+    this.markerSub?.unsubscribe();
   }
 }
