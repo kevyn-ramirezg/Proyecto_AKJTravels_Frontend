@@ -1,7 +1,11 @@
 import { Component } from '@angular/core';
-import { AbstractControlOptions, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControlOptions, FormBuilder, FormGroup, ReactiveFormsModule, Validators
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { AuthRegisterService, CreateUserDTO, ResponseDTO } from '../../services/auth-service';
+import * as Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-register',
@@ -12,8 +16,13 @@ import { RouterLink } from '@angular/router';
 })
 export class Register {
   registerForm!: FormGroup;
+  loading = false;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private authRegister: AuthRegisterService,
+    private router: Router
+  ) {
     this.createForm();
   }
 
@@ -21,16 +30,24 @@ export class Register {
     this.registerForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(60)]],
       surname: ['', [Validators.maxLength(60)]],
-      phone: ['', [
-        Validators.required,
-        Validators.pattern(/^\d{7,10}$/) // 7–10 dígitos
-      ]],
+      phone: ['', [Validators.required, Validators.pattern(/^\d{7,10}$/)]],
       photoUrl: [''],
       dateBirth: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
-      role: ['Huésped', [Validators.required]],
-      password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(64)]],
-      repeatPassword: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(64)]]
+      role: ['USER', [Validators.required]],  // ahora por defecto USER (enum correcto)
+      password: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(8),
+          Validators.maxLength(64),
+          Validators.pattern(/^(?=.*[A-Z])(?=.*\d).+$/) // 1 mayúscula y 1 dígito
+        ]
+      ],
+      repeatPassword: [
+        '',
+        [Validators.required, Validators.minLength(8), Validators.maxLength(64)]
+      ]
     }, { validators: this.passwordsMatchValidator } as AbstractControlOptions);
   }
 
@@ -40,9 +57,47 @@ export class Register {
     return p1 === p2 ? null : { passwordsMismatch: true };
   }
 
+  private toIsoDateOnly(value: any): string {
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return String(value);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
   public createUser(): void {
-    if (this.registerForm.invalid) return;
-    console.log(this.registerForm.value);
-    // TODO: servicio de registro
+    if (this.registerForm.invalid || this.loading) return;
+    this.loading = true;
+
+    const v = this.registerForm.value;
+    const payload: CreateUserDTO = {
+      name: v.name,
+      surname: v.surname,
+      email: v.email,
+      phone: v.phone,
+      birthDate: this.toIsoDateOnly(v.dateBirth),
+      password: v.password,
+      role: v.role,          // 'USER' / 'HOST'
+      country: 'Colombia',   // <-- valor por defecto
+      photoUrl: (v.photoUrl ?? '').trim() || '/assets/img/default-avatar.png'
+    };
+
+    this.authRegister.register(payload).subscribe({
+      next: async (res: ResponseDTO<string>) => {
+        this.loading = false;
+        await Swal.default.fire({
+          icon: 'success',
+          title: '¡Registro exitoso!',
+          text: res.content || 'Tu cuenta ha sido creada correctamente.'
+        });
+        this.router.navigateByUrl('/login');
+      },
+      error: async (err) => {
+        this.loading = false;
+        const msg = err?.error?.content ?? 'No fue posible completar el registro.';
+        await Swal.default.fire({ icon: 'error', title: 'Ups...', text: msg });
+      }
+    });
   }
 }
