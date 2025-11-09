@@ -34,3 +34,5 @@ export class AuthRegisterService {
     return this.http.post<ResponseDTO<string>>(this.authURL, dto);
   }
 }
+/*
+*/
