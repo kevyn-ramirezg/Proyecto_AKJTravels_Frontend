@@ -26,8 +26,20 @@
 
       <!-- Botones -->
       <div class="d-flex align-items-center gap-2 ms-auto">
-        <button routerLink="/login" class="btn btn-outline-light">Login</button>
-        <button routerLink="/register" class="btn btn-light text-primary">Crear cuenta</button>
+        @if (!isLogged()) {
+          <button routerLink="/login" class="btn btn-outline-light">Login</button>
+          <button routerLink="/register" class="btn btn-light text-primary">Crear cuenta</button>
+        } @else {
+          <div class="dropdown">
+            <button class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">Mi cuenta</button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" routerLink="/my-places">Mis alojamientos</a></li>
+              <li><a class="dropdown-item" routerLink="/host-dashboard">Panel anfitrión</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><button class="dropdown-item" (click)="logout()">Cerrar sesión</button></li>
+            </ul>
+          </div>
+        }
       </div>
     </div>
   </div>

@@ -45,21 +45,6 @@ export class Login {
     return this.loginForm.controls;
   }
 
-  onSubmit() {
-    this.loginForm.markAllAsTouched();
-    if (this.loginForm.invalid) return;
-
-    this.loading = true;
-    this.error = null;
-
-    // Simulación de login
-    setTimeout(() => {
-      this.loading = false;
-      const { email, password } = this.loginForm.getRawValue();
-      if (email && password) this.router.navigate(['/']);
-      else this.error = 'Credenciales inválidas';
-    }, 700);
-  }
 
   public login() {
     // Obtenemos los datos del formulario y los convertimos a LoginDTO
@@ -68,14 +53,12 @@ export class Login {
     this.authService.login(loginDTO).subscribe({
       next: (data) => {
         this.tokenService.login(data.message.token); // Guardamos el token usando el servicio de token
-        this.router.navigate(['/']).then(() => window.location.reload()); // Redireccionamos al inicio y recargamos la página
+        this.router.navigate(['/']); // Redireccionamos al inicio y recargamos la página
       },
-      error: (error) => {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: error.error.content // Mostramos el mensaje de error del backend
-        });
+      error: (err) => {
+        // Tu backend envía ResponseDTO{ error, message }
+        const msg = err?.error?.message ?? 'No se pudo iniciar sesión';
+        Swal.fire({ icon: 'error', title: 'Error', text: msg });
       }
     });
   }

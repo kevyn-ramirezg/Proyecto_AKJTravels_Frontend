@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {LoginDTO} from '../model/login-dto';
 import {ResponseDTO} from '../model/response-dto';
-
+import {TokenDTO} from '../model/token-dto';
 
 
 export type Role = 'USER' | 'HOST';
@@ -27,8 +27,8 @@ export class AuthRegisterService {
 
   constructor(private http: HttpClient) {}
 
-  public login(loginDTO: LoginDTO): Observable<ResponseDTO> {
-    return this.http.post<ResponseDTO>(`${this.authURL}/login`, loginDTO);
+  public login(loginDTO: LoginDTO): Observable<ResponseDTO<TokenDTO>> {
+    return this.http.post<ResponseDTO<TokenDTO>>(`${this.authURL}/login`, loginDTO);
   }
   register(dto: CreateUserDTO): Observable<ResponseDTO<string>> {
     return this.http.post<ResponseDTO<string>>(this.authURL, dto);

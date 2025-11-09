@@ -1,11 +1,14 @@
-import { Injectable } from '@angular/core';
+import {Injectable, signal} from '@angular/core';
 
 const TOKEN_KEY = 'AuthToken';
 
 @Injectable({ providedIn: 'root' })
 export class TokenService {
+
+  public readonly isLoggedSig = signal<boolean>(!!sessionStorage.getItem(TOKEN_KEY));
   private setToken(token: string) {
     sessionStorage.setItem(TOKEN_KEY, token);
+    this.isLoggedSig.set(true);
   }
 
   public getToken(): string | null {
@@ -21,15 +24,15 @@ export class TokenService {
   }
 
   public logout() {
-    sessionStorage.clear();
+    sessionStorage.removeItem(TOKEN_KEY);
+    this.isLoggedSig.set(false);
   }
 
   // --- Decodificación del payload (JWT) ---
   private decodePayload(token: string): any {
     try {
       const payload = token.split('.')[1];
-      const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
-      return JSON.parse(atob(base64));
+      return JSON.parse(atob(payload));
     } catch {
       return null;
     }

@@ -1,5 +1,6 @@
-import {Component, signal} from '@angular/core';
+import {Component, computed, inject, signal} from '@angular/core';
 import {RouterLink, RouterModule} from '@angular/router';
+import {TokenService} from '../../services/token-service';
 
 @Component({
   selector: 'app-header',
@@ -8,6 +9,11 @@ import {RouterLink, RouterModule} from '@angular/router';
   styleUrl: './header.css'
 })
 export class Header {
-  protected readonly title = signal('AKJTravels');
+  private token = inject(TokenService);
+  isLogged = computed(() => this.token.isLoggedSig());
 
+  protected readonly title = signal('AKJTravels');
+  logout() {
+    this.token.logout();
+  }
 }
