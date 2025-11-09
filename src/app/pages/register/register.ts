@@ -4,8 +4,10 @@ import {
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { AuthRegisterService, CreateUserDTO, ResponseDTO } from '../../services/auth-service';
+import { AuthRegisterService, CreateUserDTO,  } from '../../services/auth-service';
+import {ResponseDTO} from '../../model/response-dto';
 import * as Swal from 'sweetalert2';
+import {UserService} from '../../services/user-service';
 
 @Component({
   selector: 'app-register',
@@ -21,7 +23,8 @@ export class Register {
   constructor(
     private fb: FormBuilder,
     private authRegister: AuthRegisterService,
-    private router: Router
+    private router: Router,
+    private userService: UserService
   ) {
     this.createForm();
   }
@@ -89,7 +92,7 @@ export class Register {
         await Swal.default.fire({
           icon: 'success',
           title: '¡Registro exitoso!',
-          text: res.content || 'Tu cuenta ha sido creada correctamente.'
+          text: res.message || 'Tu cuenta ha sido creada correctamente.'
         });
         this.router.navigateByUrl('/login');
       },

@@ -1,0 +1,145 @@
+:root{
+  --primary-start:#004aad;
+  --primary-end:#cb6ce6;
+  --border-strong:#ced4da;
+}
+
+.host-hero{
+  background: linear-gradient(90deg,var(--primary-start),var(--primary-end));
+  color:#fff;
+  padding:20px 0 26px;
+}
+.container{ max-width:1100px; margin:0 auto; padding:0 16px; }
+
+.brand{ font-family:Poppins,system-ui,sans-serif; font-weight:700; font-size:20px }
+.welcome{ display:flex; gap:8px; align-items:center; font-weight:600 }
+.avatar{ width:28px; height:28px; border-radius:50%; background:#fff3; display:inline-block }
+
+.title{ font-family:Poppins,system-ui,sans-serif; font-weight:600; text-align:center; margin:8px 0 12px }
+
+.tabs{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap }
+.tab{
+  background:#fff; color:#111; border:2px solid var(--border-strong); border-radius:12px;
+  padding:10px 16px; font-weight:700;
+}
+.tab.active{
+  color:#fff; border-color:transparent;
+  background: linear-gradient(90deg,var(--primary-start),var(--primary-end));
+}
+
+.host-body{ margin-top:-20px; }
+.card{
+  background:#fff; border-radius:16px; border:2px solid var(--border-strong);
+  padding:18px; margin:20px 0 32px;
+}
+
+.kpis{ display:grid; grid-template-columns: repeat(3,1fr); gap:18px }
+.kpi{ border:2px solid #eee; border-radius:16px; padding:16px }
+.kpi__label{ color:#666; text-transform:uppercase; letter-spacing:.08em; font-size:12px; font-weight:600 }
+.kpi__value{ font-size:32px; font-weight:700 }
+
+.cta-row{ display:flex; gap:16px; margin-top:18px; flex-wrap:wrap }
+.btn{ border:2px solid transparent; border-radius:16px; padding:10px 16px; font-weight:700; cursor:pointer; }
+.btn-gradient{ background: linear-gradient(90deg,var(--primary-start),var(--primary-end)); color:#fff }
+.btn-gradient.alt{ opacity:.9 }
+.btn-outline{ background:#fff; border-color:var(--border-strong) }
+.btn-outline.danger{ border-color:#f1b0b7; }
+.btn-dark{ background:#111; color:#fff; }
+
+.input{ width:100%; height:42px; border:2px solid var(--border-strong); border-radius:10px; padding:0 12px; outline:none }
+.input:focus{ box-shadow:0 0 0 4px #fff, 0 0 0 8px rgba(0,122,255,.25); }
+.input.short{ max-width:190px }
+.input.area{ height:84px; padding:10px 12px; resize:vertical }
+
+.toolbar{ display:flex; gap:12px; justify-content:space-between; align-items:center; margin-bottom:14px }
+
+.place-list{ display:flex; flex-direction:column; gap:12px }
+.place-item{ display:grid; grid-template-columns: 120px 1fr auto; gap:14px; align-items:center; border:2px solid #eee; border-radius:14px; padding:10px }
+.place-thumb{ width:120px; height:70px; object-fit:cover; border-radius:10px }
+.place-title{ font-weight:700 }
+.place-sub{ color:#666 }
+.chips{ display:flex; gap:8px; align-items:center; margin-top:4px }
+.chip{ padding:4px 8px; border-radius:999px; font-weight:700; font-size:12px; color:#fff; background:#aaa }
+.chip--green{ background:#22c55e }
+.chip--grey{ background:#9aa0a6 }
+.rating{ font-weight:700 }
+.muted{ color:#666 }
+
+.table-wrap{ overflow:auto }
+.table{ width:100%; border-collapse:separate; border-spacing:0 8px }
+.table th, .table td{ padding:10px 12px; }
+.ta-right{ text-align:right }
+.badge{ padding:6px 10px; border-radius:999px; font-weight:700; color:#fff; font-size:12px }
+.badge[data-status="pending"]{ background:#f59e0b }
+.badge[data-status="confirmed"]{ background:#22c55e }
+.badge[data-status="cancelled"]{ background:#ef4444 }
+
+.filters{ display:flex; gap:10px; align-items:center; margin-bottom:12px }
+.filter{ border:2px solid var(--border-strong); background:#fff; border-radius:10px; padding:8px 12px; font-weight:700 }
+
+.comment{ border:2px solid #eee; border-radius:16px; padding:14px; margin-bottom:12px }
+.comment__meta{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px }
+.comment__title{ font-weight:700 }
+.comment__date{ color:#666 }
+.comment__text{ margin:8px 0; color:#222 }
+.stars{ color:#f4b400; font-size:18px }
+
+/*stilos 2*/
+
+/* Hero más alto y con sombra sutil */
+.host-hero{
+  background: linear-gradient(90deg,var(--primary-start),var(--primary-end));
+  color:#fff; padding:28px 0 34px; box-shadow:0 4px 20px rgba(0,0,0,.08);
+}
+.host-hero__top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px }
+
+/* Tabs tipo píldora con borde blanco y glow cuando están activos */
+.tab{
+  background:#fff; color:#111; border:2px solid var(--border-strong);
+  border-radius:14px; padding:10px 18px; font-weight:700; display:flex; align-items:center; gap:8px;
+  box-shadow:0 1px 0 rgba(0,0,0,.02);
+}
+.tab.active{
+  color:#fff; border-color:#fff; /* borde blanco como en mock */
+  background: linear-gradient(90deg,var(--primary-start),var(--primary-end));
+  box-shadow:0 0 0 3px #ffffff55 inset;
+}
+
+/* Cards KPI más aire y jerarquía */
+.kpi{ border:2px solid #edf0f3; border-radius:16px; padding:18px 16px; background:#fff }
+.kpi__value{ font-size:34px; line-height:1; }
+
+/* Botones — hover y disabled estilo guía global */
+.btn:hover{ filter:brightness(.98) }
+.btn:disabled{ background:#e9ecef; color:#9aa0a6; border-color:#e9ecef; cursor:not-allowed }
+
+/* Buscador con icono a la izquierda (sin nuevas librerías) */
+.toolbar .search{ position:relative; flex:1 }
+.toolbar .search .i{ position:absolute; left:10px; top:50%; transform:translateY(-50%); pointer-events:none }
+.toolbar .search .input{ padding-left:36px }
+
+/* Lista de alojamientos: altura y acciones */
+.place-item{ grid-template-columns: 140px 1fr auto; }
+.place-thumb{ width:140px; height:78px; }
+.place-actions{ display:flex; gap:8px }
+
+/* Tabla con “chips” de estado ya definidos; solo mejora spacing */
+.table th{ color:#4a4a4a; font-weight:600 }
+.table td, .table th{ background:#fff }
+
+/* Comentarios: misma tarjeta del mock */
+.comment{ background:#fff }
+.stars{ letter-spacing:1px }
+
+/* Sistema simple de iconos por máscara SVG (ligero) */
+.i{
+  width:18px; height:18px; display:inline-block; background:#111;
+  -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+  -webkit-mask-size:contain; mask-size:contain;
+}
+.i-stats{ -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="black" d="M3 3h2v18H3V3m4 8h2v10H7V11m4-6h2v16h-2V5m4 4h2v12h-2V9m4-2h2v14h-2V7"/></svg>'); mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="black" d="M3 3h2v18H3V3m4 8h2v10H7V11m4-6h2v16h-2V5m4 4h2v12h-2V9m4-2h2v14h-2V7"/></svg>'); }
+.i-home{ -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="black" d="M12 3l9 8h-3v10h-5V14H11v7H6V11H3z"/></svg>'); mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="black" d="M12 3l9 8h-3v10h-5V14H11v7H6V11H3z"/></svg>'); }
+.i-calendar{ -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="black" d="M7 2h2v2h6V2h2v2h3v18H4V4h3V2m13 6H4v12h16V8Z"/></svg>'); mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="black" d="M7 2h2v2h6V2h2v2h3v18H4V4h3V2m13 6H4v12h16V8Z"/></svg>'); }
+.i-chat{ -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="black" d="M12 3a9 9 0 0 1 9 9c0 5-4 9-9 9a9.7 9.7 0 0 1-3-.5L3 21l.5-5A9 9 0 0 1 12 3Z"/></svg>'); mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="black" d="M12 3a9 9 0 0 1 9 9c0 5-4 9-9 9a9.7 9.7 0 0 1-3-.5L3 21l.5-5A9 9 0 0 1 12 3Z"/></svg>'); }
+.i-filter{ -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="black" d="M3 5h18v2H3V5m4 6h10v2H7v-2m3 6h4v2h-4v-2Z"/></svg>'); mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="black" d="M3 5h18v2H3V5m4 6h10v2H7v-2m3 6h4v2h-4v-2Z"/></svg>'); }
+.i-reply{ -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="black" d="M10 9V5l-7 7 7 7v-4h4a8 8 0 0 0 8-8v-2a10 10 0 0 1-10 10h-2"/></svg>'); mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="black" d="M10 9V5l-7 7 7 7v-4h4a8 8 0 0 0 8-8v-2a10 10 0 0 1-10 10h-2"/></svg>'); }

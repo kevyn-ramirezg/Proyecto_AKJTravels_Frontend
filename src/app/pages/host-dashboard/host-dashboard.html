@@ -1,0 +1,160 @@
+<div class="host-hero">
+  <div class="host-hero__top container">
+    <div class="brand">AKJ<span>Travel</span></div>
+    <div class="welcome">Bienvenido, {{ welcomeName }} <span class="avatar"></span></div>
+  </div>
+
+  <h1 class="title container">Panel de anfitrión</h1>
+
+  <div class="tabs container">
+    <button class="tab" [class.active]="section()==='overview'" (click)="setSection('overview')">
+      <span class="i i-stats"></span> Resumen
+    </button>
+    <button class="tab" [class.active]="section()==='places'" (click)="setSection('places')">
+      <span class="i i-home"></span> Alojamientos
+    </button>
+    <button class="tab" [class.active]="section()==='bookings'" (click)="setSection('bookings')">
+      <span class="i i-calendar"></span> Reservas
+    </button>
+    <button class="tab" [class.active]="section()==='comments'" (click)="setSection('comments')">
+      <span class="i i-chat"></span> Comentarios
+    </button>
+  </div>
+</div>
+
+<div class="host-body container">
+
+  <!-- RESUMEN -->
+  <section *ngIf="section()==='overview'" class="card">
+    <div class="kpis">
+      <div class="kpi">
+        <div class="kpi__label">Alojamientos activos</div>
+        <div class="kpi__value">{{ activeListings() }}</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi__label">Reservas próximas</div>
+        <div class="kpi__value">{{ upcomingBookings() }}</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi__label">Calificación promedio</div>
+        <div class="kpi__value">{{ ratingAvg() | number:'1.1-1' }}</div>
+      </div>
+    </div>
+
+    <div class="cta-row">
+      <a routerLink="/create-place" class="btn btn-gradient">Nuevo alojamiento</a>
+      <button class="btn btn-gradient alt" (click)="setSection('bookings')">Ver reservas</button>
+      <button class="btn btn-gradient alt" (click)="setSection('comments')">Ver comentarios</button>
+    </div>
+  </section>
+
+  <!-- ALOJAMIENTOS -->
+  <section *ngIf="section()==='places'" class="card">
+    <div class="toolbar">
+      <div class="search">
+        <span class="i i-search"></span>
+        <input
+          class="input"
+          placeholder="Buscar por nombre, ciudad..."
+          [value]="search()"
+          (input)="onSearchInput($event)"/>
+      </div>
+      <a routerLink="/create-place" class="btn btn-gradient">Añadir alojamiento</a>
+    </div>
+
+    <div class="place-list">
+      <div class="place-item" *ngFor="let p of filteredPlaces()">
+        <img [src]="p.photo_url || 'assets/demo/lodgings/placeholder.jpg'" class="place-thumb" alt="thumb" />
+
+        <div class="place-info">
+          <div class="place-title">{{ p.title }}</div>
+          <div class="place-sub">{{ p.city }}</div>
+
+          <div class="chips">
+          <span
+            class="chip"
+            [class.chip--green]="placeStatus[p.id]==='active'"
+            [class.chip--grey]="placeStatus[p.id]==='deleted'">
+            {{ placeStatus[p.id]==='active' ? 'activo' : 'eliminado' }}
+          </span>
+
+            <span class="rating">★ {{ p.average_rating | number:'1.1-1' }}</span>
+            <span *ngIf="futureBookingsCount[p.id]" class="muted">
+            · {{ futureBookingsCount[p.id] }} reservas futuras
+          </span>
+          </div>
+        </div>
+
+        <div class="place-actions">
+          <button class="btn btn-outline">Editar</button>
+          <button class="btn btn-outline danger" [disabled]="placeStatus[p.id]!=='active'">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESERVAS -->
+  <section *ngIf="section()==='bookings'" class="card">
+    <div class="filters">
+      <button class="filter"><span class="i i-filter"></span> Todos</button>
+      <input class="input short" type="date" />
+      <input class="input short" type="date" />
+    </div>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+        <tr>
+          <th>Huésped</th>
+          <th>Alojamiento</th>
+          <th>Entrada</th>
+          <th>Salida</th>
+          <th>Estado</th>
+          <th class="ta-right">Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let b of bookings()">
+          <td>{{ b.guestName }}</td>
+          <td>{{ b.placeTitle }}</td>
+          <td>{{ b.checkIn | date:'d/MM/y' }}</td>
+          <td>{{ b.checkOut | date:'d/MM/y' }}</td>
+          <td>
+              <span class="badge" [attr.data-status]="b.status">
+                {{ b.status === 'pending' ? 'pendiente' : (b.status==='confirmed' ? 'confirmada' : 'cancelada') }}
+              </span>
+          </td>
+          <td class="ta-right">
+            <button class="btn btn-outline ok" *ngIf="b.status==='pending'">Aprobar</button>
+            <button class="btn btn-outline danger" *ngIf="b.status==='pending'">Rechazar</button>
+            <button class="btn btn-outline" *ngIf="b.status!=='pending'">Info</button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- COMENTARIOS -->
+  <section *ngIf="section()==='comments'" class="card">
+    <div class="filters">
+      <input class="input" placeholder="Busca el alojamiento..." />
+      <input class="input short" placeholder="dd/mm/aaaa" />
+      <input class="input short" placeholder="dd/mm/aaaa" />
+    </div>
+
+    <div class="comment" *ngFor="let c of comments()">
+      <div class="comment__meta">
+        <div class="comment__title">{{ c.authorName }}</div>
+        <div class="comment__date">{{ c.createdAt }}</div>
+      </div>
+      <div class="stars">★★★★★{{ '' | slice:0:0 }}</div>
+      <div class="comment__text">{{ c.content }}</div>
+      <textarea class="input area" placeholder="Responder públicamente..."></textarea>
+      <div class="ta-right">
+        <button class="btn btn-dark"><span class="i i-reply"></span> Responder</button>
+      </div>
+    </div>
+  </section>
+
+</div>

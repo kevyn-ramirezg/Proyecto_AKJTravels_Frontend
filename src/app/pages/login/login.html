@@ -3,7 +3,7 @@
     <h1 class="title">Iniciar sesión</h1>
     <p class="subtitle">Iniciar sesión para continuar</p>
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate class="form">
+    <form [formGroup]="loginForm" (ngSubmit)="login()" novalidate class="form">
       <!-- USUARIO -->
       <label for="email" class="field-label">USUARIO</label>
       <input

@@ -1,4 +1,4 @@
-export interface ResponseDTO<T = any> {
+export interface ResponseDTO<T=any> {
   error: boolean;
-  message: T;   // La guía usa 'content' (no 'message')
+  message: T;
 }

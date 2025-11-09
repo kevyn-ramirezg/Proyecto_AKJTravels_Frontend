@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import {LoginDTO} from '../model/login-dto';
+import {ResponseDTO} from '../model/response-dto';
 
-export interface ResponseDTO<T = any> {
-  error: boolean;
-  content: T;
-}
+
 
 export type Role = 'USER' | 'HOST';
 
@@ -23,11 +22,15 @@ export interface CreateUserDTO {
 
 @Injectable({ providedIn: 'root' })
 export class AuthRegisterService {
-  private readonly baseUrl = 'http://localhost:8080/api/auth';
+  private authURL = "http://localhost:8080/api/auth";
+
 
   constructor(private http: HttpClient) {}
 
+  public login(loginDTO: LoginDTO): Observable<ResponseDTO> {
+    return this.http.post<ResponseDTO>(`${this.authURL}/login`, loginDTO);
+  }
   register(dto: CreateUserDTO): Observable<ResponseDTO<string>> {
-    return this.http.post<ResponseDTO<string>>(this.baseUrl, dto);
+    return this.http.post<ResponseDTO<string>>(this.authURL, dto);
   }
 }

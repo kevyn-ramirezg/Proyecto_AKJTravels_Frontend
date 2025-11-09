@@ -11,25 +11,23 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  public create(createUserDTO: CreateUserDTO): Observable<ResponseDTO<string>> {
-    return this.http.post<ResponseDTO<string>>(this.usersURL, createUserDTO);
+  public create(createUserDTO: CreateUserDTO): Observable<ResponseDTO> {
+    return this.http.post<ResponseDTO>(this.usersURL, createUserDTO);
   }
 
-  public edit(editUserDTO: EditUserDTO): Observable<ResponseDTO<string>> {
-    return this.http.put<ResponseDTO<string>>(this.usersURL, editUserDTO);
+  public edit(editUserDTO: EditUserDTO): Observable<ResponseDTO> {
+    return this.http.put<ResponseDTO>(this.usersURL, editUserDTO);
   }
 
-  public delete(id: string): Observable<ResponseDTO<string>> {
-    return this.http.delete<ResponseDTO<string>>(`${this.usersURL}/${id}`);
+  public delete(id: string): Observable<ResponseDTO> {
+    return this.http.delete<ResponseDTO>(`${this.usersURL}/${id}`);
   }
 
-  public get(id: string): Observable<ResponseDTO<any>> {
-    return this.http.get<ResponseDTO<any>>(`${this.usersURL}/${id}`);
+  public get(id: string): Observable<ResponseDTO> {
+    return this.http.get<ResponseDTO>(`${this.usersURL}/${id}`);
   }
 
-  public getPlaces(id: string, page: number): Observable<ResponseDTO<any>> {
-    return this.http.get<ResponseDTO<any>>(`${this.usersURL}/${id}/places`, {
-      params: { page }
-    });
+  public getPlaces(id: string, page: number): Observable<ResponseDTO> {
+    return this.http.get<ResponseDTO>(`${this.usersURL}/${id}/places`, { params: { page } }); // Si el backend usa @RequestParam para paginación se debe enviar así
   }
 }
