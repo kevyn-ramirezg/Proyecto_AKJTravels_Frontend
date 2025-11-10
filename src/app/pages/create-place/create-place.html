@@ -63,8 +63,26 @@
           @if (step === 1) {
             <div class="grid">
               <div class="col-span-12">
+                <label class="form-label" for="country">País</label>
+                <input id="country" class="form-control" type="text" placeholder="Colombia" formControlName="country" />
+              </div>
+
+              <div class="col-span-12">
+                <label class="form-label" for="department">Departamento</label>
+                <input id="department" class="form-control" type="text" placeholder="Quindío" formControlName="department" />
+              </div>
+
+              <div class="col-span-12">
+                <label class="form-label" for="postalCode">Código postal</label>
+                <input id="postalCode" class="form-control" type="text" placeholder="630001" formControlName="postalCode" />
+              </div>
+              <div class="col-span-12">
                 <label class="form-label" for="street">Dirección</label>
                 <input id="street" class="form-control" type="text" placeholder="Calle 10 norte # 18-71" formControlName="street" />
+              </div>
+              <div class="col-span-12">
+                <label class="form-label" for="neighborhood">Barrio</label>
+                <input id="neighborhood" class="form-control" type="text" placeholder="Barrio/sector" formControlName="neighborhood" />
               </div>
               <div class="col-span-12">
                 <label class="form-label" for="city">Ciudad</label>

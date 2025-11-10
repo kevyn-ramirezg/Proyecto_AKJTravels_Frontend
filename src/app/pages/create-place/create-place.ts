@@ -67,6 +67,7 @@ export class CreatePlace implements OnInit, OnDestroy {
       department: ['', Validators.required],
       postalCode: ['', Validators.required],
       // Paso 1 – Ubicación
+      neighborhood: [''],
       street: ['', [Validators.required, Validators.maxLength(80)]],
       city: ['', [Validators.required, Validators.maxLength(60)]],
       latitude: [''],
@@ -108,9 +109,12 @@ export class CreatePlace implements OnInit, OnDestroy {
           && this.createPlaceForm.get('description')!.valid
           && this.createPlaceForm.get('capacity')!.valid;
       case 1: {
-        const lat = this.createPlaceForm.value.latitude;
-        const lng = this.createPlaceForm.value.longitude;
-        return lat !== null && lat !== '' && lng !== null && lng !== '';
+        const v = this.createPlaceForm.value;
+        const ok =
+          v.country && v.department && v.postalCode &&
+          v.street && v.neighborhood &&v.city &&
+          v.latitude !== '' && v.longitude !== '';
+        return !!ok;
       }
       case 2: {
         const hasAmenity = this.selectedServices.length > 0;
@@ -205,7 +209,7 @@ export class CreatePlace implements OnInit, OnDestroy {
       country: String(this.createPlaceForm.value.country ?? '').trim(),
       department: String(this.createPlaceForm.value.department ?? '').trim(),
       city: String(this.createPlaceForm.value.city ?? '').trim(),
-      neighborhood: null,
+      neighborhood: String(this.createPlaceForm.value.neighborhood ?? '').trim(),
       street: String(this.createPlaceForm.value.street ?? '').trim(),
       postalCode,
 
@@ -236,37 +240,26 @@ export class CreatePlace implements OnInit, OnDestroy {
     // Paso final: POST + (opcional) upload images
     const payload = this.buildPayload();
 
-    this.placesApi.create(payload).pipe(
-      // create(...) devuelve el id (string) dentro de ResponseDTO.message
-      switchMap((placeId: string) => {
-        if (this.files.length) {
-          return this.placesApi.uploadImages(placeId, this.files, this.mainIndex).pipe(
-            map(() => placeId),
-            catchError(err => {
-              console.error('[CreatePlace] uploadImages error:', err);
-              // Continuamos aunque falle upload
-              return of(placeId);
-            })
-          );
-        }
-        return of(placeId);
-      })
-    ).subscribe({
-      next: (placeId) => {
-        console.log('[CreatePlace] creado id:', placeId);
-        // TODO: redirige a /my-places o a /places/:id
-        // this.router.navigateByUrl('/my-places');
+    this.placesApi.create(payload).subscribe({
+      next: (msg) => {
+        console.log('[CreatePlace] creado:', msg);
         alert('Alojamiento creado correctamente.');
+
         // Limpieza simple
         this.files.forEach((_, i) => { try { URL.revokeObjectURL(this.previews[i]); } catch {} });
         this.previews = [];
         this.files = [];
+
+        // TODO: redirige a /my-places o al detalle cuando lo tengas
+        // this.router.navigateByUrl('/my-places');
       },
       error: (err) => {
         console.error('[CreatePlace] create error:', err);
-        alert('No fue posible crear el alojamiento.');
+        const backendMsg = err?.error?.message ?? 'No fue posible crear el alojamiento.';
+        alert(backendMsg);
       }
     });
+
   }
 
   // UI

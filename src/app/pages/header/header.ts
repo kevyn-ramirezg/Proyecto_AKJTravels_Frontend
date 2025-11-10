@@ -9,6 +9,7 @@ import {TokenService} from '../../services/token-service';
   styleUrl: './header.css'
 })
 export class Header {
+
   private token = inject(TokenService);
   isLogged = computed(() => this.token.isLoggedSig());
 

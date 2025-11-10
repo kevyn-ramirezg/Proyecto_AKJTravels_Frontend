@@ -47,19 +47,37 @@ export class Login {
 
 
   public login() {
-    // Obtenemos los datos del formulario y los convertimos a LoginDTO
     const loginDTO = this.loginForm.value as LoginDTO;
 
     this.authService.login(loginDTO).subscribe({
-      next: (data) => {
-        this.tokenService.login(data.message.token); // Guardamos el token usando el servicio de token
-        this.router.navigate(['/']); // Redireccionamos al inicio y recargamos la página
+      next: ({ message }) => {
+        // guarda el token
+        this.tokenService.login(message.token);
+
+        // lee el rol del payload (HOST | GUEST)
+        const role = this.tokenService.getRole();
+
+        // si venías con ?returnUrl=... respeta eso (opcional)
+        const urlTree = this.router.parseUrl(this.router.url);
+        const returnUrl = urlTree.queryParams['returnUrl'];
+
+        if (returnUrl) {
+          this.router.navigateByUrl(returnUrl);
+          return;
+        }
+
+        // redirección por rol
+        if (role === 'HOST') {
+          this.router.navigate(['/host-dashboard']);
+        } else {
+          this.router.navigate(['/']); // huésped → home (mostrará el menú por estar logueado)
+        }
       },
       error: (err) => {
-        // Tu backend envía ResponseDTO{ error, message }
         const msg = err?.error?.message ?? 'No se pudo iniciar sesión';
         Swal.fire({ icon: 'error', title: 'Error', text: msg });
       }
     });
   }
+
 }
