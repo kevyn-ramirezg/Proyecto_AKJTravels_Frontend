@@ -8,6 +8,7 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { MapService } from '../../services/map-service';
 import { PlacesApiService } from '../../services/places-api-service';
 import {CreatePlaceDTO} from '../../model/create-place-dto';
+import Swal from 'sweetalert2';
 // Ajusta si necesitas un tipo fuerte para tu backend
 
 
@@ -224,12 +225,19 @@ export class CreatePlace implements OnInit, OnDestroy {
 
 
   submit(): void {
-    if (!this.currentGroupValid()) return;
+    // Validación del paso actual
+    if (!this.currentGroupValid()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Faltan datos',
+        text: 'Completa los campos del paso actual antes de continuar.',
+      });
+      return;
+    }
 
+    // Avanza de paso 0→1→2→3
     if (this.step < 3) {
       this.step++;
-
-      // Al entrar al paso 1, crea el mapa (una sola vez)
       if (this.step === 1 && !this.mapCreatedForStep1) {
         this.cdr.detectChanges();
         requestAnimationFrame(() => this.initStep1Map());
@@ -237,30 +245,53 @@ export class CreatePlace implements OnInit, OnDestroy {
       return;
     }
 
-    // Paso final: POST + (opcional) upload images
+    // Paso final: confirmación
     const payload = this.buildPayload();
+    Swal.fire({
+      icon: 'question',
+      title: '¿Guardar alojamiento?',
+      text: 'Podrás editarlo luego en “Mis alojamientos”.',
+      showCancelButton: true,
+      confirmButtonText: 'Guardar',
+      cancelButtonText: 'Cancelar',
+    }).then(res => {
+      if (!res.isConfirmed) return;
 
-    this.placesApi.create(payload).subscribe({
-      next: (msg) => {
-        console.log('[CreatePlace] creado:', msg);
-        alert('Alojamiento creado correctamente.');
+      // Loading mientras se crea
+      Swal.fire({
+        title: 'Guardando...',
+        didOpen: () => Swal.showLoading(),
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+      });
 
-        // Limpieza simple
-        this.files.forEach((_, i) => { try { URL.revokeObjectURL(this.previews[i]); } catch {} });
-        this.previews = [];
-        this.files = [];
+      this.placesApi.create(payload).subscribe({
+        next: (_msg) => {
+          Swal.fire({
+            icon: 'success',
+            title: '¡Alojamiento creado!',
+            text: 'Se creó correctamente.',
+            confirmButtonText: 'Aceptar',
+          });
 
-        // TODO: redirige a /my-places o al detalle cuando lo tengas
-        // this.router.navigateByUrl('/my-places');
-      },
-      error: (err) => {
-        console.error('[CreatePlace] create error:', err);
-        const backendMsg = err?.error?.message ?? 'No fue posible crear el alojamiento.';
-        alert(backendMsg);
-      }
+          // Limpieza
+          this.files.forEach((_, i) => { try { URL.revokeObjectURL(this.previews[i]); } catch {} });
+          this.previews = [];
+          this.files = [];
+          // TODO: redirigir si quieres
+          // this.router.navigateByUrl('/my-places');
+        },
+        error: (err) => {
+          Swal.fire({
+            icon: 'error',
+            title: 'No se pudo crear',
+            text: err?.error?.message ?? 'Inténtalo de nuevo.',
+          });
+        }
+      });
     });
-
   }
+
 
   // UI
   currencyCOP(v: number | null | undefined): string {

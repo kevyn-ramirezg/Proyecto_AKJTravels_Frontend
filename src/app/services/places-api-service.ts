@@ -72,11 +72,19 @@ export class PlacesApiService {
   }
 
   // RESERVAS (GET con body: filtros)
-  listBookings(id: string, page = 0, filters?: any): Observable<any[]> {
-    const body = filters ?? {};
+  listBookings(id: string, page = 0, filters?: any) {
+    let params = new HttpParams().set('page', String(page));
+    if (filters) {
+      Object.entries(filters).forEach(([k, v]) => {
+        if (v !== undefined && v !== null && v !== '') params = params.set(k, String(v));
+      });
+    }
     return this.http
-      .request<ResponseDTO<any[]>>('GET', `${this.baseUrl}/${id}/bookings/${page}`, { body })
-      .pipe(map(res => res.message));
+      .get<ResponseDTO<any[] | { content: any[] }>>(`${this.baseUrl}/${id}/bookings`, { params })
+      .pipe(map(res => {
+        const msg = res.message as any;
+        return Array.isArray(msg?.content) ? msg.content : (msg ?? []);
+      }));
   }
 
   // STATS (query params opcionales)

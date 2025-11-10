@@ -1,97 +1,204 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import Swal from 'sweetalert2';
+
+import { UserService } from '../../services/user-service';
+import { PlacesApiService } from '../../services/places-api-service';
+import { BookingsApiService } from '../../services/bookings-api-service';
+
 import { PlaceListItemDTO } from '../../model/place-list-item-dto';
-import {FormsModule} from '@angular/forms';
+import { PlaceStatsDTO } from '../../model/place-stats-dto';
+import { BookingDTO } from '../../model/booking-dto';
 
-type Section = 'overview' | 'places' | 'bookings' | 'comments';
-
-// Interfaces locales (solo para la vista; no toco /model/)
-interface BookingItem {
-  id: string;
-  guestName: string;
-  placeTitle: string;
-  checkIn: string;   // ISO
-  checkOut: string;  // ISO
-  status: 'pending' | 'confirmed' | 'cancelled';
-}
-
-interface CommentItem {
-  id: string;
-  placeTitle: string;
-  authorName: string;
-  rating: number;   // 1..5
-  content: string;
-  createdAt: string; // ISO
-  reply?: string;
-}
+type Section = 'places' | 'metrics' | 'bookings';
 
 @Component({
   selector: 'app-host-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
-  templateUrl: './host-dashboard.html',
-  styleUrls: ['./host-dashboard.css']
+  imports: [CommonModule, FormsModule, RouterModule],
+  templateUrl: './host-dashboard.html'
 })
-export class HostDashboardComponent {
+export class HostDashboard implements OnInit {
 
-  // sección activa
-  section = signal<Section>('overview');
+  // pestañas
+  section = signal<Section>('places');
 
-  // ——— Mock DATA SOLO VISUAL (puedes borrar cuando conectes API) ———
-  welcomeName = 'Alex';
+  // data
+  places = signal<PlaceListItemDTO[]>([]);
+  loadingPlaces = signal<boolean>(false);
 
-  places = signal<PlaceListItemDTO[]>([
-    { id: '1', title: 'Apartamento Centro', price: 160000, photo_url: 'assets/demo/lodgings/loft-armenia.jpg', average_rating: 4.2, city: 'Armenia' },
-    { id: '2', title: 'Casa de Playa', price: 220000, photo_url: 'assets/demo/lodgings/cabana-salento.jpg', average_rating: 4.8, city: 'Cartagena' },
-    { id: '3', title: 'Estudio Céntrico', price: 130000, photo_url: 'assets/demo/lodgings/estudio-pereira.jpg', average_rating: 4.5, city: 'Pereira' },
-  ]);
+  selectedPlaceId = signal<string | null>(null);
 
-  // estados de alojamiento solo para la vista
-  placeStatus: Record<string, 'active' | 'deleted'> = { '1': 'active', '2': 'active', '3': 'deleted' };
-  futureBookingsCount: Record<string, number> = { '1': 2, '2': 0, '3': 0 };
+  // métricas
+  from = signal<string>(''); // YYYY-MM-DD
+  to   = signal<string>('');
+  stats = signal<PlaceStatsDTO | null>(null);
+  loadingStats = signal<boolean>(false);
 
-  bookings = signal<BookingItem[]>([
-    { id: 'b1', guestName: 'Juan Pérez', placeTitle: 'Apartamento Centro', checkIn: '2025-09-15', checkOut: '2025-09-18', status: 'pending' },
-    { id: 'b2', guestName: 'Ana Gómez', placeTitle: 'Casa de Playa', checkIn: '2025-10-02', checkOut: '2025-10-05', status: 'confirmed' },
-    { id: 'b3', guestName: 'Luis Díaz', placeTitle: 'Apartamento Centro', checkIn: '2025-11-12', checkOut: '2025-11-15', status: 'cancelled' },
-  ]);
+  // reservas
+  bookings = signal<BookingDTO[]>([]);
+  loadingBookings = signal<boolean>(false);
+  bookingStatus = signal<string>(''); // '', 'PENDING', 'CONFIRMED', 'CANCELED', 'COMPLETED'
 
-  comments = signal<CommentItem[]>([
-    { id:'c1', placeTitle:'Apartamento Centro', authorName:'Juan', rating:5, content:'Excelente servicio y muy aseado, recomendado', createdAt:'2025-08-01' },
-    { id:'c2', placeTitle:'Casa de Playa', authorName:'Ana', rating:4, content:'Lindo y aseado, pero tenía un olor extraño', createdAt:'2025-08-15' },
-  ]);
+  constructor(
+    private userService: UserService,
+    private placesApi: PlacesApiService,
+    private bookingsApi: BookingsApiService
+  ) {}
 
-  // filtros (Alojamientos)
-  search = signal<string>('');
-
-  filteredPlaces = computed(() => {
-    const q = this.search().toLowerCase().trim();
-    return this.places().filter(p =>
-      !q || `${p.title} ${p.city}`.toLowerCase().includes(q)
-    );
-  });
-
-  // KPIs del resumen (desde datos locales para que ya se vea)
-  activeListings = computed(() =>
-    this.places().filter(p => this.placeStatus[p.id] === 'active').length
-  );
-  upcomingBookings = computed(() =>
-    Object.values(this.futureBookingsCount).reduce((a,b)=>a+b,0)
-  );
-  ratingAvg = computed(() => {
-    const arr = this.places().map(p => p.average_rating);
-    return arr.length ? (arr.reduce((a,b)=>a+b,0) / arr.length) : 0;
-  });
-
-  cop(n: number) {
-    return new Intl.NumberFormat('es-CO', { style:'currency', currency:'COP', maximumFractionDigits:0 }).format(n);
+  ngOnInit(): void {
+    this.loadMyPlaces();
   }
-  onSearchInput(ev: Event) {
-    const value = (ev.target as HTMLInputElement)?.value ?? '';
-    this.search.set(value);
-  }
-  setSection(s: Section) { this.section.set(s); }
 
-  protected readonly HTMLInputElement = HTMLInputElement;
+  setSection(s: Section) {
+    this.section.set(s);
+  }
+
+  // ============ MIS ALOJAMIENTOS ============
+
+  loadMyPlaces() {
+    this.loadingPlaces.set(true);
+    this.userService.myPlaces(0).subscribe({
+      next: (list) => { this.places.set(list ?? []); this.loadingPlaces.set(false); },
+      error: (err) => { console.error('[HostDashboard] myPlaces error', err); this.loadingPlaces.set(false); }
+    });
+  }
+
+  pickPlaceFor(section: Section, id: string) {
+    this.selectedPlaceId.set(id);
+    this.section.set(section);
+  }
+
+  // Eliminar con verificación de reservas futuras confirmadas
+  deletePlace(id: string) {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const from = today.toISOString().slice(0,10); // YYYY-MM-DD
+
+    Swal.fire({ title: 'Verificando reservas…', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+
+    // Usa BookingsApiService.listByPlace (query params) y normaliza paginado
+    this.bookingsApi.listByPlace(id, { from, state: 'CONFIRMED', page: 0 }).subscribe({
+      next: ({ rows }) => {
+        const hasFuture = Array.isArray(rows) && rows.length > 0;
+        if (hasFuture) {
+          Swal.fire({
+            icon: 'info',
+            title: 'No se puede eliminar',
+            text: 'Este alojamiento tiene reservas futuras confirmadas.'
+          });
+          return;
+        }
+
+        Swal.fire({
+          icon: 'warning',
+          title: 'Eliminar alojamiento',
+          text: 'Se marcará como eliminado (soft delete). ¿Continuar?',
+          showCancelButton: true,
+          confirmButtonText: 'Sí, eliminar',
+          cancelButtonText: 'Cancelar'
+        }).then(res => {
+          if (!res.isConfirmed) return;
+
+          Swal.fire({ title: 'Eliminando…', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+
+          this.placesApi.delete(id).subscribe({
+            next: () => {
+              Swal.fire({ icon: 'success', title: 'Eliminado', text: 'Alojamiento eliminado.' });
+              this.places.set(this.places().filter(p => p.id !== id));
+              if (this.selectedPlaceId() === id) this.selectedPlaceId.set(null);
+            },
+            error: (err) => {
+              Swal.fire({ icon: 'error', title: 'No se pudo eliminar', text: err?.error?.message ?? 'Inténtalo de nuevo.' });
+            }
+          });
+        });
+      },
+      error: (err) => {
+        Swal.fire({ icon: 'error', title: 'Error verificando reservas', text: err?.error?.message ?? 'Inténtalo de nuevo.' });
+      }
+    });
+  }
+
+  // ============ MÉTRICAS ============
+
+  loadStats() {
+    const pid = this.selectedPlaceId();
+    if (!pid) {
+      Swal.fire({ icon: 'info', title: 'Selecciona un alojamiento', text: 'Elige un alojamiento en “Mis alojamientos”.' });
+      return;
+    }
+    this.loadingStats.set(true);
+    this.placesApi.stats(pid, this.from() || undefined, this.to() || undefined).subscribe({
+      next: (data) => { this.stats.set(data); this.loadingStats.set(false); },
+      error: (err) => { console.error('[HostDashboard] stats error', err); this.loadingStats.set(false); Swal.fire({ icon:'error', title:'No se pudieron cargar métricas' }); }
+    });
+  }
+
+  // ============ RESERVAS ============
+
+  loadBookings() {
+    const pid = this.selectedPlaceId();
+    if (!pid) {
+      Swal.fire({ icon:'info', title:'Selecciona un alojamiento', text:'Elige un alojamiento para ver reservas.' });
+      return;
+    }
+
+    const q: any = { page: 0 };
+    if (this.from()) q.from = this.from();
+    if (this.to())   q.to = this.to();
+    if (this.bookingStatus()) q.state = this.bookingStatus();
+
+    this.loadingBookings.set(true);
+    this.bookingsApi.listByPlace(pid, q).subscribe({
+      next: ({ rows /*, page*/ }) => { this.bookings.set(rows || []); this.loadingBookings.set(false); },
+      error: (err) => { console.error('[HostDashboard] listByPlace error', err); this.loadingBookings.set(false); Swal.fire({ icon:'error', title:'No se pudieron cargar reservas' }); }
+    });
+  }
+
+  // Acciones sobre reservas (usar endpoints existentes)
+  confirmBooking(bookingId: string) {
+    Swal.fire({ title: 'Confirmando…', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+    this.bookingsApi.confirm(bookingId).subscribe({
+      next: () => { Swal.fire({ icon:'success', title:'Reserva confirmada' }); this.loadBookings(); },
+      error: (err) => { Swal.fire({ icon:'error', title:'No se pudo confirmar', text: err?.error?.message ?? 'Inténtalo de nuevo.' }); }
+    });
+  }
+
+  rejectBooking(bookingId: string) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Rechazar reserva',
+      text: '¿Seguro que deseas rechazar esta reserva?',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, rechazar',
+      cancelButtonText: 'Cancelar'
+    }).then(r => {
+      if (!r.isConfirmed) return;
+      Swal.fire({ title: 'Rechazando…', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+      this.bookingsApi.reject(bookingId).subscribe({
+        next: () => { Swal.fire({ icon:'success', title:'Reserva rechazada' }); this.loadBookings(); },
+        error: (err) => { Swal.fire({ icon:'error', title:'No se pudo rechazar', text: err?.error?.message ?? 'Verifica que el endpoint /reject esté habilitado.' }); }
+      });
+    });
+  }
+
+  deleteBooking(bookingId: string) {
+    Swal.fire({
+      icon:'warning',
+      title:'Eliminar reserva',
+      text:'¿Seguro que deseas eliminar esta reserva?',
+      showCancelButton:true,
+      confirmButtonText:'Sí, eliminar',
+      cancelButtonText:'Cancelar'
+    }).then(r => {
+      if (!r.isConfirmed) return;
+      Swal.fire({ title: 'Eliminando…', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+      this.bookingsApi.delete(bookingId).subscribe({
+        next: () => { Swal.fire({ icon:'success', title:'Reserva eliminada' }); this.loadBookings(); },
+        error: (err) => { Swal.fire({ icon:'error', title:'No se pudo eliminar', text: err?.error?.message ?? 'Inténtalo de nuevo.' }); }
+      });
+    });
+  }
 }

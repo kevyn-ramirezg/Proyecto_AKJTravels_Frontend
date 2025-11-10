@@ -221,7 +221,12 @@
           <!-- Footer actions -->
           <div class="actions">
             <button type="button" class="btn btn-outline" (click)="back()" [disabled]="step===0">Atrás</button>
-            <button class="btn btn-gradient" type="submit" [disabled]="!canNext()">
+            <button
+              type="button"
+              class="btn btn-gradient"
+              (click)="submit()"
+              [class.is-disabled]="!canNext()"
+              [attr.aria-disabled]="!canNext() ? true : null">
               {{ step < 3 ? 'Siguiente' : 'Guardar' }}
             </button>
           </div>
