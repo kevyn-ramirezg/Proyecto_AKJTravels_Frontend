@@ -1,4 +1,6 @@
 import {Injectable, signal} from '@angular/core';
+import {environment} from '../../environments/environment';
+import mapboxgl from 'mapbox-gl';
 
 const TOKEN_KEY = 'AuthToken';
 
@@ -8,20 +10,18 @@ export class TokenService {
   public readonly isLoggedSig = signal<boolean>(!!localStorage.getItem(TOKEN_KEY));
   private logoutTimer: any = null;
   constructor() {
-    const token = localStorage.getItem(TOKEN_KEY);
-    if (token) this.scheduleAutoLogout(token);
+    const t = localStorage.getItem(TOKEN_KEY);
+    if (t) this.scheduleAutoLogout(t);
 
-    // Sincroniza login/logout entre pestañas/ventanas
     window.addEventListener('storage', (e) => {
       if (e.key === TOKEN_KEY) {
         this.isLoggedSig.set(!!e.newValue);
-        // si cambió el token, reprograma el auto-logout
         if (e.newValue) this.scheduleAutoLogout(e.newValue);
         else this.clearLogoutTimer();
       }
     });
-
   }
+
   private setToken(token: string) {
     localStorage.setItem(TOKEN_KEY, token);
     this.isLoggedSig.set(true);

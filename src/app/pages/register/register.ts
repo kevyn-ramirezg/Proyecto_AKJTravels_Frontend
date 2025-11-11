@@ -3,8 +3,9 @@ import {
   AbstractControlOptions, FormBuilder, FormGroup, ReactiveFormsModule, Validators
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import{ CreateUserDTO } from '../../model/create-user-dto';
 import { Router, RouterLink } from '@angular/router';
-import { AuthRegisterService, CreateUserDTO,  } from '../../services/auth-service';
+import { AuthRegisterService } from '../../services/auth-service';
 import {ResponseDTO} from '../../model/response-dto';
 import * as Swal from 'sweetalert2';
 import {UserService} from '../../services/user-service';

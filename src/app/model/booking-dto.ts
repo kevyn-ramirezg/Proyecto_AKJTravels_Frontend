@@ -1,9 +1,10 @@
 export interface BookingDTO {
-  bookingState: BookingState;
-  user: BookingUserDTO;
-  checkIn: string;    // LocalDate -> ISO
-  checkOut: string;   // LocalDate -> ISO
-  guest_number: number;
+  id: string;
+  guestName: string;    // nombre del huésped
+  placeTitle: string;   // título del alojamiento
+  checkIn: string;      // ISO date
+  checkOut: string;     // ISO date
+  state: BookingState;  // estado normalizado
 }
 export type BookingState = 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'COMPLETED';
 export type Role = 'USER' | 'HOST';

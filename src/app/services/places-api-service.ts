@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+// src/app/services/places-api-service.ts
+import { Inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { ResponseDTO } from '../model/response-dto';
@@ -7,24 +8,28 @@ import { PlaceDetailDTO } from '../model/place-detail-dto';
 import { CreatePlaceDTO } from '../model/create-place-dto';
 import { EditPlaceDTO } from '../model/edit-place-dto';
 import { ListPlaceDTO } from '../model/list-place-dto';
-import {PlaceDTO} from '../model/place-dto';
-import * as sweetalert2 from 'sweetalert2';
+import { API_BASE } from '../core/api-base-token';
+import {normalizeListFromMessage, PageMeta} from '../utils/normalize';
 
 @Injectable({ providedIn: 'root' })
 export class PlacesApiService {
-  private readonly baseUrl = 'http://localhost:8080/api/places';
+  private readonly baseUrl: string;     // /api/places
+  private readonly bookingsUrl: string; // /api/places  (para .../{placeId}/bookings)
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, @Inject(API_BASE) private api: string) {
+    this.baseUrl     = `${this.api}/places`;
+    this.bookingsUrl = `${this.api}/bookings`;
+  }
 
-  // LISTA paginada (GET con body: filtros)
-  list(page = 0, filters?: Partial<ListPlaceDTO>): Observable<PlaceListItemDTO[]> {
-    const body = filters ?? {};
+
+
+  // LISTA lugares
+  list(page = 0, _filters?: Partial<ListPlaceDTO>): Observable<PlaceListItemDTO[]> {
     return this.http
       .get<ResponseDTO<PlaceListItemDTO[]>>(`${this.baseUrl}/${page}`)
       .pipe(map(res => res.message));
   }
 
-  // Alias “cómodo” para tu pantalla /my-places
   getAll(): Observable<PlaceListItemDTO[]> {
     return this.list(0);
   }
@@ -64,41 +69,53 @@ export class PlacesApiService {
       .pipe(map(res => res.message));
   }
 
-  // COMENTARIOS (paginado)
+  // COMENTARIOS
   listComments(id: string, page = 0): Observable<any[]> {
     return this.http
       .get<ResponseDTO<any[]>>(`${this.baseUrl}/${id}/comments/${page}`)
       .pipe(map(res => res.message));
   }
 
-  // RESERVAS (GET con body: filtros)
-  listBookings(id: string, page = 0, filters?: any) {
-    let params = new HttpParams().set('page', String(page));
-    if (filters) {
-      Object.entries(filters).forEach(([k, v]) => {
-        if (v !== undefined && v !== null && v !== '') params = params.set(k, String(v));
-      });
-    }
-    return this.http
-      .get<ResponseDTO<any[] | { content: any[] }>>(`${this.baseUrl}/${id}/bookings`, { params })
-      .pipe(map(res => {
-        const msg = res.message as any;
-        return Array.isArray(msg?.content) ? msg.content : (msg ?? []);
-      }));
+  // ---- RESERVAS por alojamiento (BookingController) ----
+  private toIsoDateTime(date?: string, end = false): string | undefined {
+    if (!date) return undefined;
+    if (date.includes('T')) return date;
+    return `${date}T${end ? '23:59:59' : '00:00:00'}`;
   }
 
-  // STATS (query params opcionales)
+
+  listBookings(
+    placeId: string,
+    page = 0,
+    filters?: { from?: string; to?: string; state?: string; guest_number?: number }
+  ): Observable<{ rows: any[]; page?: PageMeta<any> }> {
+    let params = new HttpParams().set('page', String(page));
+    if (filters) {
+      const fromISO = this.toIsoDateTime(filters.from, false);
+      const toISO   = this.toIsoDateTime(filters.to, true);
+      if (fromISO) params = params.set('from', fromISO);
+      if (toISO)   params = params.set('to', toISO);
+      if (filters.state) params = params.set('state', filters.state);
+      if (filters.guest_number != null) params = params.set('guest_number', String(filters.guest_number));
+    }
+
+    return this.http
+      .get<ResponseDTO<any[] | { content: any[] }>>(`${this.bookingsUrl}/${placeId}/bookings`, { params })
+      .pipe(map(res => normalizeListFromMessage<any>(res.message)));
+  }
+
+  // STATS
   stats(placeId: string, from?: string, to?: string): Observable<any> {
     let params = new HttpParams();
     if (from) params = params.set('from', from);
-    if (to) params = params.set('to', to);
+    if (to)   params = params.set('to', to);
 
     return this.http
       .get<ResponseDTO<any>>(`${this.baseUrl}/${placeId}/stats`, { params })
       .pipe(map(res => res.message));
   }
 
-  // UPLOAD IMÁGENES (multipart)
+  // SUBIR IMÁGENES
   uploadImages(placeId: string, files: File[], mainIndex: number): Observable<any> {
     const form = new FormData();
     files.forEach(f => form.append('files', f));

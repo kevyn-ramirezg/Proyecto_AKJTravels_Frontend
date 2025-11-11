@@ -1,38 +1,26 @@
-import { Injectable } from '@angular/core';
+// src/app/services/auth-service.ts
+import { Inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import {LoginDTO} from '../model/login-dto';
-import {ResponseDTO} from '../model/response-dto';
-import {TokenDTO} from '../model/token-dto';
-
-
-export type Role = 'USER' | 'HOST';
-
-export interface CreateUserDTO {
-  name: string;
-  surname: string;
-  email: string;
-  phone: string;
-  birthDate: string;   // yyyy-MM-dd
-  password: string;
-  role: Role;
-  country: string;     // <-- AÑADE ESTO
-  photoUrl: string;
-}
+import { LoginDTO } from '../model/login-dto';
+import { ResponseDTO } from '../model/response-dto';
+import { TokenDTO } from '../model/token-dto';
+import { API_BASE } from '../core/api-base-token';
+import { CreateUserDTO } from '../model/create-user-dto';
 
 @Injectable({ providedIn: 'root' })
 export class AuthRegisterService {
-  private authURL = "http://localhost:8080/api/auth";
+  private readonly base: string;
 
-
-  constructor(private http: HttpClient) {}
-
-  public login(loginDTO: LoginDTO): Observable<ResponseDTO<TokenDTO>> {
-    return this.http.post<ResponseDTO<TokenDTO>>(`${this.authURL}/login`, loginDTO);
+  constructor(private http: HttpClient, @Inject(API_BASE) private api: string) {
+    this.base = `${this.api}/auth`;
   }
+
+  public login(dto: LoginDTO): Observable<ResponseDTO<TokenDTO>> {
+    return this.http.post<ResponseDTO<TokenDTO>>(`${this.base}/login`, dto);
+  }
+
   register(dto: CreateUserDTO): Observable<ResponseDTO<string>> {
-    return this.http.post<ResponseDTO<string>>(this.authURL, dto);
+    return this.http.post<ResponseDTO<string>>(`${this.base}/register`, dto);
   }
 }
-/*
-*/
