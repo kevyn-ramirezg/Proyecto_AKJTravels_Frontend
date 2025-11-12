@@ -14,7 +14,6 @@ import { BookingDTO, BookingState } from '../../model/booking-dto';
 import { TokenService } from '../../services/token-service';
 import { PageMeta } from '../../utils/normalize';
 
-// --- Tipos de sección ---
 type Section = 'places' | 'metrics' | 'bookings';
 
 @Component({
@@ -39,6 +38,7 @@ export class HostDashboard implements OnInit {
   // Mis alojamientos (CRUD)
   // =====================
   places = signal<PlaceListItemDTO[]>([]);
+  searchTerm = signal<string>('');
   loadingPlaces = signal<boolean>(false);
 
   selectedPlaceId = signal<string | null>(null);
@@ -63,6 +63,16 @@ export class HostDashboard implements OnInit {
   loadingBookings = signal<boolean>(false);
   bookingStatus = signal<BookingState | ''>(''); // '', 'PENDING', 'CONFIRMED', 'CANCELED', 'COMPLETED'
 
+  filteredPlaces = computed(() => {
+    const q = (this.searchTerm() || '').trim().toLowerCase();
+    const data = this.places() || [];
+    if (!q) return data;
+    return data.filter(p =>
+      (p.title || '').toLowerCase().includes(q) ||
+      (p.city  || '').toLowerCase().includes(q)
+    );
+  });
+
   constructor(
     private readonly router: Router,
     private readonly userService: UserService,
@@ -71,9 +81,6 @@ export class HostDashboard implements OnInit {
     private readonly bookingsApi: BookingsApiService,
   ) {}
 
-  // =====================
-  // Ciclo de vida
-  // =====================
   ngOnInit(): void {
     this.loadMyPlaces();
   }
@@ -113,10 +120,13 @@ export class HostDashboard implements OnInit {
   }
 
   navigateEditPlace(id: string | number) {
-    this.router.navigate(['/create-place'], { queryParams: { edit: String(id) } });
+    this.router.navigate(['/edit-place', String(id)]);
   }
 
-  // Eliminar con verificación de reservas futuras confirmadas (soft delete en backend)
+  navigateViewPlace(id: string | number) {
+    this.router.navigate(['/place', String(id)]);
+  }
+
   deletePlace(id: string | number) {
     const today = new Date(); today.setHours(0,0,0,0);
     const from = today.toISOString().slice(0,10); // YYYY-MM-DD
@@ -159,8 +169,8 @@ export class HostDashboard implements OnInit {
           });
         });
       },
-      error: (err) => {
-        Swal.fire({ icon: 'error', title: 'Error verificando reservas', text: err?.error?.message ?? 'Inténtalo de nuevo.' });
+      error: () => {
+        Swal.fire({ icon: 'error', title: 'Error verificando reservas', text: 'Inténtalo de nuevo.' });
       }
     });
   }
@@ -175,7 +185,6 @@ export class HostDashboard implements OnInit {
       return;
     }
     this.loadingStats.set(true);
-    // Si tu backend requiere ISO completo, ajusta el formato en el servicio o aquí.
     this.placesApi.stats(String(pid), this.from() || undefined, this.to() || undefined).subscribe({
       next: (data) => { this.stats.set(data); this.loadingStats.set(false); },
       error: (err) => {
@@ -212,7 +221,6 @@ export class HostDashboard implements OnInit {
     });
   }
 
-  // Acciones sobre reservas (flujo opcional de confirmación manual)
   confirmBooking(bookingId: string) {
     Swal.fire({ title: 'Confirmando…', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
     this.bookingsApi.confirm(bookingId).subscribe({
@@ -254,6 +262,22 @@ export class HostDashboard implements OnInit {
         next: () => { Swal.fire({ icon:'success', title:'Reserva eliminada' }); this.loadBookings(); },
         error: (err) => { Swal.fire({ icon:'error', title:'No se pudo eliminar', text: err?.error?.message ?? 'Inténtalo de nuevo.' }); }
       });
+    });
+  }
+
+  // Info rápida de reserva
+  showBookingInfo(b: BookingDTO) {
+    Swal.fire({
+      icon: 'info',
+      title: b.placeTitle || 'Reserva',
+      html: `
+        <div style="text-align:left">
+          <div><b>Huésped:</b> ${b.guestName ?? '—'}</div>
+          <div><b>Entrada:</b> ${new Date(b.checkIn).toLocaleString()}</div>
+          <div><b>Salida:</b> ${new Date(b.checkOut).toLocaleString()}</div>
+          <div><b>Estado:</b> ${b.state}</div>
+        </div>
+      `
     });
   }
 }

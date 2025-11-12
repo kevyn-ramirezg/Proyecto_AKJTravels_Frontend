@@ -1,124 +1,242 @@
+/* Fondo gradiente a pantalla completa solo para páginas con .page-gradient */
+.dashboard-page.page-gradient {
+  min-height: 100vh;
+  /* gradiente oficial del proyecto */
+  background: linear-gradient(135deg, #004aad 0%, #cb6ce6 100%);
+  background-attachment: fixed;
+  /* padding alto para respirar contra el borde */
+  padding-top: clamp(1rem, 2vw, 2rem);
+  padding-bottom: clamp(1rem, 2vw, 2rem);
+}
+
+/* Asegura legibilidad de nav-pills sobre gradiente */
+.page-gradient .nav-pills .nav-link {
+  color: rgba(255,255,255,.85);
+  backdrop-filter: saturate(120%) blur(2px);
+  border: 1px solid rgba(255,255,255,.15);
+  background-color: rgba(255,255,255,.08);
+}
+.page-gradient .nav-pills .nav-link:hover {
+  background-color: rgba(255,255,255,.14);
+}
+.page-gradient .nav-pills .nav-link.active {
+  color: #fff;
+  background: rgba(255,255,255,.22);
+  border-color: rgba(255,255,255,.25);
+}
+
+/* Tarjetas sobre gradiente: blanco limpio, sombras suaves */
+.page-gradient .card {
+  background: rgba(255,255,255,.92);
+  backdrop-filter: saturate(150%) blur(6px);
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+}
+
+/* Input-group y form-select legibles dentro del gradiente */
+.page-gradient .form-control,
+.page-gradient .form-select,
+.page-gradient .input-group-text {
+  background-color: #fff;
+  color: #212529;
+  border: 2px solid var(--border-strong, #dfe3e7);
+  border-radius: 10px;
+  height: 42px; /* tu estándar */
+}
+
+/* Botón gradiente global (si no lo tienes ya) */
+.btn-gradient {
+  background-image: linear-gradient(90deg, #004aad, #cb6ce6);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 16px;
+}
+.btn-gradient:disabled {
+  background-image: none;
+  background-color: #e9ecef;
+  color: #9aa0a6;
+}
+
+/* Badges y chips con buen contraste */
+.page-gradient .badge.text-bg-warning,
+.page-gradient .badge.text-bg-success,
+.page-gradient .badge.text-bg-secondary {
+  box-shadow: 0 2px 10px rgba(0,0,0,.08);
+}
+
+/* Logo blanco dentro de header oscuro */
+.page-gradient .logo,
+.page-gradient .logo span {
+  color: #fff;
+}
+
+/* Aumenta separación entre columnas (tu preferencia) */
+.container, .container-fluid {
+  --bs-gutter-x: 2rem;
+}
+/* Asegura altura completa */
+html, body { height: 100%; }
+
+/* Si .create-place-page trae background blanco, sobreescríbelo */
+.create-place-page.page-gradient,
+.dashboard-page.page-gradient {
+  min-height: 100dvh;
+  background: linear-gradient(135deg, #004aad 0%, #cb6ce6 100%) !important;
+  background-attachment: fixed;
+  padding-top: clamp(1rem, 2vw, 2rem);
+  padding-bottom: clamp(1rem, 2vw, 2rem);
+}
+
+/* Pills legibles sobre gradiente */
+.page-gradient .nav-pills .nav-link {
+  color: rgba(255,255,255,.85);
+  border: 1px solid rgba(255,255,255,.15);
+  background-color: rgba(255,255,255,.08);
+  backdrop-filter: saturate(120%) blur(2px);
+}
+.page-gradient .nav-pills .nav-link:hover { background-color: rgba(255,255,255,.14); }
+.page-gradient .nav-pills .nav-link.active {
+  color: #fff;
+  background: rgba(255,255,255,.22);
+  border-color: rgba(255,255,255,.25);
+}
+
+/* Cards “flotando” sobre el gradiente */
+.page-gradient .card {
+  background: rgba(255,255,255,.92);
+  backdrop-filter: saturate(150%) blur(6px);
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+}
+
+/* Inputs con tu estándar */
+.page-gradient .form-control,
+.page-gradient .form-select,
+.page-gradient .input-group-text {
+  background-color: #fff;
+  color: #212529;
+  border: 2px solid var(--border-strong, #dfe3e7);
+  border-radius: 10px;
+  height: 42px;
+}
+
+/* Botón gradiente de acción */
+.btn-gradient {
+  background-image: linear-gradient(90deg, #004aad, #cb6ce6);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 16px;
+}
+.btn-gradient:disabled {
+  background-image: none;
+  background-color: #e9ecef;
+  color: #9aa0a6;
+}
+
+/* Más espacio entre columnas (tu preferencia) */
+.container, .container-fluid { --bs-gutter-x: 2rem; }
+
+/* contenedor recorta bordes superiores como la card */
+.card-cover{
+  overflow: hidden;
+  border-top-left-radius: .5rem;
+  border-top-right-radius: .5rem;
+}
+
+/* utilidad para no deformar y recortar centrado */
+.of-cover{ object-fit: cover; object-position: center; }
 :root{
-  --primary-start:#004aad;
-  --primary-end:#cb6ce6;
-  --text:#111827;
-  --muted:#9aa0a6;
-  --card:#fff;
-  --border: #e5e7eb;
-  --border-strong:#ced4da;
-  --success:#10b981;
-  --danger:#ef4444;
-  --warning:#f59e0b;
+  --grad-a:#004aad;
+  --grad-b:#cb6ce6;
 }
 
-.host-dashboard{ font-family:Poppins,system-ui,Segoe UI,Roboto,Arial,sans-serif; color:var(--text); }
+/* La banda de secciones ocupa el 100% del container, con radios y borde sutil */
+.hd-tabs-band{
+  width:100%;
+  display:flex;
+  gap:.5rem;
+  padding:.6rem;                 /* mismo acolchado del recuadro blanco */
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.45);
+  background:rgba(255,255,255,.08);   /* leve “glass” sobre el gradient */
+  backdrop-filter:saturate(160%) blur(2px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.15);
+}
 
-.hd-hero{
-  background: linear-gradient(90deg,var(--primary-start),var(--primary-end));
+/* Botones dentro de la banda */
+.hd-tabs-band .nav-link{
   color:#fff;
-  padding: 32px 0 20px;
-  text-align:center;
-  position:relative;
-}
-.hd-hero .brand{
-  position:absolute; left:24px; top:18px; font-weight:700; letter-spacing:.5px;
-}
-.hd-hero .brand span{ font-weight:400; }
-.hd-hero h1{ font-size:30px; font-weight:700; margin:0 0 16px; }
-.hd-hero .welcome{ position:absolute; right:24px; top:18px; opacity:.95 }
-
-.tabs{
-  display:flex; gap:14px; justify-content:center; flex-wrap:wrap;
-}
-.tab{
-  display:inline-flex; align-items:center; gap:8px;
-  background:#fff; color:#1f2937; border-radius:14px;
-  padding:10px 18px; border:2px solid #ffffff80; font-weight:600;
-}
-.tab .i{ font-variation-settings:"FILL" 1; }
-.tab.active{
-  border-color:#ffffff; box-shadow:0 0 0 2px #ffffff40 inset;
-  background: linear-gradient(90deg, #ffffffee, #ffffffc0);
+  border:1px solid rgba(255,255,255,.45);
+  background:transparent;
+  border-radius:12px;
+  padding:.55rem .9rem;
+  transition:background .2s, border-color .2s, box-shadow .2s, color .2s;
 }
 
-.container{ max-width:1060px; margin:0 auto; padding: 18px; }
-.card{ background:var(--card); border-radius:18px; box-shadow:0 8px 24px rgba(0,0,0,.08); padding:18px; }
-.card-lite{ background:#fff; border:2px solid var(--border); border-radius:16px; padding:16px; }
-
-.panel{ margin-top:18px; }
-.panel-head{
-  display:flex; gap:12px; align-items:end; flex-wrap:wrap; margin-bottom:16px;
-}
-.label-caps{ font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:#555; font-weight:600; margin-bottom:6px; display:block; }
-
-.form-control{
-  height:42px; border:2px solid var(--border-strong); border-radius:10px; padding:0 12px; outline:none;
-}
-.form-control:focus{
-  box-shadow:0 0 0 3px #fff, 0 0 0 6px #7aa7ff40; border-color:#7aa7ff;
+/* Hover */
+.hd-tabs-band .nav-link:hover{
+  border-color: rgba(255,255,255,.7);
+  box-shadow: 0 2px 10px rgba(0,0,0,.08);
 }
 
-.btn{ height:42px; border-radius:12px; padding:0 14px; border:2px solid transparent; font-weight:600; }
-.btn-gradient{
-  background: linear-gradient(90deg,var(--primary-start),var(--primary-end));
+/* Activo con tu gradiente */
+.hd-tabs-band .nav-link.active{
+  border-color: transparent;
+  background: linear-gradient(90deg, var(--grad-a), var(--grad-b));
+  box-shadow: 0 0 0 2px rgba(255,255,255,.25) inset;
+}
+
+/* Responsive: si no cabe, que salten de línea manteniendo la misma banda */
+@media (max-width: 768px){
+  .hd-tabs-band{
+    flex-wrap: wrap;
+    row-gap: .5rem;
+  }
+}
+
+:root{
+  --grad-a:#004aad;
+  --grad-b:#cb6ce6;
+}
+
+/* La banda ocupa el 100% del container */
+.dashboard-page .nav.nav-pills{
+  width:100%;
+  display:flex;
+  gap:.5rem;
+  padding:.6rem;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.45);
+  background:rgba(255,255,255,.08);
+  backdrop-filter:saturate(160%) blur(2px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.15);
+  box-sizing:border-box;
+  margin-bottom: .75rem !important; /* acércala al recuadro blanco */
+}
+
+/* Botones dentro de la banda */
+.dashboard-page .nav.nav-pills .nav-link{
   color:#fff;
+  border:1px solid rgba(255,255,255,.45);
+  background:transparent;
+  border-radius:12px;
+  padding:.55rem .9rem;
+  transition:background .2s, border-color .2s, box-shadow .2s, color .2s;
 }
-.btn-outline{ background:#fff; border-color:var(--border-strong); }
-.btn-outline.success{ border-color: #34d399; color:#065f46; }
-.btn-outline.danger{ border-color:#fecaca; color:#991b1b; }
-.btn-lite{ background:#f8fafc; border:2px solid #eef2f7; }
-
-.state{ padding:18px; text-align:center; }
-.state.muted{ color:var(--muted); }
-
-.search{ position:relative; }
-.search .material-symbols-rounded{
-  position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--muted);
+.dashboard-page .nav.nav-pills .nav-link:hover{
+  border-color: rgba(255,255,255,.7);
+  box-shadow: 0 2px 10px rgba(0,0,0,.08);
 }
-.search .form-control{ padding-left:38px; min-width:380px; }
-
-.place-list{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:12px; }
-.place-item{
-  display:grid; grid-template-columns: 120px 1fr auto; gap:16px; align-items:center;
-  border:2px solid var(--border); border-radius:16px; padding:10px 12px;
+.dashboard-page .nav.nav-pills .nav-link.active{
+  border-color: transparent;
+  background: linear-gradient(90deg, var(--grad-a), var(--grad-b));
+  box-shadow: 0 0 0 2px rgba(255,255,255,.25) inset;
 }
-.thumb{ width:120px; height:80px; object-fit:cover; border-radius:12px; }
-.meta .title{ font-weight:700; }
-.meta .sub{ color:var(--muted); font-size:14px; margin-top:2px; }
-.badges{ display:flex; align-items:center; gap:8px; margin-top:8px; }
-.badge{ padding:4px 8px; border-radius:999px; font-size:12px; border:1px solid #e2e8f0; }
-.badge.success{ background:#ecfdf5; color:#065f46; border-color:#d1fae5; }
-.rating{ display:inline-flex; align-items:center; gap:4px; color:#111; }
-.actions{ display:flex; gap:8px; }
 
-.kpis{ display:grid; grid-template-columns: repeat(2,1fr); gap:16px; margin-top:10px; }
-.k-label{ color:var(--muted); font-size:13px; }
-.k-value{ font-size:36px; font-weight:700; margin-top:4px; }
-
-.table-wrap{ overflow:auto; border:2px solid var(--border); border-radius:16px; }
-.table{ width:100%; border-collapse:separate; border-spacing:0; }
-.table th, .table td{ padding:12px 14px; border-bottom:1px solid var(--border); }
-.table thead th{ background:#f9fafb; text-align:left; font-weight:600; }
-.text-end{ text-align:right; }
-
-.pill{
-  display:inline-block; padding:4px 10px; border-radius:999px; font-size:12px; border:1px solid #e5e7eb;
-  background:#f8fafc;
+/* Responsive: si no caben, que salten de línea */
+@media (max-width: 768px){
+  .dashboard-page .nav.nav-pills{ flex-wrap: wrap; row-gap:.5rem; }
 }
-.p-pending{ background:#fff7ed; color:#a16207; border-color:#fde68a; }
-.p-confirmed{ background:#ecfdf5; color:#065f46; border-color:#a7f3d0; }
-.p-canceled{ background:#fef2f2; color:#991b1b; border-color:#fecaca; }
-.p-completed{ background:#f1f5f9; color:#334155; border-color:#e2e8f0; }
 
-/* pequeños */
-@media (max-width: 720px){
-  .place-item{ grid-template-columns: 1fr; }
-  .thumb{ width:100%; height:160px; }
-  .search .form-control{ min-width:240px; }
-}
-.status-chip{
-  display:inline-block; padding: .25rem .6rem; border-radius: 9999px;
-  font-size: .75rem; font-weight: 600; line-height: 1;
-}
-.status-chip.active{ background:#e7f7ee; color:#1e7e34; border:1px solid #c7edd7; }
-.status-chip.deleted{ background:#f6e7ea; color:#b02a37; border:1px solid #f0c6cd; }

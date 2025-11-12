@@ -13,6 +13,7 @@ import { ForgotPassword } from './pages/forgot-password/forgot-password';
 
 // ⬇️ Nuevo: componente de edición de perfil (standalone)
 import { EditProfile } from './pages/edit-profile/edit-profile';
+import {EditPlace} from './pages/edit-place/edit-place';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -28,7 +29,7 @@ export const routes: Routes = [
   { path: 'my-places', component: MyPlaces, canActivate: [authGuard, roleGuard], data: { expectedRole: ['HOST', 'ROLE_HOST'] } },
   { path: 'create-place', component: CreatePlace, canActivate: [authGuard, roleGuard], data: { expectedRole: ['HOST', 'ROLE_HOST'] } },
   { path: 'host-dashboard', component: HostDashboard, canActivate: [authGuard, roleGuard], data: { expectedRole: ['HOST', 'ROLE_HOST'] } },
-
+  {path: 'edit-place/:id', component: EditPlace, canActivate: [authGuard]},
   // Público
   { path: 'place/:id', component: DetailPlace },
 

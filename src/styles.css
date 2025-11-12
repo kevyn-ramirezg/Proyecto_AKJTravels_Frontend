@@ -95,3 +95,58 @@ body {
   background-color: #e9ecef !important;
   color: #9aa0a6 !important;
 }
+/* Altura completa para que el fondo cubra todo */
+html, body { height: 100%; }
+
+/* Gradiente reutilizable en páginas */
+:root {
+  --primary-start: #004aad;
+  --primary-end: #cb6ce6;
+}
+
+.page-gradient {
+  min-height: 100dvh;
+  background: linear-gradient(90deg, var(--primary-start), var(--primary-end)) !important;
+  background-attachment: fixed;
+  padding-top: clamp(1rem, 2vw, 2rem);
+  padding-bottom: clamp(1rem, 2vw, 2rem);
+}
+
+/* Por si hay algún fondo heredado de otro CSS, lo pisamos cuando hay .page-gradient */
+.page-gradient.dashboard-page,
+.page-gradient.create-place-page {
+  background: linear-gradient(90deg, var(--primary-start), var(--primary-end)) !important;
+}
+
+/* Legibilidad sobre gradiente (opcional) */
+.page-gradient .nav-pills .nav-link {
+  color: rgba(255,255,255,.85);
+  border: 1px solid rgba(255,255,255,.15);
+  background-color: rgba(255,255,255,.08);
+  backdrop-filter: saturate(120%) blur(2px);
+}
+.page-gradient .nav-pills .nav-link:hover { background-color: rgba(255,255,255,.14); }
+.page-gradient .nav-pills .nav-link.active {
+  color: #fff;
+  background: rgba(255,255,255,.22);
+  border-color: rgba(255,255,255,.25);
+}
+
+.page-gradient .card {
+  background: #fff;            /* o glass: rgba(255,255,255,.92) + backdrop-filter */
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+}
+
+.page-gradient .form-control,
+.page-gradient .form-select,
+.page-gradient .input-group-text {
+  background-color: #fff;
+  color: #212529;
+  border: 2px solid var(--border-strong, #dfe3e7);
+  border-radius: 10px;
+  height: 42px;
+}
+
+/* más separación entre columnas */
+.container, .container-fluid { --bs-gutter-x: 2rem; }
