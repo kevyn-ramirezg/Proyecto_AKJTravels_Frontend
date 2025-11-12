@@ -11,6 +11,7 @@ import { roleGuard } from './guards/role-guard';
 import { hostGuard } from './guards/host.guard';
 import { authGuard } from './guards/auth-guard';
 import { ForgotPassword } from './pages/forgot-password/forgot-password';
+import {EditPlace} from './pages/edit-place/edit-place';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -20,7 +21,7 @@ export const routes: Routes = [
   { path: 'create-place', component: CreatePlace, canActivate: [authGuard, roleGuard], data: { expectedRole: ['HOST', 'ROLE_HOST'] } },
   { path: 'place/:id', component: DetailPlace },
   { path: 'host-dashboard', component: HostDashboard, canActivate: [authGuard, roleGuard], data: { expectedRole: ['HOST', 'ROLE_HOST'] } },
-
+  {path: 'edit-place/:id', component: EditPlace, canActivate: [authGuard, hostGuard]},
   // ⬇️ NUEVO: grupo /auth con la ruta forgot-password (SIN guards)
   {
     path: 'auth',

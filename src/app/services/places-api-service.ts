@@ -128,4 +128,5 @@ export class PlacesApiService {
       .post<ResponseDTO<any>>(`${this.baseUrl}/${placeId}/images`, form)
       .pipe(map(res => res.message));
   }
+
 }
