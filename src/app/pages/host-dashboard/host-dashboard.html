@@ -50,6 +50,7 @@
                   <th>Imagen</th>
                   <th>Ciudad</th>
                   <th>Precio</th>
+                  <th>Estado</th>
                   <th class="text-center">Acciones</th>
                 </tr>
                 </thead>
@@ -66,21 +67,38 @@
                       </td>
                       <td>{{ item.city }}</td>
                       <td>{{ item.price | currency:'COP':'symbol':'1.0-0' }}</td>
+
+                      <!-- Estado (chip) -->
+                      <td class="text-center">
+          <span class="status-chip"
+                [class.active]="item.state === 'ACTIVE'"
+                [class.deleted]="item.state === 'DELETED'">
+  {{ item.state === 'DELETED' ? 'Eliminado' : 'Activo' }}
+</span>
+
+                      </td>
+
+                      <!-- Acciones (deshabilitadas si está eliminado) -->
                       <td class="text-center d-flex gap-2 justify-content-center flex-wrap">
-                        <a [routerLink]="['/place', item.id]" class="btn btn-outline-primary btn-icon" title="Ver">
+                        <a [routerLink]="['/place', item.id]"
+                           class="btn btn-outline-primary btn-icon"
+                           title="Ver">
                           <span class="material-symbols-rounded">visibility</span>
                         </a>
 
                         <button type="button"
                                 [routerLink]="['/edit-place', item.id]"
-                                class="btn btn-outline-success btn-icon" title="Editar">
+                                class="btn btn-outline-success btn-icon"
+                                [disabled]="item.state === 'DELETED'"
+                                [title]="item.state === 'DELETED' ? 'No se puede editar: eliminado' : 'Editar'">
                           <span class="material-symbols-rounded">edit</span>
                         </button>
 
                         <button type="button"
                                 class="btn btn-outline-danger btn-icon"
-                                title="Eliminar"
-                                (click)="deletePlace(item.id)">
+                                [disabled]="item.state === 'DELETED'"
+                                [title]="item.state === 'DELETED' ? 'Ya está eliminado' : 'Eliminar'"
+                                (click)="item.state !== 'DELETED' && deletePlace(item.id)">
                           <span class="material-symbols-rounded">delete</span>
                         </button>
                       </td>
@@ -88,6 +106,7 @@
                   }
                 </tbody>
               </table>
+
 
               @if (!places().length) {
                 <div class="text-center py-5 text-muted">

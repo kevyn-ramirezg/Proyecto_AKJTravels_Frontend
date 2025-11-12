@@ -116,3 +116,9 @@
   .thumb{ width:100%; height:160px; }
   .search .form-control{ min-width:240px; }
 }
+.status-chip{
+  display:inline-block; padding: .25rem .6rem; border-radius: 9999px;
+  font-size: .75rem; font-weight: 600; line-height: 1;
+}
+.status-chip.active{ background:#e7f7ee; color:#1e7e34; border:1px solid #c7edd7; }
+.status-chip.deleted{ background:#f6e7ea; color:#b02a37; border:1px solid #f0c6cd; }
