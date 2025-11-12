@@ -58,7 +58,7 @@ export class EditProfile implements OnInit {
     await this.cargarMe();
   }
 
-  // ====== CARGA PERFIL =====
+  // ===== CARGA PERFIL =====
   private async cargarMe() {
     this.cargando.set(true);
     this.errorMsg.set(null);
