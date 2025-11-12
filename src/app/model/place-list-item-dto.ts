@@ -1,3 +1,5 @@
+export type PlaceState = 'ACTIVE' | 'INACTIVE' | 'DELETED';
+
 export interface PlaceListItemDTO {
   id: string;                // <— nuevo
   title: string;
@@ -5,4 +7,5 @@ export interface PlaceListItemDTO {
   photo_url: string;
   average_rating: number;
   city: string;
+  state: PlaceState;
 }

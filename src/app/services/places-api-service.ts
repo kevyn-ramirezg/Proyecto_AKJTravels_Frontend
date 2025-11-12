@@ -103,7 +103,11 @@ export class PlacesApiService {
       .get<ResponseDTO<any[] | { content: any[] }>>(`${this.bookingsUrl}/${placeId}/bookings`, { params })
       .pipe(map(res => normalizeListFromMessage<any>(res.message)));
   }
-
+  getMine(page = 0) {
+    return this.http
+      .get<ResponseDTO<PlaceListItemDTO[]>>(`http://localhost:8080/api/places/me/${page}`)
+      .pipe(map(res => res.message));
+  }
   // STATS
   stats(placeId: string, from?: string, to?: string): Observable<any> {
     let params = new HttpParams();

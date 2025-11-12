@@ -101,16 +101,10 @@ export class HostDashboard implements OnInit {
   // =====================
   loadMyPlaces() {
     this.loadingPlaces.set(true);
-    this.userService.myPlaces(0).subscribe({
-      next: (list) => {
-        this.places.set(list ?? []);
-        this.loadingPlaces.set(false);
-      },
-      error: (err) => {
-        console.error('[HostDashboard] myPlaces error', err);
-        this.loadingPlaces.set(false);
-        Swal.fire({ icon: 'error', title: 'No se pudieron cargar tus alojamientos' });
-      }
+    this.placesApi.getMine(0).subscribe({
+      next: (list) => { this.places.set(list ?? []); this.loadingPlaces.set(false); },
+      error: (err) => { console.error('[HostDashboard] getMine error', err); this.loadingPlaces.set(false);
+        Swal.fire({ icon:'error', title:'No se pudieron cargar tus alojamientos' }); }
     });
   }
 
