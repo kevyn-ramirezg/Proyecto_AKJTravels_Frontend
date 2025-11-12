@@ -8,6 +8,17 @@ import { TokenDTO } from '../model/token-dto';
 import { API_BASE } from '../core/api-base-token';
 import { CreateUserDTO } from '../model/create-user-dto';
 
+// ⬇️ Exporta los DTOs para que el componente pueda importarlos
+export interface RequestResetPasswordDTO {
+  email: string;
+}
+
+export interface ResetPasswordDTO {
+  email: string;
+  code: string;
+  newPassword: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthRegisterService {
   private readonly base: string;
@@ -20,8 +31,22 @@ export class AuthRegisterService {
     return this.http.post<ResponseDTO<TokenDTO>>(`${this.base}/login`, dto);
   }
 
-  register(dto: CreateUserDTO): Observable<ResponseDTO<string>> {
+  public register(dto: CreateUserDTO): Observable<ResponseDTO<string>> {
     // El backend expone POST /api/auth (sin /register)
-    return this.http.post<ResponseDTO<string>>(this.base,dto);
+    return this.http.post<ResponseDTO<string>>(this.base, dto);
+  }
+
+  // Devuelven String plano, por eso usamos responseType: 'text'
+  public requestResetPassword(payload: RequestResetPasswordDTO): Observable<string> {
+    return this.http.post(`${this.base}/forgot-password`, payload, {
+      responseType: 'text'
+    });
+  }
+
+  public resetPassword(payload: ResetPasswordDTO): Observable<string> {
+    return this.http.patch(`${this.base}/reset-password`, payload, {
+      responseType: 'text'
+    });
   }
 }
+
