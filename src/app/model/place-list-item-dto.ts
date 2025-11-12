@@ -7,5 +7,5 @@ export interface PlaceListItemDTO {
   photo_url: string;
   average_rating: number;
   city: string;
-  state: PlaceState;
+  state?: 'ACTIVE' | 'INACTIVE' | 'DELETED';
 }

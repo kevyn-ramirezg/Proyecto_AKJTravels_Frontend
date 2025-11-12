@@ -1,261 +1,278 @@
-<div class="host-dashboard">
-  <!-- Header -->
-  <header class="hd-hero">
-    <div class="brand">AKJ<span>Travel</span></div>
-    <h1>Panel de anfitrión</h1>
-    <div class="welcome">Bienvenido, {{ username() }}</div>
+<div class="dashboard-page create-place-page page-gradient py-5">
+  <div class="container">
 
-    <!-- Tabs -->
-    <nav class="tabs container">
-      <button class="tab" [class.active]="section()==='places'" (click)="setSection('places')">
-        <span class="i i-home"></span> Alojamientos
-      </button>
-      <button class="tab" [class.active]="section()==='metrics'" (click)="setSection('metrics')">
-        <span class="i i-stats"></span> Resumen
-      </button>
-      <button class="tab" [class.active]="section()==='bookings'" (click)="setSection('bookings')">
-        <span class="i i-calendar"></span> Reservas
-      </button>
-    </nav>
-  </header>
+    <!-- Header ÚNICO -->
+    <div class="d-flex align-items-center justify-content-between mb-4 text-white">
+      <div class="d-flex align-items-center gap-3">
+        <div class="logo fs-3">AKJ<span>Travels</span></div>
+        <h2 class="m-0">Panel de anfitrión</h2>
+      </div>
+      <div class="welcome opacity-75">Bienvenido, {{ username() }}</div>
+    </div>
 
-  <div class="container hd-body">
+    <!-- Tabs ÚNICAS -->
+    <ul class="nav nav-pills gap-2 mb-3 hd-tabs-band">
+      <li class="nav-item">
+        <button class="nav-link" [class.active]="section()==='metrics'" (click)="setSection('metrics')">
+          <span class="material-symbols-rounded align-middle me-1">insights</span> Resumen
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" [class.active]="section()==='places'" (click)="setSection('places')">
+          <span class="material-symbols-rounded align-middle me-1">home</span> Alojamientos
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" [class.active]="section()==='bookings'" (click)="setSection('bookings')">
+          <span class="material-symbols-rounded align-middle me-1">calendar_month</span> Reservas
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link disabled">
+          <span class="material-symbols-rounded align-middle me-1">chat_bubble</span> Comentarios
+        </button>
+      </li>
+    </ul>
 
-    <!-- ====== PLACES ====== -->
+    <!-- ===== ALOJAMIENTOS ===== -->
     @if (section()==='places') {
-      <section class="panel card">
-        <div class="container pt-3 pb-3">
-          <h5 class="mb-0 d-flex align-items-center">
-            <span class="material-symbols-rounded filled fs-2 me-3">apartment</span>
-            Gestión de alojamientos
-          </h5>
-          <hr/>
-
-          <div class="card-body p-0">
-            <div class="mb-3">
-              <button type="button"
-                      [routerLink]="['/create-place']"
-                      class="btn btn-success d-flex align-items-center justify-content-center gap-1">
-                <span class="material-symbols-rounded filled me-1">add</span>
-                Crear nuevo
+      <section class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+          <!-- Toolbar -->
+          <div class="row g-3 align-items-center mb-3">
+            <div class="col-12 col-md">
+              <div class="input-group">
+                <span class="input-group-text">
+                  <span class="material-symbols-rounded">search</span>
+                </span>
+                <input type="text" class="form-control"
+                       placeholder="Buscar por nombre, ciudad…"
+                       [ngModel]="searchTerm()"
+                       (ngModelChange)="searchTerm.set($event)" />
+              </div>
+            </div>
+            <div class="col-auto">
+              <button type="button" class="btn btn-gradient"
+                      (click)="navigateCreatePlace()">
+                <span class="material-symbols-rounded align-middle me-1">add</span>
+                Añadir alojamiento
               </button>
             </div>
+          </div>
 
-            <div class="table-responsive">
-              <table class="table align-middle table-striped table-hover mb-0">
-                <thead class="text-center">
+          <!-- Grid -->
+          <div class="row g-4">
+            @for (p of filteredPlaces(); track p.id) {
+              <div class="col-12 col-sm-6 col-lg-4">
+                <article class="card h-100 border-0 shadow-sm">
+                  <div class="ratio ratio-16x9 card-cover">
+                    <img [src]="p.photo_url || 'https://picsum.photos/640/400'"
+                         [alt]="p.title"
+                         class="w-100 h-100 of-cover"
+                         loading="lazy">
+                  </div>
+                  <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start mb-1">
+                      <h5 class="card-title mb-0">{{ p.title }}</h5>
+                      <div class="d-flex align-items-center gap-1 text-warning">
+                        <span class="material-symbols-rounded">star</span>
+                        <span>{{ p.average_rating || 0 | number:'1.1-1' }}</span>
+                      </div>
+                    </div>
+                    <div class="text-muted mb-2">{{ p.city }}</div>
+                    <div class="mb-3">
+                      <span class="badge rounded-pill"
+                            [class.text-bg-success]="p.state==='ACTIVE'"
+                            [class.text-bg-secondary]="p.state==='DELETED'">
+                        {{ p.state==='DELETED' ? 'Eliminado' : 'Activo' }}
+                      </span>
+                    </div>
+                    <div class="mt-auto d-flex gap-2">
+                      <button class="btn btn-outline-secondary" [routerLink]="['/place', p.id]">
+                        <span class="material-symbols-rounded align-middle me-1">visibility</span> Ver
+                      </button>
+                      <button class="btn btn-outline-primary"
+                              [routerLink]="['/edit-place', p.id]"
+                              [disabled]="p.state==='DELETED'">
+
+                      <span class="material-symbols-rounded align-middle me-1">edit</span> Editar
+                      </button>
+                      <button class="btn btn-outline-danger ms-auto" (click)="deletePlace(p.id)" [disabled]="p.state==='DELETED'">
+                        <span class="material-symbols-rounded align-middle me-1">delete</span> Eliminar
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            }
+            @if (!places().length) {
+              <div class="col-12">
+                <div class="alert alert-light border text-center">
+                  No hay alojamientos para mostrar.
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+    }
+
+    <!-- ===== RESUMEN (MÉTRICAS) ===== -->
+    @if (section()==='metrics') {
+      <section class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+          <div class="row g-3 align-items-end">
+            <div class="col-12 col-md-4">
+              <label class="form-label text-uppercase small">Alojamiento</label>
+              <select class="form-select" [ngModel]="selectedPlaceId()" (ngModelChange)="selectedPlaceId.set($event)">
+                <option [ngValue]="null">— Selecciona —</option>
+                @for (p of places(); track p.id) { <option [ngValue]="p.id">{{ p.title }}</option> }
+              </select>
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label text-uppercase small">Desde</label>
+              <input class="form-control" type="date" [ngModel]="from()" (ngModelChange)="from.set($event)"/>
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label text-uppercase small">Hasta</label>
+              <input class="form-control" type="date" [ngModel]="to()" (ngModelChange)="to.set($event)"/>
+            </div>
+            <div class="col-12 col-md-auto">
+              <button class="btn btn-gradient w-100" (click)="loadStats()">Aplicar</button>
+            </div>
+          </div>
+
+          @if (loadingStats()) {
+            <div class="text-center text-muted py-4">
+              <div class="spinner-border" role="status"></div>
+              <div class="mt-2">Consultando métricas…</div>
+            </div>
+          } @else if (!stats()) {
+            <div class="text-center text-muted py-4">Selecciona rango y alojamiento para ver métricas.</div>
+          } @else {
+            <div class="row g-3 mt-3">
+              <div class="col-12 col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm">
+                  <div class="card-body">
+                    <div class="text-uppercase small text-muted">Reservas en rango</div>
+                    <div class="display-6 fw-semibold">{{ stats()?.reservations || 0 }}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm">
+                  <div class="card-body">
+                    <div class="text-uppercase small text-muted">Calificación promedio</div>
+                    <div class="display-6 fw-semibold">{{ stats()?.averageRating || 0 | number:'1.1-1' }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- ===== RESERVAS ===== -->
+    @if (section()==='bookings') {
+      <section class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+          <div class="row g-3 align-items-end">
+            <div class="col-12 col-md-4">
+              <label class="form-label text-uppercase small">Alojamiento</label>
+              <select class="form-select" [ngModel]="selectedPlaceId()" (ngModelChange)="selectedPlaceId.set($event)">
+                <option [ngValue]="null">— Selecciona —</option>
+                @for (p of places(); track p.id) { <option [ngValue]="p.id">{{ p.title }}</option> }
+              </select>
+            </div>
+            <div class="col-6 col-md-2">
+              <label class="form-label text-uppercase small">Estado</label>
+              <select class="form-select" [ngModel]="bookingStatus()" (ngModelChange)="bookingStatus.set($event)">
+                <option value="">Todos</option>
+                <option value="PENDING">Pendiente</option>
+                <option value="CONFIRMED">Confirmada</option>
+                <option value="CANCELED">Cancelada</option>
+                <option value="COMPLETED">Completada</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-2">
+              <label class="form-label text-uppercase small">Desde</label>
+              <input class="form-control" type="date" [ngModel]="from()" (ngModelChange)="from.set($event)"/>
+            </div>
+            <div class="col-6 col-md-2">
+              <label class="form-label text-uppercase small">Hasta</label>
+              <input class="form-control" type="date" [ngModel]="to()" (ngModelChange)="to.set($event)"/>
+            </div>
+            <div class="col-12 col-md-auto">
+              <button class="btn btn-gradient w-100" (click)="loadBookings()">Ver reservas</button>
+            </div>
+          </div>
+
+          @if (loadingBookings()) {
+            <div class="text-center text-muted py-4">
+              <div class="spinner-border" role="status"></div>
+              <div class="mt-2">Cargando reservas…</div>
+            </div>
+          } @else if (!bookings().length) {
+            <div class="alert alert-light border text-center mt-3">
+              No hay reservas para los filtros seleccionados.
+            </div>
+          } @else {
+            <div class="table-responsive mt-3">
+              <table class="table align-middle">
+                <thead class="table-light">
                 <tr>
-                  <th>ID</th>
-                  <th>Título</th>
-                  <th>Imagen</th>
-                  <th>Ciudad</th>
-                  <th>Precio</th>
+                  <th>Huésped</th>
+                  <th>Alojamiento</th>
+                  <th>Entrada</th>
+                  <th>Salida</th>
                   <th>Estado</th>
-                  <th class="text-center">Acciones</th>
+                  <th class="text-end">Acciones</th>
                 </tr>
                 </thead>
-
-                <tbody class="table-group-divider">
-                  @for (item of places(); track item.id) {
+                <tbody>
+                  @for (b of bookings(); track b.id) {
                     <tr>
-                      <td class="text-muted text-center">{{ item.id }}</td>
-                      <td class="fw-semibold">{{ item.title }}</td>
-                      <td class="text-center">
-                        <img [src]="item.photo_url" [alt]="item.title"
-                             class="img-thumbnail rounded"
-                             style="width: 90px; height: 60px; object-fit: cover;"/>
+                      <td>{{ b.guestName || '—' }}</td>
+                      <td>{{ b.placeTitle || '—' }}</td>
+                      <td>{{ b.checkIn | date:'short' }}</td>
+                      <td>{{ b.checkOut | date:'short' }}</td>
+                      <td>
+                        <span class="badge rounded-pill"
+                              [class.text-bg-warning]="b.state==='PENDING'"
+                              [class.text-bg-success]="b.state==='CONFIRMED' || b.state==='COMPLETED'"
+                              [class.text-bg-secondary]="b.state==='CANCELED'">
+                          {{ b.state | titlecase }}
+                        </span>
                       </td>
-                      <td>{{ item.city }}</td>
-                      <td>{{ item.price | currency:'COP':'symbol':'1.0-0' }}</td>
-
-                      <!-- Estado (chip) -->
-                      <td class="text-center">
-          <span class="status-chip"
-                [class.active]="item.state === 'ACTIVE'"
-                [class.deleted]="item.state === 'DELETED'">
-  {{ item.state === 'DELETED' ? 'Eliminado' : 'Activo' }}
-</span>
-
-                      </td>
-
-                      <!-- Acciones (deshabilitadas si está eliminado) -->
-                      <td class="text-center d-flex gap-2 justify-content-center flex-wrap">
-                        <a [routerLink]="['/place', item.id]"
-                           class="btn btn-outline-primary btn-icon"
-                           title="Ver">
-                          <span class="material-symbols-rounded">visibility</span>
-                        </a>
-
-                        <button type="button"
-                                [routerLink]="['/edit-place', item.id]"
-                                class="btn btn-outline-success btn-icon"
-                                [disabled]="item.state === 'DELETED'"
-                                [title]="item.state === 'DELETED' ? 'No se puede editar: eliminado' : 'Editar'">
-                          <span class="material-symbols-rounded">edit</span>
-                        </button>
-
-                        <button type="button"
-                                class="btn btn-outline-danger btn-icon"
-                                [disabled]="item.state === 'DELETED'"
-                                [title]="item.state === 'DELETED' ? 'Ya está eliminado' : 'Eliminar'"
-                                (click)="item.state !== 'DELETED' && deletePlace(item.id)">
-                          <span class="material-symbols-rounded">delete</span>
-                        </button>
+                      <td class="text-end">
+                        @if (b.state==='PENDING') {
+                          <div class="btn-group">
+                            <button class="btn btn-outline-success btn-sm" (click)="confirmBooking(b.id!)">
+                              <span class="material-symbols-rounded align-middle me-1">check</span> Aprobar
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" (click)="rejectBooking(b.id!)">
+                              <span class="material-symbols-rounded align-middle me-1">close</span> Rechazar
+                            </button>
+                          </div>
+                        } @else {
+                          <div class="btn-group">
+                            <button class="btn btn-outline-secondary btn-sm" (click)="showBookingInfo(b)">
+                              <span class="material-symbols-rounded align-middle me-1">info</span> Info
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" (click)="deleteBooking(b.id!)">
+                              <span class="material-symbols-rounded align-middle me-1">delete</span> Eliminar
+                            </button>
+                          </div>
+                        }
                       </td>
                     </tr>
                   }
                 </tbody>
               </table>
-
-
-              @if (!places().length) {
-                <div class="text-center py-5 text-muted">
-                  No hay alojamientos para mostrar.
-                </div>
-              }
             </div>
-          </div>
+          }
         </div>
-      </section>
-
-    }
-
-    <!-- ====== METRICS ====== -->
-    @if (section()==='metrics') {
-      <section class="panel card">
-        <div class="panel-head">
-          <div class="filters">
-            <label class="label-caps">Alojamiento</label>
-            <select class="form-control" [ngModel]="selectedPlaceId()" (ngModelChange)="selectedPlaceId.set($event)">
-              <option [ngValue]="null">— Selecciona —</option>
-              @for (p of places(); track p.id) {
-                <option [ngValue]="p.id">{{ p.title }}</option>
-              }
-            </select>
-          </div>
-
-          <div class="filters">
-            <label class="label-caps">Desde</label>
-            <input class="form-control" type="date" [ngModel]="from()" (ngModelChange)="from.set($event)" />
-          </div>
-
-          <div class="filters">
-            <label class="label-caps">Hasta</label>
-            <input class="form-control" type="date" [ngModel]="to()" (ngModelChange)="to.set($event)" />
-          </div>
-
-          <button class="btn btn-gradient" (click)="loadStats()">Aplicar</button>
-        </div>
-
-        @if (loadingStats()) {
-          <div class="state muted">Consultando métricas…</div>
-        } @else if (!stats()) {
-          <div class="state">Selecciona rango y alojamiento para ver métricas.</div>
-        } @else {
-          <div class="kpis">
-            <div class="kpi card-lite">
-              <div class="k-label">Reservas en rango</div>
-              <div class="k-value">{{ stats()?.reservations || 0 }}</div>
-            </div>
-            <div class="kpi card-lite">
-              <div class="k-label">Calificación promedio</div>
-              <div class="k-value">{{ stats()?.averageRating || 0 | number:'1.1-1' }}</div>
-            </div>
-          </div>
-        }
-      </section>
-    }
-
-    <!-- ====== BOOKINGS ====== -->
-    @if (section()==='bookings') {
-      <section class="panel card">
-        <div class="panel-head">
-          <div class="filters">
-            <label class="label-caps">Alojamiento</label>
-            <select class="form-control" [ngModel]="selectedPlaceId()" (ngModelChange)="selectedPlaceId.set($event)">
-              <option [ngValue]="null">— Selecciona —</option>
-              @for (p of places(); track p.id) {
-                <option [ngValue]="p.id">{{ p.title }}</option>
-              }
-            </select>
-          </div>
-
-          <div class="filters">
-            <label class="label-caps">Estado</label>
-            <select class="form-control" [ngModel]="bookingStatus()" (ngModelChange)="bookingStatus.set($event)">
-              <option value="">Todos</option>
-              <option value="PENDING">Pendiente</option>
-              <option value="CONFIRMED">Confirmada</option>
-              <option value="CANCELED">Cancelada</option>
-              <option value="COMPLETED">Completada</option>
-            </select>
-          </div>
-
-          <div class="filters">
-            <label class="label-caps">Desde</label>
-            <input class="form-control" type="date" [ngModel]="from()" (ngModelChange)="from.set($event)" />
-          </div>
-          <div class="filters">
-            <label class="label-caps">Hasta</label>
-            <input class="form-control" type="date" [ngModel]="to()" (ngModelChange)="to.set($event)" />
-          </div>
-
-          <button class="btn btn-gradient" (click)="loadBookings()">Ver reservas</button>
-        </div>
-
-        @if (loadingBookings()) {
-          <div class="state muted">Cargando reservas…</div>
-        } @else if (!bookings().length) {
-          <div class="state">No hay reservas para los filtros seleccionados.</div>
-        } @else {
-          <div class="table-wrap">
-            <table class="table">
-              <thead>
-              <tr>
-                <th>Huésped</th>
-                <th>Alojamiento</th>
-                <th>Entrada</th>
-                <th>Salida</th>
-                <th>Estado</th>
-                <th class="text-end">Acciones</th>
-              </tr>
-              </thead>
-              <tbody>
-                @for (b of bookings(); track b.id) {
-                  <tr>
-                    <td>{{ b.guestName || '—' }}</td>
-                    <td>{{ b.placeTitle || '—' }}</td>
-                    <td>{{ b.checkIn | date:'shortDate' }}</td>
-                    <td>{{ b.checkOut | date:'shortDate' }}</td>
-                    <td>
-        <span class="pill"
-              [class.p-pending]="b.state==='PENDING'"
-              [class.p-confirmed]="b.state==='CONFIRMED'"
-              [class.p-canceled]="b.state==='CANCELED'"
-              [class.p-completed]="b.state==='COMPLETED'">
-          {{ b.state | titlecase }}
-        </span>
-                    </td>
-                    <td class="text-end">
-                      @if (b.state==='PENDING') {
-                        <button class="btn btn-outline success" (click)="confirmBooking(b.id)">
-                          <span class="material-symbols-rounded">check</span> Aprobar
-                        </button>
-                        <button class="btn btn-outline danger" (click)="deleteBooking(b.id)">
-                          <span class="material-symbols-rounded">close</span> Rechazar
-                        </button>
-                      } @else {
-                        <button class="btn btn-lite" (click)="deleteBooking(b.id)">
-                          <span class="material-symbols-rounded">info</span> Info
-                        </button>
-                      }
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        }
       </section>
     }
   </div>
