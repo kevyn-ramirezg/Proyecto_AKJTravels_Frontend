@@ -87,7 +87,7 @@ export class EditProfile implements OnInit {
     }
   }
 
-  // ====== GUARDAR ======
+  // ===== GUARDAR ======
   submit() {
     if (!this.me()) return;
     if (this.form.invalid) {
