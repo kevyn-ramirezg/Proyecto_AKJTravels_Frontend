@@ -1,5 +1,5 @@
 // src/app/pages/forgot-password/forgot-password.ts
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
@@ -11,6 +11,7 @@ import {
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import Swal from 'sweetalert2';
+import { interval, Subscription } from 'rxjs';
 
 import {
   AuthRegisterService,
@@ -33,9 +34,16 @@ type ResetForm = FormGroup<{
   templateUrl: './forgot-password.html',
   styleUrls: ['./forgot-password.css']
 })
-export class ForgotPassword {
+export class ForgotPassword implements OnDestroy {
   paso: 'solicitar' | 'restablecer' = 'solicitar';
   cargando = false;
+
+  // contador 15:00
+  remainingSec = 0;
+  private timerSub?: Subscription;
+  get mm() { return String(Math.floor(this.remainingSec / 60)).padStart(2, '0'); }
+  get ss() { return String(this.remainingSec % 60).padStart(2, '0'); }
+  get expirado() { return this.remainingSec === 0; }
 
   solicitarForm: RequestForm;
   restablecerForm: ResetForm;
@@ -57,6 +65,22 @@ export class ForgotPassword {
     });
   }
 
+  ngOnDestroy(): void { this.stopTimer(); }
+
+  private startTimer(): void {
+    this.stopTimer();
+    this.remainingSec = 15 * 60; // 15 minutos
+    this.timerSub = interval(1000).subscribe(() => {
+      if (this.remainingSec > 0) this.remainingSec--;
+      else this.stopTimer();
+    });
+  }
+
+  private stopTimer(): void {
+    this.timerSub?.unsubscribe();
+    this.timerSub = undefined;
+  }
+
   solicitar(): void {
     if (this.solicitarForm.invalid) { this.solicitarForm.markAllAsTouched(); return; }
 
@@ -70,11 +94,29 @@ export class ForgotPassword {
         this.restablecerForm.patchValue({ email });
         this.restablecerForm.get('email')?.disable();
         this.paso = 'restablecer';
+        this.startTimer(); // inicia contador
       },
       error: (err: HttpErrorResponse) => {
         this.cargando = false;
         const text = (typeof err?.error === 'string' && err.error) || err?.error?.message || 'No pudimos enviar el código.';
         Swal.fire({ icon: 'error', title: 'Error', text });
+      }
+    });
+  }
+
+  reenviar(): void {
+    const email = this.restablecerForm.getRawValue().email;
+    if (!email) return;
+    this.cargando = true;
+    this.authService.requestResetPassword({ email } as RequestResetPasswordDTO).subscribe({
+      next: () => {
+        this.cargando = false;
+        Swal.fire({ icon: 'info', title: 'Nuevo código enviado' });
+        this.startTimer(); // reinicia contador
+      },
+      error: () => {
+        this.cargando = false;
+        Swal.fire({ icon: 'error', title: 'No se pudo reenviar el código' });
       }
     });
   }
@@ -97,6 +139,7 @@ export class ForgotPassword {
     } as ResetPasswordDTO).subscribe({
       next: (msg: string) => {
         this.cargando = false;
+        this.stopTimer();
         Swal.fire({ icon: 'success', title: 'Contraseña actualizada', text: msg || 'Ahora puedes iniciar sesión.' })
           .then(() => this.router.navigate(['/login']));
       },

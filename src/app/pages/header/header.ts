@@ -1,23 +1,21 @@
-import {Component, computed, inject, signal} from '@angular/core';
-import {Router, RouterLink, RouterModule} from '@angular/router';
-import {TokenService} from '../../services/token-service';
+import { Component, signal } from '@angular/core';
+import { Router, RouterLink, RouterModule } from '@angular/router';
+import { TokenService } from '../../services/token-service';
 
 @Component({
   selector: 'app-header',
   standalone: true,
   imports: [RouterLink, RouterModule],
   templateUrl: './header.html',
-  styleUrl: './header.css'
+  styleUrls: ['./header.css'] // <- corregido: 'styleUrls' (plural)
 })
 export class Header {
   protected readonly title = signal('AKJTravels');
 
   constructor(
-
     private token: TokenService,
     private router: Router
   ) {}
-
 
   // ---- Métodos usados por tu HTML ----
   isLogged(): boolean {
@@ -25,13 +23,15 @@ export class Header {
   }
 
   role(): string {
-    // Tu TokenService ya normaliza a HOST | GUEST
+    // Tu TokenService ya normaliza a HOST | GUEST (o similar)
     return this.token.getRole();
   }
 
   email(): string {
     // Usa email si viene en el JWT; si no, intenta username/sub
-    return this.token.getUsername() || this.token.getUsername?.() || '';
+    const u1 = (this.token as any).getEmail?.();
+    const u2 = this.token.getUsername?.();
+    return u1 || u2 || '';
   }
 
   logout(): void {
@@ -39,4 +39,3 @@ export class Header {
     this.router.navigateByUrl('/').then(() => window.location.reload());
   }
 }
-

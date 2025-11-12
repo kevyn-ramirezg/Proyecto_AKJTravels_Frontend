@@ -1,0 +1,62 @@
+<div class="profile-page">
+  <div class="brand-bar">
+    <div class="brand">AKJ<span>Travel</span></div>
+  </div>
+
+  <h1 class="title">Editar perfil</h1>
+  <p class="subtitle">Actualiza tus datos</p>
+
+  <div class="content container" *ngIf="!cargando(); else cargandoTpl">
+    <form [formGroup]="form" (ngSubmit)="submit()" class="form-card">
+      <div class="grid">
+        <label class="label">Nombre</label>
+        <input class="input" type="text" formControlName="name" placeholder="Nombre" />
+
+        <label class="label">Teléfono</label>
+        <input class="input" type="text" formControlName="phone" placeholder="Teléfono" />
+
+        <label class="label">Apellido</label>
+        <input class="input" type="text" formControlName="lastName" placeholder="Apellido" />
+
+        <label class="label">Correo</label>
+        <!-- disabled en el form y readonly visual -->
+        <input class="input" type="email" formControlName="email" placeholder="correo@ejemplo.com" readonly />
+      </div>
+
+      <div class="field-error" *ngIf="form.controls.name.touched && form.controls.name.invalid">
+        Ingresa tu nombre.
+      </div>
+      <div class="field-error" *ngIf="form.controls.phone.touched && form.controls.phone.invalid">
+        Teléfono inválido.
+      </div>
+      <div class="field-error" *ngIf="form.controls.lastName.touched && form.controls.lastName.invalid">
+        Ingresa tu apellido.
+      </div>
+      <div class="field-error" *ngIf="form.controls.email.touched && form.controls.email.invalid">
+        Correo inválido.
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn btn-gradient" [disabled]="guardando() || cargando()">Guardar cambios</button>
+        <button type="button" class="btn btn-ghost" (click)="cancelar()">Cancelar</button>
+        <button type="button" class="btn btn-secondary" (click)="cambiarPassword()">Cambiar contraseña</button>
+      </div>
+
+      <div class="error-banner" *ngIf="errorMsg()">{{ errorMsg() }}</div>
+    </form>
+
+    <div class="avatar-card">
+      <div class="avatar-circle">
+        <div class="avatar-initials">{{ fullName() ? fullName()[0] : 'U' }}</div>
+      </div>
+      <label class="avatar-upload">
+        <input type="file" accept="image/*" (change)="onAvatarChange($event)" hidden />
+        <span class="camera-ico">📷</span> Cambiar foto
+      </label>
+    </div>
+  </div>
+
+  <ng-template #cargandoTpl>
+    <div class="container loading">Cargando...</div>
+  </ng-template>
+</div>
