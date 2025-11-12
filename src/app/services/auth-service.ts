@@ -21,6 +21,7 @@ export class AuthRegisterService {
   }
 
   register(dto: CreateUserDTO): Observable<ResponseDTO<string>> {
-    return this.http.post<ResponseDTO<string>>(`${this.base}/register`, dto);
+    // El backend expone POST /api/auth (sin /register)
+    return this.http.post<ResponseDTO<string>>(this.base,dto);
   }
 }
