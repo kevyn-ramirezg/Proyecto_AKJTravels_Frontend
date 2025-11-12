@@ -38,7 +38,7 @@ export class BookingsApiService {
     if (q.page !== undefined) params = params.set('page', String(q.page));
 
     return this.http
-      .get<ResponseDTO<BookingDTO[] | PageMeta<BookingDTO>>>(`${this.baseUrl}/places/${placeId}/bookings`, { params })
+      .get<ResponseDTO<BookingDTO[] | PageMeta<BookingDTO>>>(`${this.baseUrl}/bookings/${placeId}/bookings`, { params })
       .pipe(map(res => normalizeListFromMessage<BookingDTO>(res.message)));
   }
 
