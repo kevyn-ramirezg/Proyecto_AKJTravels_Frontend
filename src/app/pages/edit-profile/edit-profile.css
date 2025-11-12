@@ -10,6 +10,7 @@
 
 * { font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
 
+/* Barra superior */
 .profile-page .brand-bar{
   background: linear-gradient(90deg, var(--grad-a), var(--grad-b));
   height: 56px;
@@ -21,11 +22,12 @@
 }
 .profile-page .brand span{ font-weight: 600; opacity: .9; }
 
+/* Títulos */
 .title{
   margin: 24px auto 0;
   text-align: center;
   font-size: 32px;
-  font-weight: 600; /* títulos weight 600 */
+  font-weight: 600;
   color: var(--text);
 }
 .subtitle{
@@ -36,65 +38,87 @@
 
 .container{ max-width: 1080px; margin: 0 auto; padding: 0 16px; }
 
+/* ====== LAYOUT PRINCIPAL ====== */
 .content{
   display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 32px;
-  align-items: start;
+  grid-template-columns: minmax(520px, 1fr) 420px; /* datos | avatar */
+  gap: 28px;
+  align-items: stretch;            /* ⬅️ misma altura para ambos paneles */
 }
 
-.form-card{
+/* Paneles */
+.form-card,
+.avatar-card{
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(2,6,23,.06);
   padding: 24px;
+  height: 100%;                    /* ⬅️ ocupa toda la altura disponible */
+  display: flex;
+  flex-direction: column;
 }
 
+/* ====== FORMULARIO ====== */
 .grid{
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px 24px;
+  grid-template-columns: 180px 1fr; /* ⬅️ label a la izquierda, input a la derecha */
+  gap: 12px 16px;
+  align-items: center;
 }
 
 .label{
-  grid-column: span 1;
-  align-self: end;
   font-size: 12px;
-  letter-spacing: .12em; /* tracking */
-  text-transform: uppercase; /* labels en mayúscula */
+  letter-spacing: .12em;
+  text-transform: uppercase;
   color: var(--muted);
+  text-align: left;                 /* ⬅️ alineado a la izquierda */
 }
 
 .input{
-  grid-column: span 1;
-  height: 42px; /* inputs de 42px */
+  height: 42px;                    /* inputs de 42px */
   padding: 0 12px;
   border: 2px solid var(--border-strong); /* borde de 2px */
-  border-radius: 10px; /* radio 10px */
+  border-radius: 10px;             /* radio 10px */
   outline: none;
   font-size: 14px;
   transition: box-shadow .15s ease, border-color .15s ease;
+  background: #f8fafc;
 }
 .input:focus{
   border-color: var(--grad-a);
-  /* focus ring doble (blanco + azul suave) */
-  box-shadow: 0 0 0 3px var(--ring-white), 0 0 0 6px var(--ring-blue);
+  box-shadow: 0 0 0 3px var(--ring-white), 0 0 0 6px var(--ring-blue); /* focus ring doble */
 }
 
 .field-error{
-  grid-column: span 2;
+  grid-column: 1 / -1;             /* a lo ancho */
   color: #b91c1c;
   font-size: 12px;
-  margin-top: -8px;
+  margin-top: -4px;
 }
 
-.actions{
-  display: flex; gap: 12px; margin-top: 20px;
+/* ====== BOTONES ====== */
+.actions-grid{
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr; /* izquierda | centro | derecha */
+  gap: 12px;
 }
+.actions-grid .btn-left   { justify-self: start; }
+.actions-grid .btn-center { justify-self: center; }
+.actions-grid .btn-right  { justify-self: end; }
 
 .btn{
-  height: 42px; padding: 0 18px; border-radius: 16px; /* bordes suaves */
-  border: 0; font-weight: 600; cursor: pointer;
+  display: inline-flex;              /* centra vertical y horizontal */
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;               /* evita quiebres de línea */
+  height: 48px;                      /* antes 42px */
+  padding: 0 24px;                   /* antes 0 18px */
+  font-size: 15px;                   /* un poco más grande */
+  border-radius: 16px;
+  border: 0;
+  font-weight: 600;
+  cursor: pointer;
 }
 .btn:disabled{ background: #e9ecef; color: #9aa0a6; cursor: not-allowed; }
 
@@ -110,37 +134,115 @@
 }
 
 .error-banner{
-  margin-top: 16px;
+  margin-top: 12px;
   background: #fef2f2; color: #b91c1c;
   border: 1px solid #fecaca; border-radius: 10px;
   padding: 10px 12px;
 }
 
+/* ====== AVATAR ====== */
 .avatar-card{
-  background: #fff; border-radius: 16px; padding: 24px;
-  box-shadow: 0 8px 24px rgba(2,6,23,.06);
-  display: grid; justify-items: center; gap: 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
 }
 
 .avatar-circle{
-  width: 180px; height: 180px; border-radius: 50%;
+  width: 220px; height: 220px; border-radius: 50%;
   border: 3px solid var(--grad-b);
   display: grid; place-items: center;
   background: #ede9fe;
 }
 .avatar-initials{
-  font-size: 64px; font-weight: 700; color: #5b21b6;
+  font-size: 88px; font-weight: 700; color: #5b21b6;
 }
 
 .avatar-upload{
   display: inline-flex; align-items: center; gap: 8px;
   font-weight: 600; cursor: pointer;
   background: linear-gradient(90deg, var(--grad-a), var(--grad-b));
-  -webkit-background-clip: text; background-clip: text; color: transparent; /* links con texto en gradiente */
+  -webkit-background-clip: text; background-clip: text; color: transparent; /* texto en gradiente */
 }
 
 .loading{ padding: 24px 0; color: var(--muted); }
 
+/* ====== RESPONSIVE ====== */
 @media (max-width: 980px){
   .content{ grid-template-columns: 1fr; }
+  .avatar-card{ order: 2; }        /* avatar debajo del form */
 }
+/* --- Avatar mejorado --- */
+.avatar-card{ position: relative; }
+
+.avatar-wrap{
+  position: relative;
+  width: 220px;  /* hazla igual al alto si quieres más grande/pequeña */
+  display: grid;
+  justify-items: center;
+}
+
+.avatar-circle{
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  border: 3px solid var(--grad-b);
+  display: grid; place-items: center;
+  background: #ede9fe;
+  background-size: cover;
+  background-position: center;
+}
+.avatar-circle.has-image{ border-color: transparent; }
+
+.avatar-initials{
+  font-size: 64px; font-weight: 700; color: #5b21b6;
+}
+
+/* Botón flotante (FAB) sobre el avatar */
+.avatar-fab{
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: linear-gradient(90deg, var(--grad-a), var(--grad-b));
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(0,0,0,.15);
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.avatar-fab:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 12px 22px rgba(0,0,0,.18);
+}
+.avatar-fab:active{ transform: translateY(0); }
+.avatar-fab input{ display: none; }
+.avatar-fab svg{ width: 22px; height: 22px; }
+
+/* El link con texto en gradiente que ya tenías */
+.avatar-upload{
+  display: inline-flex; align-items: center; gap: 8px;
+  font-weight: 600; cursor: pointer; margin-top: 8px;
+  background: linear-gradient(90deg, var(--grad-a), var(--grad-b));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+/* avatar base sin imagen */
+.avatar-circle{
+  width: 180px; height: 180px; border-radius: 50%;
+  border: 3px solid var(--grad-b);
+  display: grid; place-items: center;
+  background-color: #ede9fe;      /* ← solo color, SIN url() */
+  background-position: center;
+  background-size: cover;
+  overflow: hidden;
+}
+
+/* cuando sí hay imagen (clase que ya aplicas con [class.has-image]) */
+.avatar-circle.has-image{
+  background-color: #f5f7ff;
+}
+
+
+
+/* (opcional) Si aún tienes una clase .actions antigua, quítala o no la uses */

@@ -7,7 +7,8 @@
   <p class="subtitle">Actualiza tus datos</p>
 
   <div class="content container" *ngIf="!cargando(); else cargandoTpl">
-    <form [formGroup]="form" (ngSubmit)="submit()" class="form-card">
+    <!-- Panel izquierdo (datos) -->
+    <form [formGroup]="form" (ngSubmit)="submit()" class="form-card panel">
       <div class="grid">
         <label class="label">Nombre</label>
         <input class="input" type="text" formControlName="name" placeholder="Nombre" />
@@ -19,7 +20,6 @@
         <input class="input" type="text" formControlName="lastName" placeholder="Apellido" />
 
         <label class="label">Correo</label>
-        <!-- disabled en el form y readonly visual -->
         <input class="input" type="email" formControlName="email" placeholder="correo@ejemplo.com" readonly />
       </div>
 
@@ -36,19 +36,43 @@
         Correo inválido.
       </div>
 
-      <div class="actions">
-        <button type="submit" class="btn btn-gradient" [disabled]="guardando() || cargando()">Guardar cambios</button>
-        <button type="button" class="btn btn-ghost" (click)="cancelar()">Cancelar</button>
-        <button type="button" class="btn btn-secondary" (click)="cambiarPassword()">Cambiar contraseña</button>
+      <div class="actions-grid">
+        <button type="submit" class="btn btn-gradient btn-left" [disabled]="guardando() || cargando()">
+          Guardar cambios
+        </button>
+        <button type="button" class="btn btn-ghost btn-center" (click)="cancelar()">Cancelar</button>
+        <button type="button" class="btn btn-secondary btn-right" (click)="cambiarPassword()">
+          Cambiar contraseña
+        </button>
       </div>
 
       <div class="error-banner" *ngIf="errorMsg()">{{ errorMsg() }}</div>
     </form>
 
-    <div class="avatar-card">
-      <div class="avatar-circle">
-        <div class="avatar-initials">{{ fullName() ? fullName()[0] : 'U' }}</div>
+    <!-- Panel derecho (avatar) -->
+    <div class="avatar-card panel">
+      <div class="avatar-wrap">
+        <div
+          class="avatar-circle"
+          [class.has-image]="!!avatarUrl()"
+          [style.backgroundImage]="avatarUrl() ? 'url(' + avatarUrl() + ')' : ''"
+        >
+          <div class="avatar-initials" *ngIf="!avatarUrl()">{{ fullName() ? fullName()[0] : 'U' }}</div>
+        </div>
+
+        <!-- FAB (cámara) -->
+        <label class="avatar-fab" aria-label="Cambiar foto">
+          <input type="file" accept="image/*" (change)="onAvatarChange($event)" hidden />
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M9.4 5.3 8 7H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-1.4-1.7A2 2 0 0 0 13.1 5H10.9a2 2 0 0 0-1.5.3ZM12 17a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm0-2.2a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6Z"
+              fill="currentColor"
+            />
+          </svg>
+        </label>
       </div>
+
+      <!-- Enlace auxiliar -->
       <label class="avatar-upload">
         <input type="file" accept="image/*" (change)="onAvatarChange($event)" hidden />
         <span class="camera-ico">📷</span> Cambiar foto
