@@ -20,12 +20,20 @@ export class MapService implements OnDestroy {
 
   /** Inicializa el mapa dentro del contenedor especificado */
   public create(containerId: string = 'map'): void {
+    // ⬇️ Nuevo: comprobamos que el contenedor exista en el DOM
+    const containerElement = document.getElementById(containerId);
+
+    if (!containerElement) {
+      console.error(`Container '${containerId}' not found in DOM`);
+      return;
+    }
+
     if (this.map) {
       this.map.remove(); // Evita fugas si se recrea el mapa
     }
 
     this.map = new mapboxgl.Map({
-      container: containerId,
+      container: containerElement, // usamos el elemento, no el string
       style: 'mapbox://styles/mapbox/streets-v11',
       center: this.currentLocation,
       zoom: 17,
@@ -97,6 +105,35 @@ export class MapService implements OnDestroy {
       };
     });
   }
+  /** Mapa solo para visualizar un alojamiento concreto */
+  public createReadonlyMap(
+    containerId: string,
+    opts: { lat: number; lng: number; zoom?: number }
+  ): void {
+    // Actualizamos el centro con la ubicación del sitio
+    this.currentLocation = [opts.lng, opts.lat];
+
+    // Creamos el mapa en ese contenedor
+    this.create(containerId);
+
+    if (!this.map) return;
+
+    // Limpiamos marcadores anteriores (por si acaso)
+    this.clearMarkers();
+
+    // Agregamos un único marcador en la ubicación del alojamiento
+    const marker = new mapboxgl.Marker({ color: 'red' })
+      .setLngLat([opts.lng, opts.lat])
+      .addTo(this.map);
+
+    this.markers.push(marker);
+
+    // Ajustamos el zoom (por defecto 14)
+    if (opts.zoom != null) {
+      this.map.setZoom(opts.zoom);
+    }
+  }
+
   /** Limpieza al destruir el servicio */
   ngOnDestroy(): void {
     this.destroy$.next();

@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Subscription, of } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import {Subscription, of, forkJoin} from 'rxjs';
+
 
 // Servicios propios
 import { MapService } from '../../services/map-service';
@@ -24,7 +24,7 @@ interface ServiceItem { code: string; label: string; icon?: string }
 export class CreatePlace implements OnInit, OnDestroy {
   createPlaceForm!: FormGroup;
   private markerSub?: Subscription;
-  private mapCreatedForStep1 = false;
+
   step = 0; // 0: info, 1: ubicacion, 2: servicios, 3: fotos/precio
 
   placeTypes: string[] = ['APARTMENT', 'HOUSE', 'FARM'];
@@ -98,8 +98,17 @@ export class CreatePlace implements OnInit, OnDestroy {
 
   // Wizard
   canNext(): boolean { return this.currentGroupValid(); }
-  back(): void { if (this.step > 0) this.step--; }
+  back(): void {
+    if (this.step > 0) {
+      this.step--;
 
+      // Si volvemos al paso 1, hay que recrear el mapa
+      if (this.step === 1) {
+        this.cdr.detectChanges();
+        requestAnimationFrame(() => this.initStep1Map());
+      }
+    }
+  }
   private currentGroupValid(): boolean {
     switch (this.step) {
       case 0:
@@ -165,19 +174,26 @@ export class CreatePlace implements OnInit, OnDestroy {
 
   // ============= MAPA =============
   private initStep1Map(): void {
-    this.mapService.create('map'); // el ID existe ahora (step === 1)
-    this.mapService.mapInstance?.on('load', () => {
-      this.mapService.mapInstance?.resize();
+    // Si ya teníamos un listener de clicks, lo limpiamos
+    this.markerSub?.unsubscribe();
+
+    // Crea/recrea el mapa en el contenedor 'map'
+    this.mapService.create('map');
+
+    const map = this.mapService.mapInstance;
+    if (!map) return;
+
+    map.on('load', () => {
+      map.resize();
     });
 
+    // Suscribimos el click para obtener lat/lng
     this.markerSub = this.mapService.addMarker().subscribe((lngLat) => {
       this.createPlaceForm.patchValue({
         latitude: lngLat.lat,
         longitude: lngLat.lng,
       });
     });
-
-    this.mapCreatedForStep1 = true;
   }
 
   // DTO → backend (mapeamos tus nombres a los esperados en el API)
@@ -186,41 +202,68 @@ export class CreatePlace implements OnInit, OnDestroy {
       .map((s, i) => (this.amenitiesFA.at(i).value ? s.code : null))
       .filter(Boolean) as string[];
 
-    // lat/lng: número obligatorio (el back pide @NotNull float)
     const lat = Number(this.createPlaceForm.value.latitude);
     const lng = Number(this.createPlaceForm.value.longitude);
-
-    // postalCode: alfanumérico 4-10
     const postalCode = String(this.createPlaceForm.value.postalCode ?? '').trim();
 
-    // picsUrl: MÍNIMO 1 → usa nombres de archivos como placeholder
-    // (cuando el back devuelva ID, podrás subir y luego actualizar reales)
-    const picsUrl = this.files.length ? this.files.map(f => `local:${f.name}`) : ['local:placeholder'];
-
     const payload: CreatePlaceDTO = {
-      title: String(this.createPlaceForm.value.title ?? '').trim(),
+      title:       String(this.createPlaceForm.value.title ?? '').trim(),
       description: String(this.createPlaceForm.value.description ?? '').trim(),
-      // El back espera 'price' → lo mapearemos en el servicio (sección B)
-      price: Number(this.createPlaceForm.value.pricePerNight ?? 0),
+      price:       Number(this.createPlaceForm.value.pricePerNight ?? 0),
+      pics_url: [],
 
-      picsUrl,
-      placeType: String(this.createPlaceForm.value.placeType ?? 'APARTMENT'),
-      capacity: Number(this.createPlaceForm.value.capacity ?? 1),
+      placeType:   String(this.createPlaceForm.value.placeType ?? 'APARTMENT'),
+      capacity:    Number(this.createPlaceForm.value.capacity ?? 1),
 
-      country: String(this.createPlaceForm.value.country ?? '').trim(),
-      department: String(this.createPlaceForm.value.department ?? '').trim(),
-      city: String(this.createPlaceForm.value.city ?? '').trim(),
-      neighborhood: String(this.createPlaceForm.value.neighborhood ?? '').trim(),
-      street: String(this.createPlaceForm.value.street ?? '').trim(),
+      country:     String(this.createPlaceForm.value.country ?? '').trim(),
+      department:  String(this.createPlaceForm.value.department ?? '').trim(),
+      city:        String(this.createPlaceForm.value.city ?? '').trim(),
+      neighborhood:String(this.createPlaceForm.value.neighborhood ?? '').trim(),
+      street:      String(this.createPlaceForm.value.street ?? '').trim(),
       postalCode,
 
-      amenities: selectedAmenities,
-      latitude: lat,
-      longitude: lng
+      amenities:   selectedAmenities,
+      latitude:    lat,
+      longitude:   lng
     };
 
-    console.table(Object.entries(payload).map(([k, v]) => ({ campo: k, tipo: typeof v, valor: v })));
     return payload;
+  }
+
+
+
+  private uploadImagesAfterCreate(placeId: string): void {
+    const finishOk = () => {
+      Swal.fire({
+        icon: 'success',
+        title: '¡Alojamiento creado!',
+        text: 'Se creó correctamente.',
+        confirmButtonText: 'Aceptar',
+      });
+      this.files.forEach((_, i) => {
+        try { URL.revokeObjectURL(this.previews[i]); } catch {}
+      });
+      this.previews = [];
+      this.files = [];
+      // this.router.navigateByUrl('/my-places'); // si quieres
+    };
+
+    if (this.files.length === 0) {
+      finishOk();
+      return;
+    }
+
+    this.placesApi.uploadImages(placeId, this.files, this.mainIndex).subscribe({
+      next: () => finishOk(),
+      error: (err) => {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Alojamiento creado (con aviso)',
+          text: 'El alojamiento se creó, pero las imágenes no se pudieron subir: ' +
+            (err?.error?.message ?? ''),
+        }).then(() => finishOk());
+      }
+    });
   }
 
 
@@ -238,15 +281,19 @@ export class CreatePlace implements OnInit, OnDestroy {
     // Avanza de paso 0→1→2→3
     if (this.step < 3) {
       this.step++;
-      if (this.step === 1 && !this.mapCreatedForStep1) {
+
+      // Al entrar al paso 1 desde el 0
+      if (this.step === 1) {
         this.cdr.detectChanges();
         requestAnimationFrame(() => this.initStep1Map());
       }
+
       return;
     }
 
     // Paso final: confirmación
-    const payload = this.buildPayload();
+    const basePayload = this.buildPayload();
+
     Swal.fire({
       icon: 'question',
       title: '¿Guardar alojamiento?',
@@ -257,7 +304,6 @@ export class CreatePlace implements OnInit, OnDestroy {
     }).then(res => {
       if (!res.isConfirmed) return;
 
-      // Loading mientras se crea
       Swal.fire({
         title: 'Guardando...',
         didOpen: () => Swal.showLoading(),
@@ -265,31 +311,73 @@ export class CreatePlace implements OnInit, OnDestroy {
         allowEscapeKey: false,
       });
 
-      this.placesApi.create(payload).subscribe({
-        next: (_msg) => {
-          Swal.fire({
-            icon: 'success',
-            title: '¡Alojamiento creado!',
-            text: 'Se creó correctamente.',
-            confirmButtonText: 'Aceptar',
-          });
+      // 1) Sin fotos → crear directamente
+      if (this.files.length === 0) {
+        const payload = { ...basePayload, picsUrl: [] };
 
-          // Limpieza
-          this.files.forEach((_, i) => { try { URL.revokeObjectURL(this.previews[i]); } catch {} });
-          this.previews = [];
-          this.files = [];
-          // TODO: redirigir si quieres
-          // this.router.navigateByUrl('/my-places');
+        this.placesApi.create(payload).subscribe({
+          next: (_msg) => {
+            Swal.fire({
+              icon: 'success',
+              title: '¡Alojamiento creado!',
+              text: 'Se creó correctamente.',
+            });
+            // limpiar previews/files
+          },
+          error: (err) => {
+            Swal.fire({
+              icon: 'error',
+              title: 'No se pudo crear',
+              text: err?.error?.message ?? 'Inténtalo de nuevo.',
+            });
+          }
+        });
+
+        return;
+      }
+
+      // 2) Con fotos → subir primero todas al ImageController
+      const uploads$ = this.files.map(f => this.placesApi.uploadImage(f));
+
+      forkJoin(uploads$).subscribe({
+        next: (urls: string[]) => {
+          const payload = {
+            ...basePayload,
+            pics_url: urls
+          };
+
+          this.placesApi.create(payload).subscribe({
+            next: (_msg) => {
+              Swal.fire({
+                icon: 'success',
+                title: '¡Alojamiento creado!',
+                text: 'Se creó correctamente.',
+              });
+              this.files.forEach((_, i) => {
+                try { URL.revokeObjectURL(this.previews[i]); } catch {}
+              });
+              this.previews = [];
+              this.files = [];
+            },
+            error: (err) => {
+              Swal.fire({
+                icon: 'error',
+                title: 'No se pudo crear',
+                text: err?.error?.message ?? 'Inténtalo de nuevo.',
+              });
+            }
+          });
         },
         error: (err) => {
           Swal.fire({
             icon: 'error',
-            title: 'No se pudo crear',
+            title: 'Error al subir imágenes',
             text: err?.error?.message ?? 'Inténtalo de nuevo.',
           });
         }
       });
     });
+
   }
 
 

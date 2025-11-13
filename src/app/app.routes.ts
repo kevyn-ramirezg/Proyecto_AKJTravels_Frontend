@@ -4,7 +4,6 @@ import { Login } from './pages/login/login';
 import { Register } from './pages/register/register';
 import { CreatePlace } from './pages/create-place/create-place';
 import { MyPlaces } from './pages/my-places/my-places';
-import { DetailPlace } from './pages/detail-place/detail-place';
 import { HostDashboard } from './pages/host-dashboard/host-dashboard';
 import { loginGuard } from './guards/login-guard';
 import { roleGuard } from './guards/role-guard';
@@ -14,6 +13,7 @@ import { ForgotPassword } from './pages/forgot-password/forgot-password';
 // ⬇️ Nuevo: componente de edición de perfil (standalone)
 import { EditProfile } from './pages/edit-profile/edit-profile';
 import {EditPlace} from './pages/edit-place/edit-place';
+import DetailPlace from './pages/detail-place/detail-place';
 
 export const routes: Routes = [
   { path: '', component: Home },
