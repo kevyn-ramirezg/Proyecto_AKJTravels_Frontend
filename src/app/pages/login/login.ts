@@ -47,31 +47,16 @@ export class Login {
 
 
   public login() {
-    const loginDTO = this.loginForm.value as LoginDTO;
+    const email = (this.loginForm.get('email')?.value ?? '').trim();
+    const password = this.loginForm.get('password')?.value ?? '';
 
-    this.authService.login(loginDTO).subscribe({
+    this.authService.login({ email, password }).subscribe({
       next: ({ message }) => {
-        // guarda el token
         this.tokenService.login(message.token);
-
-        // lee el rol del payload (HOST | GUEST)
         const role = this.tokenService.getRole();
-
-        // si venías con ?returnUrl=... respeta eso (opcional)
-        const urlTree = this.router.parseUrl(this.router.url);
-        const returnUrl = urlTree.queryParams['returnUrl'];
-
-        if (returnUrl) {
-          this.router.navigateByUrl(returnUrl);
-          return;
-        }
-
-        // redirección por rol
-        if (role === 'HOST') {
-          this.router.navigate(['/host-dashboard']);
-        } else {
-          this.router.navigate(['/']); // huésped → home (mostrará el menú por estar logueado)
-        }
+        const returnUrl = this.router.parseUrl(this.router.url).queryParams['returnUrl'];
+        if (returnUrl) { this.router.navigateByUrl(returnUrl); return; }
+        this.router.navigate([role === 'HOST' ? '/host-dashboard' : '/']);
       },
       error: (err) => {
         const msg = err?.error?.message ?? 'No se pudo iniciar sesión';
