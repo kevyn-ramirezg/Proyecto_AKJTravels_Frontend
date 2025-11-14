@@ -1,0 +1,315 @@
+.booking-page {
+  min-height: 100vh;
+  background: #f5f7fb;
+}
+
+/* Barra superior marca (si la usas) */
+.brand-bar {
+  width: 100%;
+  padding: 18px 40px;
+  background: linear-gradient(90deg, #004aad, #cb6ce6);
+  display: flex;
+  align-items: center;
+}
+
+.brand {
+  font-size: 22px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.05em;
+}
+
+.brand span {
+  font-weight: 400;
+}
+
+/* Layout principal */
+.booking-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+  gap: 32px;
+  padding: 32px 24px 40px;
+}
+
+/* Tarjeta de lugar (izquierda) */
+.place-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 18px 18px 22px;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.place-image-wrapper {
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.place-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+}
+
+.place-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.place-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+  color: #111827;
+}
+
+.place-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.place-rating .stars {
+  font-size: 16px;
+  color: #facc15;
+}
+
+.place-location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.place-location .material-symbols-rounded {
+  font-size: 18px;
+  color: #ef4444;
+}
+
+.section-subtitle {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: #9ca3af;
+  margin: 6px 0 2px;
+}
+
+/* Servicios con iconos */
+.services-list {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.services-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.service-icon {
+  font-size: 18px;
+  color: #9ca3af;
+}
+
+.service-text {
+  font-size: 13px;
+  color: #4b5563;
+}
+
+/* Tarjeta de reserva (derecha) */
+.booking-card {
+  background: #ffffff;
+  border-radius: 28px;
+  padding: 26px 28px 24px;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+  display: flex;
+  flex-direction: column;
+}
+
+.booking-header {
+  margin-bottom: 18px;
+}
+
+.booking-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0;
+  color: #111827;
+}
+
+/* Título "Total a pagar" */
+.booking-title.total-title {
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+/* Formulario */
+.booking-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.booking-dates {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.date-column {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #9ca3af;
+}
+
+.input {
+  height: 42px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 2px solid var(--border-strong, #dde2eb);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgba(79, 70, 229, 0.35);
+}
+
+.input-small {
+  max-width: 140px;
+}
+
+.date-human {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 4px 0 0;
+}
+
+/* Sección selección */
+.booking-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 4px;
+  color: #111827;
+}
+
+.selection-main {
+  font-size: 14px;
+  color: #374151;
+  margin: 0;
+}
+
+.selection-sub {
+  font-size: 12px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* Huéspedes */
+.booking-guests {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 220px;
+}
+
+/* Total */
+.booking-total {
+  margin-top: 4px;
+}
+
+.total-amount {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+  color: #111827;
+}
+
+.total-hint {
+  font-size: 11px;
+  color: #9ca3af;
+  margin: 6px 0 0;
+}
+
+/* Acción */
+.booking-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.btn-gradient {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 12px 32px;
+  border: none;
+  background: linear-gradient(90deg, #004aad, #cb6ce6);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.btn-gradient:disabled {
+  background: #e9ecef;
+  color: #9aa0a6;
+  cursor: default;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .booking-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .booking-actions {
+    justify-content: center;
+  }
+
+  .place-card {
+    order: 2;
+  }
+
+  .booking-card {
+    order: 1;
+  }
+}

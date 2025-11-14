@@ -51,5 +51,9 @@ export class BookingsApiService {
   delete(bookingId: string) {
     return this.http.delete<ResponseDTO>(`${this.baseUrl}/bookings/${bookingId}`);
   }
+  create(placeId: string, dto: any) {
+    return this.http.post(`${this.baseUrl}/bookings/${placeId}`, dto);
+  }
+
 }
 /*aa*/

@@ -1,0 +1,123 @@
+<div class="booking-page">
+  <div class="booking-layout container">
+    <!-- Columna izquierda: info del sitio -->
+    <section class="place-card" *ngIf="place">
+      <div class="place-image-wrapper">
+        <img [src]="place.pics_url[0]" alt="{{ place.title }}" class="place-img" />
+      </div>
+
+      <div class="place-body">
+        <h2 class="place-title">{{ place.title }}</h2>
+
+        <div class="place-rating">
+          <!-- si luego tienes rating real, lo pones aquí -->
+          <span class="stars">★★★★☆</span>
+          <span class="rating-text">Calificación {{ place.averageRatings || 0 }}/5</span>
+        </div>
+
+        <div class="place-location">
+          <span class="material-symbols-rounded">location_on</span>
+          <span>Capacidad {{ place.capacity }} huéspedes</span>
+        </div>
+
+        <div class="place-services" *ngIf="mappedServices.length">
+          <h3 class="section-subtitle">Servicios incluidos</h3>
+          <ul class="services-list">
+            <li *ngFor="let svc of mappedServices">
+      <span class="material-symbols-rounded service-icon">
+        {{ svc.icon }}
+      </span>
+              <span class="service-text">{{ svc.label }}</span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Columna derecha: datos de la reserva -->
+    <section class="booking-card">
+      <header class="booking-header">
+        <h1 class="booking-title">Datos de tu reserva</h1>
+      </header>
+
+      <form [formGroup]="form" class="booking-form">
+        <!-- Entrada / Salida -->
+        <div class="booking-dates">
+          <div class="date-column">
+            <label class="field-label">ENTRADA</label>
+            <input
+              type="date"
+              formControlName="checkIn"
+              class="input"
+            />
+            <div class="date-human" *ngIf="form.value.checkIn">
+              {{ form.value.checkIn | date:'EEEE d \'de\' MMMM y' }}
+            </div>
+          </div>
+
+          <div class="date-column">
+            <label class="field-label">SALIDA</label>
+            <input
+              type="date"
+              formControlName="checkOut"
+              class="input"
+            />
+            <div class="date-human" *ngIf="form.value.checkOut">
+              {{ form.value.checkOut | date:'EEEE d \'de\' MMMM y' }}
+            </div>
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <!-- Resumen de selección -->
+        <div class="booking-selection">
+          <h3 class="section-title">Has seleccionado</h3>
+          <p class="selection-main">
+            {{ nights || 0 }} noches,
+            {{ form.value.guests || 1 }} habitación para
+            {{ form.value.guests || 1 }} adultos
+          </p>
+          <p class="selection-sub" *ngIf="place">
+            1x Alojamiento · Capacidad máxima {{ place.capacity }} huéspedes
+          </p>
+        </div>
+
+        <!-- Huéspedes -->
+        <div class="booking-guests">
+          <label class="field-label">HUÉSPEDES</label>
+          <input
+            type="number"
+            min="1"
+            formControlName="guests"
+            class="input input-small"
+          />
+        </div>
+
+        <!-- Total -->
+        <div class="booking-total" *ngIf="place">
+          <h1 class="booking-title total-title">Total a pagar</h1>
+          <p class="total-amount">
+            COP {{ total || 0 | number:'1.0-0' }}
+          </p>
+          <p class="total-hint">
+            **Se realizará tu reserva y pagarás el monto en sitio**
+          </p>
+        </div>
+
+
+        <!-- Botón -->
+        <div class="booking-actions">
+          <button
+            type="button"
+            class="btn-gradient btn-confirm"
+            (click)="reservar()"
+          >
+            CONFIRMAR
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+</div>
