@@ -347,40 +347,37 @@ export class HostDashboard implements OnInit {
   //Click en el botón "Responder"
   onSendReply(comment: HostComment): void {
     const text = (this.replyDrafts[comment.id] || '').trim();
-    if (!text) {
-      return;
-    }
 
-    // ⚠️ Necesitamos el id del usuario que responde (host)
-    // Usa el método real que tengas en tu TokenService
-    const userId = this.token.getUserId?.();
-    if (!userId) {
-      console.error('[HostDashboard] No se encontró el id del usuario autenticado. Ajusta esta parte con tu TokenService.');
+    if (!text) {
       Swal.fire({
-        icon: 'error',
-        title: 'No se pudo enviar la respuesta',
-        text: 'No se encontró el id del usuario autenticado. Revisa el TokenService.'
+        icon: 'info',
+        title: 'Escribe una respuesta',
+        text: 'No puedes enviar una respuesta vacía.'
       });
       return;
     }
 
-    this.commentsApi.reply(comment.id, text, userId).subscribe({
+    Swal.fire({
+      title: 'Enviando respuesta…',
+      didOpen: () => Swal.showLoading(),
+      allowOutsideClick: false,
+      allowEscapeKey: false
+    });
+
+    this.commentsApi.reply(comment.id, text).subscribe({
       next: () => {
-        comment.reply = text;
+        comment.reply = text;           // ya queda visible
         this.replyDrafts[comment.id] = '';
         Swal.fire({
           icon: 'success',
-          title: 'Respuesta enviada',
-          timer: 1500,
-          showConfirmButton: false
+          title: 'Respuesta enviada'
         });
       },
       error: (err) => {
-        console.error('[HostDashboard] reply error', err);
         Swal.fire({
           icon: 'error',
           title: 'No se pudo enviar la respuesta',
-          text: err?.error?.message ?? 'Inténtalo de nuevo.'
+          text: err?.error?.message ?? 'El recurso solicitado no existe o el endpoint no coincide.'
         });
       }
     });
