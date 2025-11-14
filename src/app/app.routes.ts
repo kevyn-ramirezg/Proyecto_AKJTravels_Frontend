@@ -17,7 +17,7 @@ import { SearchResultsComponent } from './pages/search-results/search-results';
 export const routes: Routes = [
   { path: '', component: Home },
 
-  // Auth públicas
+  // Auth públicass
   { path: 'login', component: Login, canActivate: [loginGuard] },
   { path: 'register', component: Register, canActivate: [loginGuard] },
 
