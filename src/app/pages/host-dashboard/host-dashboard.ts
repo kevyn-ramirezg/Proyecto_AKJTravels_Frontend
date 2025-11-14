@@ -424,22 +424,22 @@ export class HostDashboard implements OnInit {
     });
   }
 
-  private mapToHostComment(raw: any, place: PlaceListItemDTO | null): HostComment {
-    // raw ≈ CommentDTO del backend:
-    // { comment, commentDate, rating, user: { name, photoUrl } }
 
-    const user = raw?.user ?? {};
-    const commentDateIso: string = raw?.commentDate ?? new Date().toISOString();
-
+  private mapToHostComment(raw: any, place?: PlaceListItemDTO | null): HostComment {
+    const user = raw.user ?? {};
+    const commentDate: string = raw.commentDate ?? new Date().toISOString();
+    const placeTitle =
+      place?.title ??
+      raw.placeTitle ??
+      'Alojamiento';
     return {
-      // id sólo de frontend; si luego el back manda id, se usa raw.id
-      id: String(raw?.id ?? `${place?.id ?? 'place'}-${commentDateIso}-${Math.random()}`),
-      placeTitle: place?.title ?? 'Alojamiento',
+      id: raw.id,                                //
+      placeTitle,
       guestName: user.name ?? 'Huésped',
-      rating: Number(raw?.rating ?? 0),
-      comment: raw?.comment ?? '',
-      date: commentDateIso,
-      reply: null
+      rating: raw.rating ?? 0,
+      comment: raw.comment ?? '',
+      date: commentDate,
+      reply: raw.reply ?? null
     };
   }
 
@@ -512,7 +512,7 @@ export class HostDashboard implements OnInit {
     this.comments = [];
     this.filteredComments = [];
 
-    const place = this.places().find(p => String((p as any).id) === String(pid)) ?? null;
+    const place = this.places().find(p => String((p as any).id) === String(pid)) ;
 
     this.placesApi.listComments(String(pid), 0).subscribe({
       next: (list) => {
