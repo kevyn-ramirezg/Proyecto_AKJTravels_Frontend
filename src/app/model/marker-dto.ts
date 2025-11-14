@@ -1,4 +1,4 @@
-import { LocationDTO } from './place-dto';
+import { LocationDTO } from './place-dto/place-dto';
 
 export interface MarkerDTO {
   id: number,

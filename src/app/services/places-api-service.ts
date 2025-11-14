@@ -3,14 +3,14 @@ import { Inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { ResponseDTO } from '../model/response-dto';
-import { PlaceListItemDTO } from '../model/place-list-item-dto';
-import { PlaceDetailDTO } from '../model/place-detail-dto';
-import { CreatePlaceDTO } from '../model/create-place-dto';
-import { EditPlaceDTO } from '../model/edit-place-dto';
-import { ListPlaceDTO } from '../model/list-place-dto';
+import { PlaceListItemDTO } from '../model/place-dto/place-list-item-dto';
+import { PlaceDetailDTO } from '../model/place-dto/place-detail-dto';
+import { CreatePlaceDTO } from '../model/place-dto/create-place-dto';
+import { EditPlaceDTO } from '../model/place-dto/edit-place-dto';
+import { ListPlaceDTO } from '../model/place-dto/list-place-dto';
 import { API_BASE } from '../core/api-base-token';
 import {normalizeListFromMessage, PageMeta} from '../utils/normalize';
-import {CommentDTO} from '../model/comment-dto';
+import {CommentDTO} from '../model/comment-dto/comment-dto';
 
 @Injectable({ providedIn: 'root' })
 export class PlacesApiService {

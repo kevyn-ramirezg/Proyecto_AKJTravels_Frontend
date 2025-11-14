@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { ResponseDTO } from '../model/response-dto';
-import { BookingDTO, SearchBookingsParams } from '../model/booking-dto';
+import { BookingDTO, SearchBookingsParams } from '../model/booking-dto/booking-dto';
 import { API_BASE } from '../core/api-base-token';
 import{normalizeListFromMessage, PageMeta } from '../utils/normalize';
 

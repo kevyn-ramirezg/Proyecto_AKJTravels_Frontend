@@ -3,7 +3,7 @@ import {
   AbstractControlOptions, FormBuilder, FormGroup, ReactiveFormsModule, Validators
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import{ CreateUserDTO } from '../../model/create-user-dto';
+import{ CreateUserDTO } from '../../model/user-dto/create-user-dto';
 import { Router, RouterLink } from '@angular/router';
 import { AuthRegisterService } from '../../services/auth-service';
 import {ResponseDTO} from '../../model/response-dto';

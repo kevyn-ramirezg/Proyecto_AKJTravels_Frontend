@@ -3,10 +3,10 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { PlacesApiService } from '../../services/places-api-service';
-import { PlaceDetailDTO } from '../../model/place-detail-dto';
+import { PlaceDetailDTO } from '../../model/place-dto/place-detail-dto';
 import { ResponseDTO } from '../../model/response-dto';
 import { MapService } from '../../services/map-service';
-import {CommentDTO} from '../../model/comment-dto';
+import {CommentDTO} from '../../model/comment-dto/comment-dto';
 
 @Component({
   selector: 'app-detail-place',

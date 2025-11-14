@@ -5,7 +5,7 @@ import { filter, map, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import Swal from 'sweetalert2';
 import { PlacesApiService } from '../../services/places-api-service';
-import { PlaceListItemDTO } from '../../model/place-list-item-dto';
+import { PlaceListItemDTO } from '../../model/place-dto/place-list-item-dto';
 
 @Component({
   selector: 'app-my-places',
