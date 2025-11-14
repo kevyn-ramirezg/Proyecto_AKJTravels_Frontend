@@ -152,3 +152,103 @@ html, body {
     min-height: auto;
   }
 }
+/* ===== Comentarios – Host dashboard ===== */
+
+.hd-comments-section {
+  margin-top: 1rem;
+}
+
+.hd-comments-filters .hd-comments-input {
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+.hd-date-wrapper .hd-comments-input {
+  padding-right: 2.2rem;
+}
+
+.hd-date-wrapper .hd-date-icon {
+  position: absolute;
+  right: 0.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  color: #9ca3af;
+}
+
+/* Tarjeta de comentario */
+.hd-comment-card {
+  border-radius: 18px;
+  border: 1px solid #e5e7eb;
+  background-color: #ffffff;
+  padding: 0.85rem 1rem;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+}
+
+.hd-comment-guest {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.hd-comment-place {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.hd-comment-date {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.hd-comment-text {
+  font-size: 0.83rem;
+  color: #374151;
+}
+
+.hd-comment-rating .hd-star {
+  font-size: 0.9rem;
+  color: #e5e7eb;
+  margin-right: 1px;
+}
+
+.hd-comment-rating .hd-star-filled {
+  color: #facc15;
+}
+
+/* Respuesta */
+.hd-comment-reply-row .hd-reply-input {
+  border-radius: 16px;
+  font-size: 0.8rem;
+  resize: none;
+  min-height: 2.3rem;
+}
+
+.hd-comment-reply-row .hd-reply-input:focus {
+  border-color: #004aad;
+  box-shadow: 0 0 0 2px rgba(0, 74, 173, 0.15);
+}
+
+.hd-reply-btn {
+  border-radius: 999px;
+  font-size: 0.8rem;
+  padding: 0.45rem 0.9rem;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.35);
+}
+
+/* Vista de respuesta enviada */
+.hd-reply-view {
+  border-left: 2px solid rgba(0, 74, 173, 0.25);
+  padding-left: 0.5rem;
+}
+
+.hd-reply-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.hd-reply-text {
+  font-size: 0.8rem;
+  color: #374151;
+}

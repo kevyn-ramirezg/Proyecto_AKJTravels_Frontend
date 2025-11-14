@@ -3,18 +3,26 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import Swal from 'sweetalert2';
-
 import { UserService } from '../../services/user-service';
 import { PlacesApiService } from '../../services/places-api-service';
 import { BookingsApiService } from '../../services/bookings-api-service';
-
 import { PlaceListItemDTO } from '../../model/place-list-item-dto';
 import { PlaceStatsDTO } from '../../model/place-stats-dto';
 import { BookingDTO, BookingState } from '../../model/booking-dto';
 import { TokenService } from '../../services/token-service';
 import { PageMeta } from '../../utils/normalize';
 
-type Section = 'places' | 'metrics' | 'bookings';
+type Section = 'places' | 'metrics' | 'bookings' | 'comments';
+
+interface HostComment {
+  id: string;
+  placeTitle: string;   // nombre del alojamiento
+  guestName: string;    // nombre del huésped
+  rating: number;       // 1–5
+  comment: string;      // texto del comentario
+  date: string;         // ISO: '2025-08-01' o fecha completa
+  reply?: string | null;
+}
 
 @Component({
   selector: 'app-host-dashboard',
@@ -28,6 +36,20 @@ export class HostDashboard implements OnInit {
   // =====================
   section = signal<Section>('places');
   setSection = (s: Section) => this.section.set(s);
+
+  comments: HostComment[] = [];
+  filteredComments: HostComment[] = [];
+
+  commentSearchText = '';
+  commentFromDate?: string;
+  commentToDate?: string;
+
+// texto de respuesta por comentario (diccionario id → texto)
+  replyDrafts: Record<string, string> = {};
+
+  commentsLoading = false;
+  commentsError?: string;
+
 
   // =====================
   // Usuario
@@ -83,6 +105,9 @@ export class HostDashboard implements OnInit {
 
   ngOnInit(): void {
     this.loadMyPlaces();
+    this.initMockComments();
+    this.applyCommentFilters();
+
   }
 
   // =====================
@@ -280,4 +305,76 @@ export class HostDashboard implements OnInit {
       `
     });
   }
+
+  // ===================== COMENTARIOS =====================
+  private initMockComments(): void {
+    this.comments = [
+      {
+        id: 'c1',
+        placeTitle: 'Casa El Poblado',
+        guestName: 'Juan',
+        rating: 5,
+        comment: 'Excelente servicio y muy aseado, recomendado',
+        date: '2025-08-01',
+        reply: null
+      },
+      {
+        id: 'c2',
+        placeTitle: 'Apartamento Laureles',
+        guestName: 'Ana',
+        rating: 4,
+        comment: 'El alojamiento era lindo y aseado, pero tenía un olor extraño',
+        date: '2025-08-15',
+        reply: null
+      }
+    ];
+  }
+  onCommentSearchChange(): void {
+    this.applyCommentFilters();
+  }
+
+  onCommentDateChange(): void {
+    this.applyCommentFilters();
+  }
+  private applyCommentFilters(): void {
+    const text = this.commentSearchText.trim().toLowerCase();
+    const from = this.commentFromDate ? new Date(this.commentFromDate) : null;
+    const to = this.commentToDate ? new Date(this.commentToDate) : null;
+
+    this.filteredComments = this.comments.filter(c => {
+      const matchesText =
+        !text ||
+        c.placeTitle.toLowerCase().includes(text);
+
+      const dateObj = new Date(c.date);
+      const matchesFrom = !from || dateObj >= from;
+      const matchesTo = !to || dateObj <= to;
+
+      return matchesText && matchesFrom && matchesTo;
+    });
+  }
+
+  // Cuando escribes en el textarea
+  onReplyDraftChange(comment: HostComment, value: string): void {
+    this.replyDrafts[comment.id] = value;
+  }
+
+  //Click en el botón "Responder"
+  onSendReply(comment: HostComment): void {
+    const text = (this.replyDrafts[comment.id] || '').trim();
+    if (!text) {
+      // aquí podrías mostrar un toast/alerta si quieres
+      return;
+    }
+
+    // TODO: aquí va la llamada real al backend:
+    // POST /api/comments/{commentId}/reply con { reply: text }
+
+    // Por ahora, simulamos que se envió bien:
+    comment.reply = text;
+    this.replyDrafts[comment.id] = '';
+
+    console.log('Responder a comentario', comment.id, 'con:', text);
+  }
+
 }

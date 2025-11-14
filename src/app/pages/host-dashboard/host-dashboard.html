@@ -44,7 +44,9 @@
 
       <li class="nav-item flex-fill">
         <button
-          class="nav-link w-100 d-flex align-items-center justify-content-center disabled">
+          class="nav-link w-100 d-flex align-items-center justify-content-center"
+          [class.active]="section()==='comments'"
+          (click)="setSection('comments')">
           <span class="material-symbols-rounded align-middle me-2">chat_bubble</span>
           <span>Comentarios</span>
         </button>
@@ -354,5 +356,122 @@
         </div>
       </section>
     }
+    <!-- ===== COMENTARIOS ===== -->
+    @if (section()==='comments') {
+      <section class="card border-0 shadow-sm mb-4 hd-comments-section">
+        <div class="card-body">
+
+          <!-- Filtros superiores -->
+          <div class="row g-2 align-items-center mb-3 hd-comments-filters">
+            <div class="col-12 col-md">
+              <input
+                type="text"
+                class="form-control hd-comments-input"
+                placeholder="Busca el alojamiento..."
+                [(ngModel)]="commentSearchText"
+                (ngModelChange)="onCommentSearchChange()" />
+            </div>
+
+            <div class="col-auto">
+              <div class="d-flex gap-2">
+                <div class="position-relative hd-date-wrapper">
+                  <input
+                    type="date"
+                    class="form-control hd-comments-input"
+                    [(ngModel)]="commentFromDate"
+                    (ngModelChange)="onCommentDateChange()" />
+                  <span class="material-symbols-rounded hd-date-icon">
+                calendar_month
+              </span>
+                </div>
+
+                <div class="position-relative hd-date-wrapper">
+                  <input
+                    type="date"
+                    class="form-control hd-comments-input"
+                    [(ngModel)]="commentToDate"
+                    (ngModelChange)="onCommentDateChange()" />
+                  <span class="material-symbols-rounded hd-date-icon">
+                calendar_month
+              </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Estados -->
+          @if (commentsLoading) {
+            <div class="text-center text-muted py-3">
+              <div class="spinner-border" role="status"></div>
+              <div class="mt-2">Cargando comentarios…</div>
+            </div>
+          } @else if (commentsError) {
+            <div class="alert alert-danger mb-0">
+              {{ commentsError }}
+            </div>
+          } @else if (!filteredComments.length) {
+            <div class="alert alert-light border text-center mb-0">
+              No se encontraron comentarios para los filtros seleccionados.
+            </div>
+          } @else {
+            <!-- Lista de tarjetas -->
+            <div class="d-flex flex-column gap-3">
+              @for (c of filteredComments; track c.id) {
+                <article class="hd-comment-card">
+                  <div class="d-flex justify-content-between align-items-baseline mb-1">
+                    <div>
+                      <div class="hd-comment-guest">{{ c.guestName }}</div>
+                      <div class="hd-comment-place">{{ c.placeTitle }}</div>
+                    </div>
+                    <div class="hd-comment-date">
+                      {{ c.date | date:'yyyy-MM-dd' }}
+                    </div>
+                  </div>
+
+                  <div class="hd-comment-text">
+                    {{ c.comment }}
+                  </div>
+
+                  <div class="hd-comment-rating mb-2">
+                <span
+                  *ngFor="let s of [1,2,3,4,5]"
+                  class="hd-star"
+                  [class.hd-star-filled]="s <= c.rating">
+                  ★
+                </span>
+                  </div>
+
+                  <!-- Respuesta -->
+                  <div class="d-flex align-items-center gap-2 mt-2 hd-comment-reply-row">
+                <textarea
+                  class="form-control hd-reply-input"
+                  rows="1"
+                  placeholder="Responder públicamente..."
+                  [ngModel]="replyDrafts[c.id] || ''"
+                  (ngModelChange)="onReplyDraftChange(c, $event)">
+                </textarea>
+
+                    <button
+                      type="button"
+                      class="btn btn-dark hd-reply-btn"
+                      (click)="onSendReply(c)">
+                      <span class="material-symbols-rounded me-1">forum</span>
+                      Responder
+                    </button>
+                  </div>
+
+                  <!-- Respuesta ya enviada (simulada por ahora) -->
+                  <div *ngIf="c.reply" class="hd-reply-view mt-2">
+                    <div class="hd-reply-label">Tu respuesta:</div>
+                    <div class="hd-reply-text">{{ c.reply }}</div>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </div>
+      </section>
+    }
+
   </div>
 </div>

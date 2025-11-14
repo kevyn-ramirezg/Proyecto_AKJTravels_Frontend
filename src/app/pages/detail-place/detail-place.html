@@ -1,4 +1,4 @@
-<div class="detail-page page-gradient">
+<div class="detail-page">
   <div class="container detail-container">
 
     <!-- ESTADO DE CARGA / ERROR -->
@@ -105,17 +105,50 @@
 
         <!-- Sidebar: solo mapa por ahora -->
         <div class="col-lg-4 col-12 sidebar">
-          <div class="sidebar-card">
-            <div class="sidebar-title">
-              Ubicación del sitio
+          <div class="sidebar-stack">
+
+            <!-- TARJETA DEL ANFITRIÓN -->
+            <section class="host-card" *ngIf="hasHost">
+              <div class="host-avatar" [ngClass]="{ 'host-avatar--placeholder': !hostAvatar }">
+                <img
+                  *ngIf="hostAvatar; else hostInitialsTpl"
+                  [src]="hostAvatar!"
+                  [alt]="hostName"
+                />
+                <ng-template #hostInitialsTpl>
+                  {{ hostInitials }}
+                </ng-template>
+              </div>
+
+              <div class="host-info">
+                <p class="host-label">ANFITRIÓN</p>
+                <h3 class="host-name">{{ hostName }}</h3>
+
+                <p class="host-meta" *ngIf="hostRaw?.email">
+                  {{ hostRaw.email }}
+                </p>
+
+                <p class="host-meta" *ngIf="hostRaw?.phone || hostRaw?.telefono">
+                  Teléfono:
+                  <span>{{ hostRaw.phone || hostRaw.telefono }}</span>
+                </p>
+              </div>
+            </section>
+
+            <!-- TARJETA DE UBICACIÓN / MAPA -->
+            <div class="sidebar-card">
+              <div class="sidebar-title">
+                Ubicación del sitio
+              </div>
+
+              <div class="map-wrapper">
+                <div id="place-map" class="map-container"></div>
+                <button type="button" class="btn btn-gradient btn-map">
+                  Ver en el mapa
+                </button>
+              </div>
             </div>
 
-            <div class="map-wrapper">
-              <div id="place-map" class="map-container"></div>
-              <button type="button" class="btn btn-gradient btn-map">
-                Ver en el mapa
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -128,6 +161,68 @@
         <p class="description-text">
           {{ p.description }}
         </p>
+      </div>
+
+      <!-- COMENTARIOS -->
+
+      <div class="comments-card">
+        <div class="comments-header">
+          Comentarios de huéspedes
+        </div>
+
+        <div *ngIf="commentsLoading" class="comments-state">
+          Cargando comentarios...
+        </div>
+
+        <div *ngIf="!commentsLoading && !commentsError && comments.length === 0"
+             class="comments-state">
+          Aún no hay comentarios para este sitio.
+        </div>
+
+        <div *ngIf="commentsError" class="comments-error">
+          {{ commentsError }}
+        </div>
+
+        <div class="comments-list"
+             *ngIf="!commentsLoading && comments.length > 0">
+          <article class="comment-item" *ngFor="let c of comments">
+            <div class="comment-avatar"
+                 [ngClass]="{ 'comment-avatar--placeholder': !getCommentUserAvatar(c) }">
+              <img *ngIf="getCommentUserAvatar(c); else commentInitialsTpl"
+                   [src]="getCommentUserAvatar(c)!"
+                   [alt]="getCommentUserName(c)" />
+              <ng-template #commentInitialsTpl>
+                {{ getCommentUserInitials(c) }}
+              </ng-template>
+            </div>
+
+            <div class="comment-body">
+              <div class="comment-header-line">
+                <div class="comment-author">
+                  {{ getCommentUserName(c) }}
+                </div>
+                <div class="comment-rating">
+                  <span class="material-symbols-rounded star"
+                        *ngFor="let s of [1,2,3,4,5]"
+                        [class.star-filled]="s <= c.rating">
+                    star
+                  </span>
+                  <span class="comment-rating-number">
+                    {{ c.rating }}/5
+                  </span>
+                </div>
+              </div>
+
+              <div class="comment-date">
+                {{ c.commentDate | date:'dd/MM/yyyy' }}
+              </div>
+
+              <p class="comment-text">
+                {{ c.comment }}
+              </p>
+            </div>
+          </article>
+        </div>
       </div>
 
     </ng-container>

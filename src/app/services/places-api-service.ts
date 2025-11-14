@@ -10,6 +10,7 @@ import { EditPlaceDTO } from '../model/edit-place-dto';
 import { ListPlaceDTO } from '../model/list-place-dto';
 import { API_BASE } from '../core/api-base-token';
 import {normalizeListFromMessage, PageMeta} from '../utils/normalize';
+import {CommentDTO} from '../model/comment-dto';
 
 @Injectable({ providedIn: 'root' })
 export class PlacesApiService {
@@ -72,9 +73,9 @@ export class PlacesApiService {
   }
 
   // COMENTARIOS
-  listComments(id: string, page = 0): Observable<any[]> {
+  listComments(id: string, page = 0): Observable<CommentDTO[]> {
     return this.http
-      .get<ResponseDTO<any[]>>(`${this.baseUrl}/${id}/comments/${page}`)
+      .get<ResponseDTO<CommentDTO[]>>(`${this.baseUrl}/${id}/comments/${page}`)
       .pipe(map(res => res.message));
   }
 
