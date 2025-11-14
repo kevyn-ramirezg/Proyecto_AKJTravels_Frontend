@@ -27,11 +27,41 @@ export class PlacesApiService {
 
 
   // LISTA lugares
+// LISTA lugares con filtros opcionales (ListPlaceDTO)
   list(page = 0, _filters?: Partial<ListPlaceDTO>): Observable<PlaceListItemDTO[]> {
+    let params = new HttpParams();
+
+    if (_filters) {
+      if (_filters.city) {
+        params = params.set('city', _filters.city);
+      }
+      if (_filters.checkIn) {
+        params = params.set('checkIn', String(_filters.checkIn));
+      }
+      if (_filters.checkOut) {
+        params = params.set('checkOut', String(_filters.checkOut));
+      }
+      if (_filters.guest_number != null) {
+        params = params.set('guest_number', String(_filters.guest_number));
+      }
+      if (_filters.minimum != null) {
+        params = params.set('minimum', String(_filters.minimum));
+      }
+      if (_filters.maximum != null) {
+        params = params.set('maximum', String(_filters.maximum));
+      }
+      if (_filters.list && _filters.list.length > 0) {
+        _filters.list.forEach(svc => {
+          params = params.append('list', String(svc));
+        });
+      }
+    }
+
     return this.http
-      .get<ResponseDTO<PlaceListItemDTO[]>>(`${this.baseUrl}/${page}`)
+      .get<ResponseDTO<PlaceListItemDTO[]>>(`${this.baseUrl}/${page}`, { params })
       .pipe(map(res => res.message));
   }
+
 
   getAll(): Observable<PlaceListItemDTO[]> {
     return this.list(0);
