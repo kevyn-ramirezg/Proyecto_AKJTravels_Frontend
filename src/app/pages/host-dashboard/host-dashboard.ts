@@ -6,17 +6,21 @@ import Swal from 'sweetalert2';
 import { UserService } from '../../services/user-service';
 import { PlacesApiService } from '../../services/places-api-service';
 import { BookingsApiService } from '../../services/bookings-api-service';
-import { PlaceListItemDTO } from '../../model/place-list-item-dto';
-import { PlaceStatsDTO } from '../../model/place-stats-dto';
-import { BookingDTO, BookingState } from '../../model/booking-dto';
+import { PlaceListItemDTO } from '../../model/place-dto/place-list-item-dto';
+import { PlaceStatsDTO } from '../../model/place-dto/place-stats-dto';
+import { BookingDTO, BookingState } from '../../model/booking-dto/booking-dto';
 import { TokenService } from '../../services/token-service';
 import { PageMeta } from '../../utils/normalize';
+import {CommentsApiService} from '../../services/comments-api-service';
+import {forkJoin, map, of} from 'rxjs';
+import {catchError} from 'rxjs/operators';
+import {CommentDTO} from '../../model/comment-dto/comment-dto';
 
 type Section = 'places' | 'metrics' | 'bookings' | 'comments';
 
 interface HostComment {
   id: string;
-  placeTitle: string;   // nombre del alojamiento
+  placeTitle: string;// nombre del alojamiento
   guestName: string;    // nombre del huésped
   rating: number;       // 1–5
   comment: string;      // texto del comentario
@@ -101,13 +105,12 @@ export class HostDashboard implements OnInit {
     private readonly token: TokenService,
     private readonly placesApi: PlacesApiService,
     private readonly bookingsApi: BookingsApiService,
+    private readonly commentsApi: CommentsApiService,
   ) {}
 
   ngOnInit(): void {
     this.loadMyPlaces();
-    this.initMockComments();
     this.applyCommentFilters();
-
   }
 
   // =====================
@@ -134,9 +137,18 @@ export class HostDashboard implements OnInit {
   loadMyPlaces() {
     this.loadingPlaces.set(true);
     this.placesApi.getMine(0).subscribe({
-      next: (list) => { this.places.set(list ?? []); this.loadingPlaces.set(false); },
-      error: (err) => { console.error('[HostDashboard] getMine error', err); this.loadingPlaces.set(false);
-        Swal.fire({ icon:'error', title:'No se pudieron cargar tus alojamientos' }); }
+      next: (list) => {
+        this.places.set(list ?? []);
+        this.loadingPlaces.set(false);
+
+        // 👉 nuevo: carga comentarios de todos mis alojamientos
+        this.loadHostCommentsFromPlaces(this.places());
+      },
+      error: (err) => {
+        console.error('[HostDashboard] getMine error', err);
+        this.loadingPlaces.set(false);
+        Swal.fire({ icon:'error', title:'No se pudieron cargar tus alojamientos' });
+      }
     });
   }
 
@@ -144,13 +156,7 @@ export class HostDashboard implements OnInit {
     this.router.navigateByUrl('/create-place');
   }
 
-  navigateEditPlace(id: string | number) {
-    this.router.navigate(['/edit-place', String(id)]);
-  }
 
-  navigateViewPlace(id: string | number) {
-    this.router.navigate(['/place', String(id)]);
-  }
 
   deletePlace(id: string | number) {
     const today = new Date(); today.setHours(0,0,0,0);
@@ -307,28 +313,7 @@ export class HostDashboard implements OnInit {
   }
 
   // ===================== COMENTARIOS =====================
-  private initMockComments(): void {
-    this.comments = [
-      {
-        id: 'c1',
-        placeTitle: 'Casa El Poblado',
-        guestName: 'Juan',
-        rating: 5,
-        comment: 'Excelente servicio y muy aseado, recomendado',
-        date: '2025-08-01',
-        reply: null
-      },
-      {
-        id: 'c2',
-        placeTitle: 'Apartamento Laureles',
-        guestName: 'Ana',
-        rating: 4,
-        comment: 'El alojamiento era lindo y aseado, pero tenía un olor extraño',
-        date: '2025-08-15',
-        reply: null
-      }
-    ];
-  }
+
   onCommentSearchChange(): void {
     this.applyCommentFilters();
   }
@@ -363,18 +348,190 @@ export class HostDashboard implements OnInit {
   onSendReply(comment: HostComment): void {
     const text = (this.replyDrafts[comment.id] || '').trim();
     if (!text) {
-      // aquí podrías mostrar un toast/alerta si quieres
       return;
     }
 
-    // TODO: aquí va la llamada real al backend:
-    // POST /api/comments/{commentId}/reply con { reply: text }
+    // ⚠️ Necesitamos el id del usuario que responde (host)
+    // Usa el método real que tengas en tu TokenService
+    const userId = this.token.getUserId?.();
+    if (!userId) {
+      console.error('[HostDashboard] No se encontró el id del usuario autenticado. Ajusta esta parte con tu TokenService.');
+      Swal.fire({
+        icon: 'error',
+        title: 'No se pudo enviar la respuesta',
+        text: 'No se encontró el id del usuario autenticado. Revisa el TokenService.'
+      });
+      return;
+    }
 
-    // Por ahora, simulamos que se envió bien:
-    comment.reply = text;
-    this.replyDrafts[comment.id] = '';
+    this.commentsApi.reply(comment.id, text, userId).subscribe({
+      next: () => {
+        comment.reply = text;
+        this.replyDrafts[comment.id] = '';
+        Swal.fire({
+          icon: 'success',
+          title: 'Respuesta enviada',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      },
+      error: (err) => {
+        console.error('[HostDashboard] reply error', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'No se pudo enviar la respuesta',
+          text: err?.error?.message ?? 'Inténtalo de nuevo.'
+        });
+      }
+    });
+  }
+  private loadComments(): void {
+    const places = this.places() || [];
 
-    console.log('Responder a comentario', comment.id, 'con:', text);
+    if (!places.length) {
+      this.comments = [];
+      this.filteredComments = [];
+      return;
+    }
+
+    this.commentsLoading = true;
+    this.commentsError = undefined;
+
+    const calls = places.map(p =>
+      this.placesApi.listComments(String((p as any).id), 0).pipe(
+        map((list: any[]) => list.map(raw => this.mapToHostComment(raw, p))),
+        catchError(err => {
+          console.error('[HostDashboard] listComments error for place', p.id, err);
+          // devolvemos lista vacía para no romper el forkJoin
+          return of([] as HostComment[]);
+        })
+      )
+    );
+
+    forkJoin(calls).subscribe({
+      next: (arrays: HostComment[][]) => {
+        this.comments = arrays.flat();
+        this.applyCommentFilters();
+        this.commentsLoading = false;
+      },
+      error: (err) => {
+        console.error('[HostDashboard] loadComments error', err);
+        this.commentsLoading = false;
+        this.commentsError = err?.error?.message ?? 'No se pudieron cargar los comentarios.';
+        this.comments = [];
+        this.filteredComments = [];
+
+
+        this.applyCommentFilters();
+      }
+    });
+  }
+
+  private mapToHostComment(raw: any, place: PlaceListItemDTO | null): HostComment {
+    // raw ≈ CommentDTO del backend:
+    // { comment, commentDate, rating, user: { name, photoUrl } }
+
+    const user = raw?.user ?? {};
+    const commentDateIso: string = raw?.commentDate ?? new Date().toISOString();
+
+    return {
+      // id sólo de frontend; si luego el back manda id, se usa raw.id
+      id: String(raw?.id ?? `${place?.id ?? 'place'}-${commentDateIso}-${Math.random()}`),
+      placeTitle: place?.title ?? 'Alojamiento',
+      guestName: user.name ?? 'Huésped',
+      rating: Number(raw?.rating ?? 0),
+      comment: raw?.comment ?? '',
+      date: commentDateIso,
+      reply: null
+    };
+  }
+
+  private loadHostCommentsFromPlaces(places: PlaceListItemDTO[]): void {
+    if (!places || !places.length) {
+      this.comments = [];
+      this.filteredComments = [];
+      return;
+    }
+
+    this.commentsLoading = true;
+    this.commentsError = undefined;
+
+    // Un observable por alojamiento
+    const requests = places.map(p =>
+      this.placesApi.listComments(p.id, 0).pipe(
+        // Si el backend tira 404 cuando no hay comentarios, lo mapeamos a []
+        catchError(() => of([] as CommentDTO[])),
+        map((comments) =>
+          comments.map<HostComment>(c => ({
+            id: c.id,                        // ← CommentDTO.id
+            placeId: p.id,
+            placeTitle: p.title,
+            guestName: c.user?.name ?? 'Huésped',
+            rating: c.rating,
+            comment: c.comment,
+            date: c.commentDate,
+            reply: null
+          }))
+        )
+      )
+    );
+
+    forkJoin(requests).subscribe({
+      next: (arrays) => {
+        // aplanamos todos los comentarios de todos los alojamientos
+        this.comments = arrays.flat();
+
+        // los ordenamos del más reciente al más antiguo
+        this.comments.sort((a, b) =>
+          new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
+
+        // aplicamos filtros actuales (texto + fecha)
+        this.applyCommentFilters();
+
+        this.commentsLoading = false;
+      },
+      error: (err) => {
+        console.error('[HostDashboard] loadHostComments error', err);
+        this.commentsLoading = false;
+        this.commentsError = 'No se pudieron cargar los comentarios.';
+      }
+    });
+  }
+  // Cargar comentarios reales del backend para el alojamiento seleccionado
+  loadCommentsForPlace(): void {
+    const pid = this.selectedPlaceId();
+    if (!pid) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Selecciona un alojamiento',
+        text: 'Elige un alojamiento para ver sus comentarios.'
+      });
+      return;
+    }
+
+    this.commentsLoading = true;
+    this.commentsError = undefined;
+    this.comments = [];
+    this.filteredComments = [];
+
+    const place = this.places().find(p => String((p as any).id) === String(pid)) ?? null;
+
+    this.placesApi.listComments(String(pid), 0).subscribe({
+      next: (list) => {
+        const rawComments = list ?? [];
+        this.comments = rawComments.map(raw => this.mapToHostComment(raw, place));
+        this.applyCommentFilters();  // reutilizamos tu filtro por texto/fechas
+        this.commentsLoading = false;
+      },
+      error: (err) => {
+        console.error('[HostDashboard] listComments error', err);
+        this.commentsLoading = false;
+        this.comments = [];
+        this.filteredComments = [];
+        this.commentsError = err?.error?.message ?? 'No se pudieron cargar los comentarios.';
+      }
+    });
   }
 
 }

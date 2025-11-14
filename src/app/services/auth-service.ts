@@ -2,11 +2,11 @@
 import { Inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { LoginDTO } from '../model/login-dto';
+import { LoginDTO } from '../model/auth-dto/login-dto';
 import { ResponseDTO } from '../model/response-dto';
-import { TokenDTO } from '../model/token-dto';
+import { TokenDTO } from '../model/auth-dto/token-dto';
 import { API_BASE } from '../core/api-base-token';
-import { CreateUserDTO } from '../model/create-user-dto';
+import { CreateUserDTO } from '../model/user-dto/create-user-dto';
 
 // ⬇️ Exporta los DTOs para que el componente pueda importarlos
 export interface RequestResetPasswordDTO {

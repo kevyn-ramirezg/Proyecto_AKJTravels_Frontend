@@ -1,6 +1,7 @@
 import {UserCommentDTO} from './user.comment-dto';
 
 export interface CommentDTO {
+  id:  string;
   comment: string;
   commentDate: string; // viene como ISO, la mostramos con date pipe
   rating: number;

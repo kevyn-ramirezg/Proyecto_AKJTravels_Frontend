@@ -3,10 +3,10 @@ import { Inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { ResponseDTO } from '../model/response-dto';
-import { CreateUserDTO } from '../model/create-user-dto';
-import { EditUserDTO } from '../model/edit-user-dto';
+import { CreateUserDTO } from '../model/user-dto/create-user-dto';
+import { EditUserDTO } from '../model/user-dto/edit-user-dto';
 import { TokenService } from './token-service';
-import { PlaceListItemDTO } from '../model/place-list-item-dto';
+import { PlaceListItemDTO } from '../model/place-dto/place-list-item-dto';
 import { API_BASE } from '../core/api-base-token';
 
 @Injectable({ providedIn: 'root' })

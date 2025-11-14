@@ -9,8 +9,8 @@ import Swal from 'sweetalert2';
 
 // Servicios / modelos
 import { PlacesApiService } from '../../services/places-api-service';
-import { PlaceDetailDTO } from '../../model/place-detail-dto';
-import { EditPlaceDTO } from '../../model/edit-place-dto';
+import { PlaceDetailDTO } from '../../model/place-dto/place-detail-dto';
+import { EditPlaceDTO } from '../../model/place-dto/edit-place-dto';
 
 interface ServiceItem { code: string; label: string; icon?: string }
 
@@ -140,7 +140,7 @@ export class EditPlace implements OnInit, OnDestroy {
     if (this.files[i]) this.files.splice(i, 1);
     if (this.mainIndex >= this.previews.length) this.mainIndex = Math.max(0, this.previews.length - 1);
   }
-  setMain(i: number) { this.mainIndex = i; }
+
 
   // ===== Carga inicial =====
   ngOnInit(): void {

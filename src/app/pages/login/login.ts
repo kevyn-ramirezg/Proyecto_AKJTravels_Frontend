@@ -11,7 +11,7 @@ import { Router, RouterModule } from '@angular/router';
 import {TokenService} from '../../services/token-service';
 import {AuthRegisterService} from '../../services/auth-service';
 import Swal from 'sweetalert2';
-import {LoginDTO} from '../../model/login-dto';
+import {LoginDTO} from '../../model/auth-dto/login-dto';
 
 type LoginForm = FormGroup<{
   email: FormControl<string>;

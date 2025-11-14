@@ -1,13 +1,13 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import {Subscription, of, forkJoin} from 'rxjs';
+import {Subscription, forkJoin} from 'rxjs';
 
 
 // Servicios propios
 import { MapService } from '../../services/map-service';
 import { PlacesApiService } from '../../services/places-api-service';
-import {CreatePlaceDTO} from '../../model/create-place-dto';
+import {CreatePlaceDTO} from '../../model/place-dto/create-place-dto';
 import Swal from 'sweetalert2';
 // Ajusta si necesitas un tipo fuerte para tu backend
 
@@ -170,7 +170,6 @@ export class CreatePlace implements OnInit, OnDestroy {
     if (this.files[i]) this.files.splice(i, 1);
     if (this.mainIndex >= this.previews.length) this.mainIndex = Math.max(0, this.previews.length - 1);
   }
-  setMain(i: number) { this.mainIndex = i; }
 
   // ============= MAPA =============
   private initStep1Map(): void {
@@ -230,41 +229,6 @@ export class CreatePlace implements OnInit, OnDestroy {
     return payload;
   }
 
-
-
-  private uploadImagesAfterCreate(placeId: string): void {
-    const finishOk = () => {
-      Swal.fire({
-        icon: 'success',
-        title: '¡Alojamiento creado!',
-        text: 'Se creó correctamente.',
-        confirmButtonText: 'Aceptar',
-      });
-      this.files.forEach((_, i) => {
-        try { URL.revokeObjectURL(this.previews[i]); } catch {}
-      });
-      this.previews = [];
-      this.files = [];
-      // this.router.navigateByUrl('/my-places'); // si quieres
-    };
-
-    if (this.files.length === 0) {
-      finishOk();
-      return;
-    }
-
-    this.placesApi.uploadImages(placeId, this.files, this.mainIndex).subscribe({
-      next: () => finishOk(),
-      error: (err) => {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Alojamiento creado (con aviso)',
-          text: 'El alojamiento se creó, pero las imágenes no se pudieron subir: ' +
-            (err?.error?.message ?? ''),
-        }).then(() => finishOk());
-      }
-    });
-  }
 
 
   submit(): void {
