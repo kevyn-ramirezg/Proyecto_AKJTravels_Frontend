@@ -1,0 +1,233 @@
+.reservations-page {
+  min-height: 100vh;
+  background: #f5f7fb;
+}
+
+/* Barra superior marca */
+.brand-bar {
+  width: 100%;
+  padding: 18px 40px;
+  background: linear-gradient(90deg, #004aad, #cb6ce6);
+  display: flex;
+  align-items: center;
+}
+
+.brand {
+  font-size: 22px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.05em;
+}
+
+.brand span {
+  font-weight: 400;
+}
+
+/* Título MIS RESERVAS */
+.reservations-header {
+  max-width: 1120px;
+  margin: 18px auto 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #9ca3af;
+}
+
+/* Lista de tarjetas */
+.reservations-list {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 32px;
+}
+
+/* Tarjeta de reserva */
+.reservation-card {
+  background: #ffffff;
+  border-radius: 28px;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+  padding: 18px 22px;
+  display: grid;
+  grid-template-columns: minmax(0, 280px) minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 24px;
+}
+
+/* Columna izquierda */
+.res-left {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.res-image-wrapper {
+  width: 210px;
+  height: 140px;
+  border-radius: 20px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.res-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.res-place-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.place-name {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  color: #111827;
+}
+
+.place-rating {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.rating-text {
+  margin-left: 4px;
+}
+
+.place-location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.place-location .material-symbols-rounded {
+  font-size: 18px;
+  color: #ef4444;
+}
+
+/* Columna central */
+.res-middle {
+  border-left: 1px solid #e5e7eb;
+  padding-left: 24px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  color: #111827;
+}
+
+.dates-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 4px;
+}
+
+.dates-grid label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.dates-grid p {
+  margin: 0;
+  font-size: 13px;
+  color: #374151;
+}
+
+.details-line {
+  font-size: 12px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* Columna derecha */
+.res-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.status-chip {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: #9ca3af;
+}
+
+.status-chip span {
+  margin-left: 4px;
+  font-weight: 600;
+}
+
+.status-activa span {
+  color: #10b981;
+}
+
+/* Botones */
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-gradient {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 10px 24px;
+  border: none;
+  background: linear-gradient(90deg, #004aad, #cb6ce6);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn-small {
+  padding-inline: 20px;
+}
+
+/* Estado vacío */
+.empty {
+  max-width: 1120px;
+  margin: 32px auto;
+  text-align: center;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .reservation-card {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 16px;
+  }
+
+  .res-middle {
+    border-left: none;
+    padding-left: 0;
+  }
+
+  .res-right {
+    align-items: flex-start;
+  }
+
+  .actions {
+    flex-wrap: wrap;
+  }
+}

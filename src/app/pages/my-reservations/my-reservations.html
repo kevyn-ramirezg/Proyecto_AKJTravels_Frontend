@@ -1,0 +1,81 @@
+<div class="reservations-page">
+
+  <!-- Barra con marca -->
+  <div class="brand-bar">
+    <div class="brand">AKJ<span>Travel</span></div>
+  </div>
+
+  <div class="reservations-header">
+    MIS RESERVAS
+  </div>
+
+  <div class="reservations-list" *ngIf="reservas.length; else emptyState">
+
+    <article class="reservation-card" *ngFor="let r of reservas">
+
+      <!-- Columna izquierda: imagen + info lugar -->
+      <div class="res-left">
+        <div class="res-image-wrapper">
+          <img [src]="r.mainImage" [alt]="r.placeTitle" class="res-image" />
+        </div>
+
+        <div class="res-place-info">
+          <h2 class="place-name">{{ r.placeTitle }}</h2>
+
+          <div class="place-rating">
+            ★★★★☆
+            <span class="rating-text">Calificación 0/5</span>
+          </div>
+
+          <div class="place-location">
+            <span class="material-symbols-rounded">group</span>
+            Capacidad {{ r.capacity }} huéspedes
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna central: datos de la reserva -->
+      <div class="res-middle">
+        <h3 class="section-title">Datos de tu reserva</h3>
+
+        <div class="dates-grid">
+          <div>
+            <label>Entrada</label>
+            <p>{{ r.checkIn | date:'EEEE d \'de\' MMMM y' }}</p>
+          </div>
+          <div>
+            <label>Salida</label>
+            <p>{{ r.checkOut | date:'EEEE d \'de\' MMMM y' }}</p>
+          </div>
+        </div>
+
+        <p class="details-line">
+          {{ r.nights }} noches, {{ r.guests }} habitación para {{ r.guests }} adultos
+        </p>
+      </div>
+
+      <!-- Columna derecha: estado + botones -->
+      <div class="res-right">
+        <div class="status-chip status-activa">
+          ESTADO: <span>{{ r.state }}</span>
+        </div>
+
+        <div class="actions">
+          <!-- Más adelante aquí pondremos cancelar / calificar -->
+          <button class="btn-gradient btn-small">
+            Información
+          </button>
+        </div>
+      </div>
+
+    </article>
+
+  </div>
+
+  <ng-template #emptyState>
+    <div class="empty">
+      Aún no tienes reservas registradas.
+    </div>
+  </ng-template>
+
+</div>

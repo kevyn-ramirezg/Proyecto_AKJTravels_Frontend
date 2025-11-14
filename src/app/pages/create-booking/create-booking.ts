@@ -111,8 +111,25 @@ export class CreateBooking implements OnInit {
 
     this.bookingApi.create(this.place.id, dto).subscribe({
       next: () => {
-        Swal.fire('¡Reserva creada!', 'Tu reserva ha sido registrada correctamente', 'success')
-          .then(() => this.router.navigate(['/']));
+        // 👇 armamos info para la pantalla "Mis reservas"
+        const state = {
+          booking: {
+            checkIn,              // solo la fecha (para mostrarla bonita)
+            checkOut,
+            guest_number: guests,
+            total: this.total,
+            nights: this.nights
+          },
+          place: this.place
+        };
+
+        Swal.fire(
+          '¡Reserva creada!',
+          'Tu reserva ha sido registrada correctamente',
+          'success'
+        ).then(() => {
+          this.router.navigate(['/my-reservations'], { state });
+        });
       },
       error: err => {
         Swal.fire('Error', err.error?.message || 'No se pudo crear la reserva', 'error');

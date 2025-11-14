@@ -1,3 +1,6 @@
+
+
+
 .booking-page {
   min-height: 100vh;
   background: #f5f7fb;
@@ -287,6 +290,7 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
   cursor: pointer;
+
 }
 
 .btn-gradient:disabled {

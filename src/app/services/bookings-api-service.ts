@@ -54,6 +54,12 @@ export class BookingsApiService {
   create(placeId: string, dto: any) {
     return this.http.post(`${this.baseUrl}/bookings/${placeId}`, dto);
   }
+  listUserBookings(page: number = 0) {
+    return this.http.get<ResponseDTO<BookingDTO[]>>(
+      `${this.baseUrl}/bookings/user?page=${page}`
+    );
+  }
+
 
 }
 /*aa*/
