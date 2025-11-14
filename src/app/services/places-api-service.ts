@@ -28,31 +28,31 @@ export class PlacesApiService {
 
   // LISTA lugares
 // LISTA lugares con filtros opcionales (ListPlaceDTO)
-  list(page = 0, _filters?: Partial<ListPlaceDTO>): Observable<PlaceListItemDTO[]> {
-    let params = new HttpParams();
+  list(page = 0, filters?: Partial<ListPlaceDTO>): Observable<PlaceListItemDTO[]> {
+    let params = new HttpParams().set('page', String(page));
 
-    if (_filters) {
-      if (_filters.city) {
-        params = params.set('city', _filters.city);
+    if (filters) {
+      if (filters.city) {
+        params = params.set('city', filters.city);
       }
-      if (_filters.checkIn) {
-        params = params.set('checkIn', String(_filters.checkIn));
+      if (filters.checkIn) {
+        params = params.set('checkIn', filters.checkIn);
       }
-      if (_filters.checkOut) {
-        params = params.set('checkOut', String(_filters.checkOut));
+      if (filters.checkOut) {
+        params = params.set('checkOut', filters.checkOut);
       }
-      if (_filters.guest_number != null) {
-        params = params.set('guest_number', String(_filters.guest_number));
+      if (filters.guest_number != null) {
+        params = params.set('guest_number', String(filters.guest_number));
       }
-      if (_filters.minimum != null) {
-        params = params.set('minimum', String(_filters.minimum));
+      if (filters.minimum != null) {
+        params = params.set('minimum', String(filters.minimum));
       }
-      if (_filters.maximum != null) {
-        params = params.set('maximum', String(_filters.maximum));
+      if (filters.maximum != null) {
+        params = params.set('maximum', String(filters.maximum));
       }
-      if (_filters.list && _filters.list.length > 0) {
-        _filters.list.forEach(svc => {
-          params = params.append('list', String(svc));
+      if (filters.list && filters.list.length > 0) {
+        filters.list.forEach(s => {
+          params = params.append('list', s); // ?list=WIFI&list=POOL...
         });
       }
     }
@@ -61,7 +61,6 @@ export class PlacesApiService {
       .get<ResponseDTO<PlaceListItemDTO[]>>(`${this.baseUrl}/${page}`, { params })
       .pipe(map(res => res.message));
   }
-
 
   getAll(): Observable<PlaceListItemDTO[]> {
     return this.list(0);

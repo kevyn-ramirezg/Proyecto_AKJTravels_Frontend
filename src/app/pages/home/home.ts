@@ -5,6 +5,7 @@ import Litepicker from 'litepicker';
 
 import { MapService } from '../../services/map-service';
 import { PlacesApiService } from '../../services/places-api-service';
+import Swal from 'sweetalert2';   // ⬅️ IMPORTANTE
 
 type Destination = { label: string; type: 'Ciudad' | 'Región' | 'País' };
 
@@ -199,6 +200,209 @@ export class Home implements AfterViewInit, OnDestroy, OnInit {
     (ev.target as HTMLInputElement).value = String(this.guests);
   }
 
+  // ====== FILTROS (precio + servicios) ======
+  minPrice: number | null = null;
+  maxPrice: number | null = null;
+
+  servicesOptions = [
+    { code: 'WIFI',               label: 'Wi-Fi',              icon: 'wifi' },
+    { code: 'BREAKFAST_INCLUDED', label: 'Desayuno incluido',  icon: 'restaurant' },
+    { code: 'AIR_CONDITIONING',   label: 'Aire acondicionado', icon: 'ac_unit' },
+    { code: 'POOL',               label: 'Piscina',            icon: 'pool' },
+    { code: 'TELEVISION',         label: 'Televisión',         icon: 'tv' },
+    { code: 'PARKING',            label: 'Parqueadero',        icon: 'local_parking' },
+    { code: 'GYM',                label: 'Gimnasio',           icon: 'fitness_center' },
+    { code: 'SPA',                label: 'Spa',                icon: 'spa' },
+    { code: 'RESTAURANT',         label: 'Restaurante',        icon: 'restaurant_menu' },
+    { code: 'BAR',                label: 'Bar',                icon: 'local_bar' }
+  ];
+
+  selectedServices: string[] = [];
+
+  async openFilters(): Promise<void> {
+    const html = `
+      <div style="
+        max-width:520px;
+        margin:0 auto;
+        display:flex;
+        flex-direction:column;
+        gap:20px;
+        padding-top:4px;
+      ">
+        <!-- BLOQUE PRECIO -->
+        <section>
+          <p style="
+            font-size:13px;
+            font-weight:600;
+            letter-spacing:.08em;
+            text-transform:uppercase;
+            color:#667085;
+            margin:0 0 10px;
+            text-align:center;
+          ">
+            ¿Hasta qué precio buscas?
+          </p>
+
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="
+              display:flex;
+              justify-content:space-between;
+              font-size:12px;
+              color:#9ca3af;
+            ">
+              <span>Desde COP 0</span>
+              <span id="sw-max-label">Sin límite</span>
+            </div>
+
+            <input id="sw-max-range"
+                   type="range"
+                   min="0"
+                   max="5000000"
+                   step="50000"
+                   style="width:100%;">
+          </div>
+        </section>
+
+        <!-- BLOQUE SERVICIOS -->
+        <section>
+          <p style="
+            font-size:13px;
+            font-weight:600;
+            letter-spacing:.08em;
+            text-transform:uppercase;
+            color:#667085;
+            margin:6px 0 10px;
+            text-align:center;
+          ">
+            ¿Qué servicios necesitas?
+          </p>
+
+          <div style="
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+            gap:8px;
+          ">
+            ${this.servicesOptions.map(s => `
+              <label style="
+                display:inline-flex;
+                align-items:center;
+                gap:6px;
+                padding:6px 10px;
+                border-radius:999px;
+                border:1px solid #e5e7eb;
+                font-size:13px;
+                cursor:pointer;
+                background:#f9fafb;
+                color:#374151;
+                white-space:normal;
+                line-height:1.2;
+              ">
+                <input type="checkbox"
+                       class="sw-service"
+                       data-code="${s.code}"
+                       style="margin:0" />
+                <span class="material-symbols-rounded"
+                      style="font-size:18px;">
+                  ${s.icon}
+                </span>
+                <span>${s.label}</span>
+              </label>
+            `).join('')}
+          </div>
+        </section>
+      </div>
+    `;
+
+    const { value } = await Swal.fire<{
+      maxPrice: number | null;
+      services: string[];
+    }>({
+      title: 'Filtros',
+      html,
+      width: 520,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Aplicar',
+      cancelButtonText: 'Cancelar',
+      buttonsStyling: false,
+      customClass: {
+        confirmButton: 'btn btn-gradient',
+        cancelButton: 'btn btn-ghost'
+      },
+      didOpen: () => {
+        const slider = document.getElementById('sw-max-range') as HTMLInputElement | null;
+        const label  = document.getElementById('sw-max-label') as HTMLElement | null;
+
+        const formatCOP = (v: number) => {
+          if (v <= 0) return 'Sin límite';
+          return new Intl.NumberFormat('es-CO', {
+            style: 'currency',
+            currency: 'COP',
+            maximumFractionDigits: 0
+          }).format(v);
+        };
+
+        if (slider) {
+          const initial = this.maxPrice != null ? this.maxPrice : 0;
+          slider.value = String(initial);
+          if (label) label.textContent = formatCOP(initial);
+
+          slider.addEventListener('input', () => {
+            const val = Number(slider.value || '0');
+            if (label) label.textContent = formatCOP(val);
+          });
+        }
+
+        // marcar servicios actuales
+        const checkboxes = Array.from(
+          document.querySelectorAll<HTMLInputElement>('.sw-service')
+        );
+        checkboxes.forEach(chk => {
+          const code = chk.dataset['code'];
+          chk.checked = !!code && this.selectedServices.includes(code);
+        });
+      },
+      preConfirm: () => {
+        const slider = document.getElementById('sw-max-range') as HTMLInputElement | null;
+
+        let maxPrice: number | null = null;
+        if (slider) {
+          const val = Number(slider.value || '0');
+          if (!Number.isNaN(val) && val > 0) {
+            maxPrice = val;
+          }
+        }
+
+        const services: string[] = [];
+        const checkboxes = Array.from(
+          document.querySelectorAll<HTMLInputElement>('.sw-service')
+        );
+        checkboxes.forEach(chk => {
+          if (chk.checked && chk.dataset['code']) {
+            services.push(chk.dataset['code']!);
+          }
+        });
+
+        return { maxPrice, services };
+      }
+    });
+
+    if (!value) return;
+
+    // si hay maxPrice, rango = 0 → maxPrice; si no, sin filtro de precio
+    if (value.maxPrice != null) {
+      this.minPrice = 0;
+      this.maxPrice = value.maxPrice;
+    } else {
+      this.minPrice = null;
+      this.maxPrice = null;
+    }
+
+    this.selectedServices = value.services;
+    this.onSearch();   // reaplicar búsqueda con los filtros
+  }
+
+
   // ====== DESTACADOS (3 alojamientos reales) ======
   featuredPlaces: any[] = [];
 
@@ -236,9 +440,15 @@ export class Home implements AfterViewInit, OnDestroy, OnInit {
     const checkOut = this.checkOutDate;
     const guests   = this.guests || 1;
 
-    this.router.navigate(['/search'], {
-      queryParams: { location, checkIn, checkOut, guests }
-    });
+    const queryParams: any = { location, checkIn, checkOut, guests };
+
+    if (this.minPrice != null) queryParams.minimum = this.minPrice;
+    if (this.maxPrice != null) queryParams.maximum = this.maxPrice;
+    if (this.selectedServices.length > 0) {
+      queryParams.list = this.selectedServices;
+    }
+
+    this.router.navigate(['/search'], { queryParams });
   }
 
   // ================== MAPBOX + BACKEND ==================
