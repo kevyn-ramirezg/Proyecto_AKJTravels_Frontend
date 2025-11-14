@@ -1,0 +1,102 @@
+<section class="search-results">
+  <div class="home-container">
+    <!-- Encabezado de la página -->
+    <header class="search-header">
+      <a routerLink="/" class="back-link">
+        <span class="material-symbols-rounded">arrow_back</span>
+        Nueva búsqueda
+      </a>
+
+      <h1 class="search-title">
+        Estancias en {{ criteria.location || 'cualquier lugar' }}
+      </h1>
+
+      <p class="search-meta">
+        @if (criteria.checkIn || criteria.checkOut) {
+          <span class="chip">
+            <span class="material-symbols-rounded">calendar_month</span>
+            {{ criteria.checkIn || 'Fecha de entrada' }} – {{ criteria.checkOut || 'Fecha de salida' }}
+          </span>
+        }
+
+        @if (criteria.guests) {
+          <span class="chip">
+            <span class="material-symbols-rounded">group</span>
+            {{ criteria.guests }} huésped{{ criteria.guests && criteria.guests > 1 ? 'es' : '' }}
+          </span>
+        }
+      </p>
+    </header>
+
+    <!-- Estados de carga / error -->
+    @if (loading) {
+      <div class="state state-loading">
+        <span class="material-symbols-rounded spinner">progress_activity</span>
+        <p>Cargando alojamientos…</p>
+      </div>
+    }
+
+    @if (error) {
+      <div class="state state-error">
+        <p>{{ error }}</p>
+      </div>
+    }
+
+    @if (!loading && !error) {
+      <!-- texto de resumen -->
+      <div class="results-head">
+        @if (filteredPlaces.length > 0) {
+          <p class="result-count">
+            {{ filteredPlaces.length }} alojamiento{{ filteredPlaces.length > 1 ? 's' : '' }} encontrados
+          </p>
+        } @else {
+          <p class="result-count">
+            No encontramos alojamientos con estos criterios. Prueba cambiando las fechas o el destino.
+          </p>
+        }
+      </div>
+
+      <!-- GRID de resultados -->
+      <div class="results-grid">
+        @for (p of filteredPlaces; track p.id) {
+          <article class="place-card" [routerLink]="['/place', p.id]">
+            <div class="place-thumb">
+              <img
+                [src]="p.photo_url || 'assets/img/place-placeholder.jpg'"
+                [alt]="p.title || 'Alojamiento'"
+                loading="lazy"
+                (error)="onImgError($event)"
+              />
+            </div>
+
+            <div class="place-body">
+              <div class="place-top-row">
+                <h2 class="place-title">
+                  {{ p.title || 'Alojamiento sin título' }}
+                </h2>
+                <div class="place-rating">
+                  <span class="material-symbols-rounded">star</span>
+                  <span>{{ p.average_rating | number:'1.1-1' }}</span>
+                </div>
+              </div>
+
+              @if (p.city) {
+                <p class="place-location">
+                  {{ p.city }}
+                </p>
+              }
+
+              <!-- PRECIO: sin pipes ni condicional, para que siempre se vea -->
+              <p class="place-price">
+                <span class="place-price-value">
+                  $ {{ p.price }}
+                </span>
+                <span class="suffix">/ noche</span>
+              </p>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </div>
+</section>
