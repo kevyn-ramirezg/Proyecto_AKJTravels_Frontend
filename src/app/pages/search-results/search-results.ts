@@ -5,9 +5,12 @@ import { PlacesApiService } from '../../services/places-api-service';
 
 type SearchCriteria = {
   location?: string;
-  checkIn?: string;   // viene como "DD/MM/YYYY" desde el Home
-  checkOut?: string;  // idem
+  checkIn?: string;   // "DD/MM/YYYY"
+  checkOut?: string;
   guests?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  services?: string[];
 };
 
 @Component({
@@ -33,11 +36,23 @@ export class SearchResultsComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
+      // normalizar servicios (list puede ser string o string[])
+      let services: string[] | undefined;
+      const rawList = params['list'];
+      if (Array.isArray(rawList)) {
+        services = rawList;
+      } else if (typeof rawList === 'string') {
+        services = [rawList];
+      }
+
       this.criteria = {
         location: params['location'] || undefined,
         checkIn: params['checkIn'] || undefined,
         checkOut: params['checkOut'] || undefined,
-        guests: params['guests'] ? Number(params['guests']) : undefined
+        guests: params['guests'] ? Number(params['guests']) : undefined,
+        minPrice: params['minimum'] ? Number(params['minimum']) : undefined,
+        maxPrice: params['maximum'] ? Number(params['maximum']) : undefined,
+        services
       };
 
       this.loadPlaces();
@@ -52,14 +67,10 @@ export class SearchResultsComponent implements OnInit {
 
     const loc = this.criteria.location?.trim();
 
-    // 👇 Lógica para city
+    // city → solo si es un destino tipo "Armenia, Quindío"
     if (loc) {
       if (loc.includes(',')) {
-        // Caso "Armenia, Quindio" → al backend solo le mandamos "Armenia"
         filters.city = loc.split(',')[0].trim();
-      } else {
-        // Caso texto libre "Mocawa" → NO mandamos city al backend,
-        // el filtro por nombre lo hace applyFilters() en el front.
       }
     }
 
@@ -77,10 +88,22 @@ export class SearchResultsComponent implements OnInit {
       filters.checkOut = checkOutBackend;
     }
 
+    // precio
+    if (this.criteria.minPrice != null) {
+      filters.minimum = this.criteria.minPrice;
+    }
+    if (this.criteria.maxPrice != null) {
+      filters.maximum = this.criteria.maxPrice;
+    }
+
+    // servicios
+    if (this.criteria.services && this.criteria.services.length > 0) {
+      filters.list = this.criteria.services;
+    }
+
     this.placesApi.list(0, filters).subscribe({
       next: (rows) => {
         this.places = rows ?? [];
-        // Filtro extra en el FRONT (por texto: "Armenia", "Mocawa", etc.)
         this.filteredPlaces = this.applyFilters(this.places);
         this.loading = false;
 
@@ -95,10 +118,6 @@ export class SearchResultsComponent implements OnInit {
     });
   }
 
-  /**
-   * Convierte "DD/MM/YYYY" a "YYYY-MM-DDTHH:mm:ss"
-   * para que encaje con LocalDateTime (ListPlaceDTO.checkIn/checkOut)
-   */
   private toBackendDate(dateStr?: string, endOfDay = false): string | undefined {
     if (!dateStr) return undefined;
     const parts = dateStr.split('/');
@@ -116,11 +135,12 @@ export class SearchResultsComponent implements OnInit {
   /**
    * Filtro adicional en el FRONT:
    *  - location: city/title contiene el texto
+   *  - precio: min/max
    */
   private applyFilters(rows: any[]): any[] {
     let filtered = [...rows];
 
-    const { location } = this.criteria;
+    const { location, minPrice, maxPrice } = this.criteria;
 
     if (location) {
       const term = location.toLowerCase().trim();
@@ -137,13 +157,18 @@ export class SearchResultsComponent implements OnInit {
       });
     }
 
+    if (minPrice != null) {
+      filtered = filtered.filter(p => p.price >= minPrice);
+    }
+    if (maxPrice != null) {
+      filtered = filtered.filter(p => p.price <= maxPrice);
+    }
+
     return filtered;
   }
 
-  // placeholder para errores de imagen
   onImgError(event: Event): void {
     const img = event.target as HTMLImageElement;
     img.src = 'assets/img/place-placeholder.jpg';
   }
-
 }

@@ -17,19 +17,17 @@
 .hero-banner{
   background: linear-gradient(90deg, var(--primary-start), var(--primary-end));
   color:#fff;
-  padding: 72px 0 260px;                 /* alto del hero */
+  padding: 100px 0 260px;
   border-bottom-left-radius: 22px;
   border-bottom-right-radius: 22px;
-
-  /* asegura que ocupe espacio y no quede tapado */
-  display:block;
   position: relative;
 }
+
 .hero-title{
   margin: 0;
   font-size: 48px;
   line-height: 1.1;
-  font-weight: 600;                      /* Poppins más delgado */
+  font-weight: 600;
 }
 .hero-subtitle{
   margin: 8px 0 0;
@@ -37,10 +35,53 @@
   color: rgba(255,255,255,.92);
 }
 
+/* HERO a prueba de overrides */
+.force-hero{
+  position: relative;
+  min-height: var(--hero-h, 260px);
+  display: flex;
+  align-items: flex-end;
+  background: transparent !important;
+  border-bottom-left-radius: 22px;
+  border-bottom-right-radius: 22px;
+  isolation: isolate;
+}
+.force-hero::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #004aad, #cb6ce6);
+  border-bottom-left-radius: 22px;
+  border-bottom-right-radius: 22px;
+  z-index: 0;
+}
+.force-hero .hero-title,
+.force-hero .hero-subtitle{
+  position: relative;
+  z-index: 1;
+  color:#fff !important;
+}
+
+/* Mover un poco el hero en desktop */
+@media (min-width: 992px){
+  .hero-banner .hero-inner{
+    transform: translate(-24px,28px);
+  }
+}
+@media (min-width: 1400px){
+  .hero-banner .hero-inner{
+    transform: translate(-240px,60px);
+  }
+}
+
 /* Barra de búsqueda pegada al borde inferior del hero */
 .search-wrap{
-  margin-top: -110px;                    /* “pega” la barra al hero */
+  position: relative;
+  z-index: 5;
+  margin-top: -30px;
 }
+
+/* Barra: 3 columnas de inputs + 1 de acciones */
 .search-bar{
   width: 100%;
   max-width: 1240px;
@@ -53,10 +94,12 @@
   gap: 16px;
   box-shadow: 0 22px 50px rgba(0,0,0,.12);
   border: 2px solid rgba(203,108,230,.35);
+  align-items: stretch;
 }
 
 /* Items e inputs (estilo unificado del proyecto) */
 .search-item{
+  position: relative;
   background: #fff;
   border-radius: 12px;
   padding: 10px 12px;
@@ -67,7 +110,13 @@
   border: 1px solid rgba(0,0,0,.06);
   box-shadow: inset 0 0 0 1px rgba(0,0,0,.03);
 }
-.icon{ font-size:22px; color:#444; display:flex; align-items:center; justify-content:center; }
+.icon{
+  font-size:22px;
+  color:#444;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
 .field-label{
   grid-column: 2 / -1;
   font-size: 11px;
@@ -97,6 +146,41 @@
     0 6px 16px rgba(0,0,0,.06) !important;
 }
 
+/* Columna derecha (botones) */
+.search-actions{
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Botón búsqueda */
+.search-btn{
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: none;
+  padding: 0;
+  background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(0,0,0,.18);
+  transition: transform .06s ease, box-shadow .12s ease, filter .15s ease;
+}
+.search-btn .material-symbols-rounded{ font-size:22px; }
+.search-btn:hover{
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px rgba(0,0,0,.20);
+}
+.search-btn:active{
+  transform: translateY(0);
+  box-shadow: 0 6px 16px rgba(0,0,0,.14);
+}
+
 /* Botón Filtro */
 .filter-btn{
   align-self: center;
@@ -118,229 +202,10 @@
   transform: translateY(-1px);
 }
 
-/* ================= SUGERENCIAS ================= */
-.suggestions{
-  padding: 36px 0 64px;
-  background: linear-gradient(180deg,#fafafa 0%, #fff 100%);
-}
-.cards{
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-}
-.card{
-  display: grid;
-  grid-template-columns: 84px 1fr;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 14px;
-  background: var(--card);
-  box-shadow: 0 14px 32px rgba(0,0,0,.08);
-}
-.thumb{
-  width: 84px; height: 64px; border-radius: 10px;
-  background: linear-gradient(135deg, #e9eefb, #f4e8ff);
-}
-.city{ margin:0 0 4px; font-size:12px; letter-spacing:.06em; color:#5d5d5d; font-weight:800; }
-.desc{ margin:0; font-size:14px; color:#333; }
-
-/* Estilos para control de Huéspedes */
-.guest-control{ display:flex; flex-direction:column; gap:6px; grid-column: 2 / -1; }
-.guest-input-wrap{ position:relative; }
-.guests-input{ padding-right:48px; /* espacio para las flechas a la derecha */ }
-
-/* Oculta los spinners nativos de inputs type=number */
-.guests-input::-webkit-outer-spin-button,
-.guests-input::-webkit-inner-spin-button{ -webkit-appearance: none; margin: 0; }
-.guests-input{ -moz-appearance: textfield; appearance: textfield; }
-
-.guest-arrows{
-  position:absolute;
-  right:8px;
-  top:50%;
-  transform:translateY(-50%);
-  display:flex;
-  flex-direction:column;
-  gap:4px;
-}
-
-.guest-arrows .arrow{
-  width:32px;
-  height:20px;
-  padding:0;
-  border-radius:8px;
-  border: none;
-  background: linear-gradient(180deg, rgba(108,59,230,1), rgba(84,48,183,1));
-  color:#fff;
-  font-weight:700;
-  font-size:12px;
-  line-height:1;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  box-shadow: 0 6px 14px rgba(108,59,230,.18);
-}
-.guest-arrows .arrow:active{ transform: translateY(1px); }
-.guest-arrows .arrow:hover{ filter:brightness(1.03); }
-
-/* Flechas con estilo diferenciado (menos saturado en hover) */
-.guest-arrows .arrow.up{ border-bottom-left-radius:6px; border-bottom-right-radius:6px; }
-.guest-arrows .arrow.down{ }
-
-.guest-summary{ font-size:13px; color:var(--muted); }
-
-@media (max-width: 1200px){
-  .home-container, .search-bar{ max-width: 1080px; }
-}
-@media (max-width: 992px){
-  .hero-title{ font-size: 40px; }
-  .search-wrap{ margin-top: -90px; }
-  .search-bar{ grid-template-columns: 1fr 1fr; }
-}
-@media (max-width: 600px){
-  .hero-title{ font-size: 34px; }
-  .search-wrap{ margin-top: -72px; }
-  .search-bar{ grid-template-columns: 1fr; }
-  .guest-arrows{ right:6px; }
-  .guest-arrows .arrow{ width:28px; height:18px; font-size:11px; }
-}
-/* === HERO a prueba de overrides === */
-.force-hero{
-  position: relative;
-  min-height: var(--hero-h, 260px);
-  display: flex;
-  align-items: flex-end;    /* título pegado abajo como en el mockup */
-  background: transparent !important; /* evitamos que otra regla lo ponga blanco */
-  border-bottom-left-radius: 22px;
-  border-bottom-right-radius: 22px;
-  isolation: isolate;       /* crea nuevo contexto de apilamiento */
-}
-
-/* Degradado real va en el pseudo-elemento para ganar especificidad */
-.force-hero::before{
-  content: "";
-  position: absolute;
-  inset: 0;                 /* top/right/bottom/left:0 */
-  background: linear-gradient(90deg, #004aad, #cb6ce6);
-  border-bottom-left-radius: 22px;
-  border-bottom-right-radius: 22px;
-  z-index: 0;               /* detrás del contenido, delante del fondo blanco */
-}
-
-/* Asegura texto blanco encima del degradado */
-.force-hero .hero-title,
-.force-hero .hero-subtitle{
-  position: relative;
-  z-index: 1;
-  color: #fff !important;
-}
-
-/* Ajusta la barra de búsqueda para que se “pegue” al hero */
-.search-wrap{
-  margin-top: -80px;        /* si queda lejos, incrementa (más negativo) */
-}
-/* La barra debe ir POR ENCIMA del hero */
-.search-wrap{
-  position: relative;
-  z-index: 5;          /* encima del hero */
-  margin-top: -30px;   /* ajusta si la quieres más cerca/lejos */
-}
-
-/* El hero queda al fondo y su degradado no bloquea clics */
-.force-hero{ z-index: 0; }
-.force-hero::before{
-  pointer-events: none; /* no tapa inputs */
-}
-/* ====== Tema del Litepicker acorde a AKJ ====== */
-.litepicker {
-  font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, Arial;
-  border-radius: 14px;
-  box-shadow: 0 16px 36px rgba(0,0,0,.14);
-}
-
-/* Días redondos */
-.litepicker .day-item{
-  border-radius: 999px;
-}
-.litepicker .is-start-date,
-.litepicker .is-end-date{
-  background: #6c3be6 !important; /* morado intenso */
-  color: #fff !important;
-}
-.litepicker .is-in-range{
-  background: rgba(108,59,230,.12) !important; /* morado claro */
-  color: #222;
-}
-
-/* header y nav */
-.litepicker .month-item-header{
-  border-bottom: 0;
-  padding-bottom: 6px;
-  font-weight: 600;
-}
-
-/* Panel lateral Entrada/Salida (como tu imagen) */
-.akj-sidepanel{
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-  padding: 8px 12px 12px;
-  min-width: 220px;
-  border-left: 1px solid rgba(0,0,0,.06);
-}
-.akj-sidepanel label{
-  font-size: 13px;
-  color: #666;
-  margin: 0 0 4px;
-}
-.akj-date{
-  font-weight: 800;
-  font-size: 16px;
-}
-
-/* Footer con Limpiar / Siguiente */
-.akj-footer{
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 10px 12px 12px;
-  border-top: 1px solid rgba(0,0,0,.06);
-}
-.akj-clear{
-  background:#fff;
-  border:1px solid #d7d7d7;
-  border-radius: 10px;
-  padding: 8px 14px;
-  font-weight: 600;
-}
-.akj-apply{
-  border-radius: 10px !important;
-  height: 40px;
-  padding: 0 18px;
-}
-
-/* Layout del picker: calendario + panel lateral */
-.litepicker .container__main{
-  display: grid;
-  grid-template-columns: auto 240px; /* calendario | panel lateral */
-}
-@media (max-width: 520px){
-  .litepicker .container__main{
-    grid-template-columns: 1fr;
-  }
-  .akj-sidepanel{
-    border-left: none;
-    border-top: 1px solid rgba(0,0,0,.06);
-  }
-}
-/* El search-item sirve de ancla del panel */
-.search-item{ position: relative; }
-
-/* Panel dropdown */
+/* ================= AUTOCOMPLETE ================= */
 .suggest-panel{
   position: absolute;
-  left: 40px;                 /* deja el icono a la izquierda */
+  left: 40px;
   right: 12px;
   top: calc(100% + 6px);
   background: #fff;
@@ -354,7 +219,6 @@
   max-height: 280px;
   overflow: auto;
 }
-
 .suggest-item{
   display: grid;
   grid-template-columns: 28px 1fr;
@@ -374,231 +238,489 @@
 }
 .suggest-text strong{ display:block; font-weight:600; line-height:1.1; }
 .suggest-text small{ color:#6b6b6b; }
-/* Fuerza a que los spinners nativos de number se muestren */
-input[type="number"] {
-  appearance: auto;          /* estándar */
-  -webkit-appearance: auto;  /* Safari/Chrome */
-  -moz-appearance: auto;     /* Firefox */
-  padding-right: 2.2rem;     /* deja espacio para las flechitas */
-}
 
-/* Por si alguna normalización anterior los ocultó */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  opacity: 1;
-  height: auto;
-}
-
-/* Alineación y altura coherente con tu estilo */
-.guests-number {
-  text-align: left;
-  height: 42px;
-}
-/* Contenedor para colocar un sufijo dentro del input */
-.with-suffix { position: relative; }
-
-/* deja espacio a la derecha del número para el sufijo */
-.with-suffix .field-input { padding-right: 7.5rem; text-align: left; }
-
-/* sufijo posicionado dentro del campo */
-.suffix{
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #6b6b6b;
-  font-size: 14px;
-  pointer-events: none; /* no bloquea clics ni focus */
-}
-
-/* spinners visibles y altura coherente */
-input[type="number"] {
+/* ====== Huéspedes ====== */
+input[type="number"]{
   appearance: auto;
   -webkit-appearance: auto;
   -moz-appearance: auto;
 }
-.guests-number { height: 42px; text-align: left; }
-/* Mover el título/subtítulo del hero un poco a la izquierda (solo desktop) */
-@media (min-width: 992px){
-  .hero-banner .hero-inner{
-    transform: translate(-24px,28px); /* prueba -24px, -40px, etc. */
-  }
+.guests-number{
+  height: 42px;
+  text-align: left;
+}
+.with-suffix{ position: relative; }
+.with-suffix .field-input{ padding-right: 7.5rem; text-align:left; }
+.suffix{
+  position:absolute;
+  right:14px;
+  top:50%;
+  transform:translateY(-50%);
+  color:#6b6b6b;
+  font-size:14px;
+  pointer-events:none;
 }
 
-/* Si quieres que en pantallas muy grandes se mueva un poco más */
-@media (min-width: 1400px){
-  .hero-banner .hero-inner{
-    transform: translate(-240px, 60px); /* prueba -240px, -260px, etc. */
-  }
-}
-/* Imagen dentro del thumb */
-.thumb{
-  width: 84px; height: 64px;
-  border-radius: 10px; overflow: hidden;
-  background: #eee;            /* fallback si tarda */
-}
-.thumb img{
-  width: 100%; height: 100%;
-  object-fit: cover; display: block;
-}
-
-/* Barra: 3 columnas de inputs + 1 de acciones */
-.search-bar{
-  width: 100%;
-  max-width: 1240px;
-  margin: 0 auto;
-  background: #fff;
-  border-radius: 18px;
-  padding: 14px;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr auto;
-  gap: 16px;
-  box-shadow: 0 22px 50px rgba(0,0,0,.12);
-  border: 2px solid rgba(203,108,230,.35);
-  align-items: stretch;
-}
-
-/* Columna derecha (botones) */
-.search-actions{
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;   /* ⬅️ pegados a la derecha */
-  gap: 10px;
-}
-
-/* Lupita redonda principal */
-.search-btn{
-  width: 44px;
-  height: 44px;
-  border-radius: 999px;
-  border: none;
-  padding: 0;
-  background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
-  color: #fff;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 10px 24px rgba(0,0,0,.18);
-  transition:
-    transform .06s ease,
-    box-shadow .12s ease,
-    filter .15s ease;
-}
-
-.search-btn .material-symbols-rounded{
-  font-size: 22px;
-}
-
-.search-btn:hover{
-  filter: brightness(1.05);
-  transform: translateY(-1px);
-  box-shadow: 0 14px 30px rgba(0,0,0,.20);
-}
-
-.search-btn:active{
-  transform: translateY(0);
-  box-shadow: 0 6px 16px rgba(0,0,0,.14);
-}
 /* ================= SUGERENCIAS (ALOJAMIENTOS DESTACADOS) ================= */
 .suggestions{
-  padding: 36px 0 64px;
+  padding: 40px 0 80px;
   background: linear-gradient(180deg,#fafafa 0%, #ffffff 100%);
 }
 
-/* Franja grande tipo “pill” con sombra */
+/* Pill grande con 3 columnas */
 .featured-strip{
   display: flex;
   align-items: stretch;
-  gap: 0;                           /* separadores harán el trabajo */
-  padding: 16px 24px;
+  justify-content: space-between;
+  gap: 0;
+  padding: 22px 32px;
   background: #fff;
-  border-radius: 24px;
-  box-shadow: 0 20px 50px rgba(0,0,0,.12);
+  border-radius: 28px;
+  box-shadow: 0 24px 60px rgba(0,0,0,.16);
   overflow-x: auto;
 }
-
-/* Cada item (Pereira / Armenia / Filandia) */
 .featured-item{
+  flex: 1 1 0;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 18px;
+  gap: 14px;
+  padding: 10px 20px;
   text-decoration: none;
   color: inherit;
-  min-width: 0;                     /* para que el texto pueda cortar */
+  min-width: 0;
   position: relative;
 }
-
-/* Thumb cuadrado */
 .featured-thumb{
-  width: 72px;
-  height: 60px;
-  border-radius: 14px;
+  width: 96px;
+  height: 72px;
+  border-radius: 16px;
   overflow: hidden;
-  background: #eee;
-  flex-shrink: 0;
+  background:#eee;
+  flex-shrink:0;
 }
 .featured-thumb img{
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
 }
-
-/* Textos */
 .featured-text{
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
 }
 .featured-city{
-  margin: 0;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: .07em;
-  text-transform: uppercase;
-  color: #555;
+  margin:0;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+  color:#555;
 }
 .featured-desc{
-  margin: 0;
-  font-size: 14px;
-  color: #333;
+  margin:0;
+  font-size:14px;
+  color:#333;
 }
-
-/* Separador vertical entre items */
 .featured-divider{
-  width: 1px;
-  height: 48px;
-  margin-left: 18px;
-  background: linear-gradient(
-    180deg,
-    rgba(0,0,0,.04),
-    rgba(0,0,0,.10),
-    rgba(0,0,0,.04)
+  width:1px;
+  height:52px;
+  margin-left:18px;
+  background:linear-gradient(180deg,
+  rgba(0,0,0,.04),
+  rgba(0,0,0,.10),
+  rgba(0,0,0,.04));
+}
+@media (hover:hover){
+  .featured-item:hover{ background:rgba(0,0,0,.02); }
+}
+@media (max-width:768px){
+  .featured-strip{ padding-inline:16px; }
+  .featured-item{ padding-inline:12px; }
+  .featured-divider{ margin-left:12px; }
+}
+
+/* Imagen usada en otras cards (fallback) */
+.thumb{
+  width: 84px;
+  height: 64px;
+  border-radius: 10px;
+  overflow: hidden;
+  background:#eee;
+}
+.thumb img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+/* ================= LITEPICKER THEME ================= */
+.litepicker{
+  font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  border-radius:14px;
+  box-shadow:0 16px 36px rgba(0,0,0,.14);
+}
+.litepicker .day-item{ border-radius:999px; }
+.litepicker .is-start-date,
+.litepicker .is-end-date{
+  background:#6c3be6 !important;
+  color:#fff !important;
+}
+.litepicker .is-in-range{
+  background:rgba(108,59,230,.12) !important;
+  color:#222;
+}
+.litepicker .month-item-header{
+  border-bottom:0;
+  padding-bottom:6px;
+  font-weight:600;
+}
+
+/* Panel lateral Entrada/Salida */
+.akj-sidepanel{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:12px;
+  padding:8px 12px 12px;
+  min-width:220px;
+  border-left:1px solid rgba(0,0,0,.06);
+}
+.akj-sidepanel label{
+  font-size:13px;
+  color:#666;
+  margin:0 0 4px;
+}
+.akj-date{
+  font-weight:800;
+  font-size:16px;
+}
+.akj-footer{
+  display:flex;
+  justify-content:flex-end;
+  gap:12px;
+  padding:10px 12px 12px;
+  border-top:1px solid rgba(0,0,0,.06);
+}
+.akj-clear{
+  background:#fff;
+  border:1px solid #d7d7d7;
+  border-radius:10px;
+  padding:8px 14px;
+  font-weight:600;
+}
+.akj-apply{
+  border-radius:10px !important;
+  height:40px;
+  padding:0 18px;
+}
+
+/* Layout del picker */
+.litepicker .container__main{
+  display:grid;
+  grid-template-columns:auto 240px;
+}
+@media (max-width:520px){
+  .litepicker .container__main{ grid-template-columns:1fr; }
+  .akj-sidepanel{
+    border-left:none;
+    border-top:1px solid rgba(0,0,0,.06);
+  }
+}
+
+/* ================= PANEL INLINE (por si lo usas luego) ================= */
+.filters-panel{
+  grid-column:1 / -1;
+  margin-top:8px;
+  padding:12px 14px;
+  border-radius:14px;
+  background:#fafafa;
+  border:1px solid rgba(0,0,0,.06);
+  display:grid;
+  grid-template-columns:1.2fr 2fr;
+  gap:16px;
+}
+.filters-column{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.filters-title{
+  margin:0;
+  font-size:12px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  font-weight:700;
+  color:#555;
+}
+.price-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.price-input{ flex:1; }
+.price-input label{
+  display:block;
+  font-size:11px;
+  color:#777;
+  margin-bottom:2px;
+}
+.price-input input{
+  width:100%;
+  height:36px;
+  border-radius:10px;
+  border:2px solid var(--border-strong);
+  padding:0 10px;
+  font-size:13px;
+}
+.price-separator{
+  font-size:16px;
+  color:#666;
+}
+.services-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.service-pill{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 12px;
+  border-radius:999px;
+  border:1px solid rgba(0,0,0,.10);
+  background:#fafafa;
+  cursor:pointer;
+  font-size:12px;
+}
+.service-pill input{ display:none; }
+.service-label{
+  font-weight:500;
+  color:#444;
+}
+.service-pill--active{
+  border-color:transparent;
+  background:linear-gradient(90deg,var(--primary-start),var(--primary-end));
+  box-shadow:0 10px 24px rgba(0,0,0,.16);
+}
+.service-pill--active .service-label{ color:#fff; }
+
+@media (max-width:768px){
+  .filters-panel{ grid-template-columns:1fr; }
+}
+
+/* ============== MODAL FLOTANTE DE FILTROS (SweetAlert) ============== */
+.filters-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.30);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:40;
+}
+.filters-modal{
+  width:min(540px, calc(100% - 32px));
+  background:#fff;
+  border-radius:26px;
+  box-shadow:0 28px 80px rgba(0,0,0,.35);
+  overflow:hidden;
+  font-family:inherit;
+}
+.filters-modal-header{
+  position:relative;
+  padding:14px 24px;
+  background:linear-gradient(90deg,var(--primary-start),var(--primary-end));
+  color:#fff;
+  text-align:center;
+  font-weight:600;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  font-size:14px;
+}
+.filters-close{
+  position:absolute;
+  right:14px;
+  top:50%;
+  transform:translateY(-50%);
+  border:none;
+  background:transparent;
+  color:#fff;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  padding:2px;
+}
+.filters-close .material-symbols-rounded{ font-size:20px; }
+.filters-modal-body{
+  padding:22px 26px 18px;
+  display:flex;
+  flex-direction:column;
+  gap:26px;
+}
+.filters-block{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.filters-question{
+  margin:0;
+  padding:8px 16px;
+  border-radius:999px;
+  border:2px solid rgba(0,0,0,.08);
+  font-size:13px;
+  font-weight:600;
+  color:#444;
+  text-align:center;
+}
+.filters-modal-footer{
+  padding:12px 24px 18px;
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  border-top:1px solid rgba(0,0,0,.04);
+}
+.filters-reset{
+  border-radius:999px;
+  border:1px solid rgba(0,0,0,.12);
+  padding:7px 16px;
+  background:#fff;
+  font-size:13px;
+  font-weight:500;
+  cursor:pointer;
+}
+.filters-apply{
+  border-radius:999px;
+  border:none;
+  padding:7px 22px;
+  background:linear-gradient(90deg,var(--primary-start),var(--primary-end));
+  color:#fff;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow:0 10px 24px rgba(0,0,0,.18);
+}
+
+/* === Servicios del popup de Filtros (look tipo Create Place) === */
+
+.sw-filter-services{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 480px){
+  .sw-filter-services{
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Botón de servicio */
+.sw-filter-amenity{
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid #cfd4dc;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+  transition:
+    box-shadow .2s ease,
+    border-color .2s ease,
+    color .2s ease,
+    background .2s ease;
+}
+
+/* ocultamos el checkbox nativo */
+.sw-filter-amenity input.sw-service{
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  margin: 0;
+}
+
+.sw-filter-amenity .icon{
+  font-size: 18px;
+  color: #4b5563;
+}
+
+/* check de la derecha */
+.sw-filter-amenity .check{
+  margin-left: auto;
+  font-size: 20px;
+  color: #4b5563;
+  opacity: 0;
+  transform: scale(.9);
+  transition: opacity .18s ease, transform .18s ease, color .18s ease;
+}
+
+/* Capa de gradiente detrás del contenido */
+.sw-filter-amenity .fill{
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: linear-gradient(
+    90deg,
+    var(--primary-start, #004aad),
+    var(--primary-end, #cb6ce6)
   );
+  opacity: 0;
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity .25s ease, filter .25s ease, box-shadow .25s ease;
 }
 
-/* Hover suave en desktop */
-@media (hover: hover){
-  .featured-item:hover{
-    background: rgba(0,0,0,.02);
-  }
+/* Contenido encima del gradiente */
+.sw-filter-amenity > *:not(.fill){
+  position: relative;
+  z-index: 1;
 }
 
-/* Responsive: en pantallas pequeñas que no se desborde feo */
-@media (max-width: 768px){
-  .featured-strip{
-    padding-inline: 12px;
-  }
-  .featured-item{
-    padding-inline: 12px;
-  }
-  .featured-divider{
-    margin-left: 12px;
-  }
+/* Estado seleccionado: igual al amenity.active del wizard */
+.sw-filter-amenity.active{
+  border-color: transparent !important;
+  box-shadow: 0 10px 22px rgba(81,112,255,.22);
+  color: #ffffff !important;
+  background: transparent !important;
 }
 
+.sw-filter-amenity.active .icon,
+.sw-filter-amenity.active .check{
+  color: #ffffff !important;
+}
 
+.sw-filter-amenity.active .fill{
+  opacity: 1;
+  filter: saturate(1.05);
+}
 
+.sw-filter-amenity.active .check{
+  opacity: 1;
+  transform: scale(1);
+}
 
+/* Hover suave */
+.sw-filter-amenity:hover{
+  box-shadow: 0 6px 16px rgba(0,0,0,.06);
+}
+/* ================== RESPONSIVE GENERALES ================== */
+@media (max-width:1200px){
+  .home-container,
+  .search-bar{ max-width:1080px; }
+}
+@media (max-width:992px){
+  .hero-title{ font-size:40px; }
+  .search-bar{ grid-template-columns:1fr 1fr; }
+}
+@media (max-width:600px){
+  .hero-title{ font-size:34px; }
+  .search-bar{ grid-template-columns:1fr; }
+}
