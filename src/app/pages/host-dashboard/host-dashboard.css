@@ -1,29 +1,20 @@
-:root{
-  --grad-a:#004aad;
-  --grad-b:#cb6ce6;
-}
-
-/* html/body a altura completa */
-html, body {
-  height: 100%;
-}
-
 /* Fondo gradiente a pantalla completa solo para páginas con .page-gradient */
-.create-place-page.page-gradient,
 .dashboard-page.page-gradient {
-  min-height: 100dvh;
-  background: linear-gradient(135deg, var(--grad-a) 0%, var(--grad-b) 100%) !important;
+  min-height: 100vh;
+  /* gradiente oficial del proyecto */
+  background: linear-gradient(135deg, #004aad 0%, #cb6ce6 100%);
   background-attachment: fixed;
+  /* padding alto para respirar contra el borde */
   padding-top: clamp(1rem, 2vw, 2rem);
   padding-bottom: clamp(1rem, 2vw, 2rem);
 }
 
-/* Asegura legibilidad de nav-pills sobre gradiente (genérico) */
+/* Asegura legibilidad de nav-pills sobre gradiente */
 .page-gradient .nav-pills .nav-link {
   color: rgba(255,255,255,.85);
+  backdrop-filter: saturate(120%) blur(2px);
   border: 1px solid rgba(255,255,255,.15);
   background-color: rgba(255,255,255,.08);
-  backdrop-filter: saturate(120%) blur(2px);
 }
 .page-gradient .nav-pills .nav-link:hover {
   background-color: rgba(255,255,255,.14);
@@ -32,48 +23,6 @@ html, body {
   color: #fff;
   background: rgba(255,255,255,.22);
   border-color: rgba(255,255,255,.25);
-}
-
-/* Banda especial de tabs del host dashboard */
-.hd-tabs-band{
-  width:100%;
-  display:flex;
-  gap:.5rem;
-  padding:.6rem;
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,.45);
-  background:rgba(255,255,255,.08);
-  backdrop-filter:saturate(160%) blur(2px);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.15);
-  box-sizing:border-box;
-  margin-bottom: .75rem !important;
-}
-
-/* Botones dentro de la banda */
-.hd-tabs-band .nav-link{
-  color:#fff;
-  border:1px solid rgba(255,255,255,.45);
-  background:transparent;
-  border-radius:12px;
-  padding:.55rem .9rem;
-  transition:background .2s, border-color .2s, box-shadow .2s, color .2s;
-}
-.hd-tabs-band .nav-link:hover{
-  border-color: rgba(255,255,255,.7);
-  box-shadow: 0 2px 10px rgba(0,0,0,.08);
-}
-.hd-tabs-band .nav-link.active{
-  border-color: transparent;
-  background: linear-gradient(90deg, var(--grad-a), var(--grad-b));
-  box-shadow: 0 0 0 2px rgba(255,255,255,.25) inset;
-}
-
-/* Responsive: si no cabe, que salten de línea manteniendo la misma banda */
-@media (max-width: 768px){
-  .hd-tabs-band{
-    flex-wrap: wrap;
-    row-gap: .5rem;
-  }
 }
 
 /* Tarjetas sobre gradiente: blanco limpio, sombras suaves */
@@ -95,7 +44,7 @@ html, body {
   height: 42px; /* tu estándar */
 }
 
-/* Botón gradiente global */
+/* Botón gradiente global (si no lo tienes ya) */
 .btn-gradient {
   background-image: linear-gradient(90deg, #004aad, #cb6ce6);
   color: #fff;
@@ -123,10 +72,71 @@ html, body {
 }
 
 /* Aumenta separación entre columnas (tu preferencia) */
-.container,
-.container-fluid {
+.container, .container-fluid {
   --bs-gutter-x: 2rem;
 }
+/* Asegura altura completa */
+html, body { height: 100%; }
+
+/* Si .create-place-page trae background blanco, sobreescríbelo */
+.create-place-page.page-gradient,
+.dashboard-page.page-gradient {
+  min-height: 100dvh;
+  background: linear-gradient(135deg, #004aad 0%, #cb6ce6 100%) !important;
+  background-attachment: fixed;
+  padding-top: clamp(1rem, 2vw, 2rem);
+  padding-bottom: clamp(1rem, 2vw, 2rem);
+}
+
+/* Pills legibles sobre gradiente */
+.page-gradient .nav-pills .nav-link {
+  color: rgba(255,255,255,.85);
+  border: 1px solid rgba(255,255,255,.15);
+  background-color: rgba(255,255,255,.08);
+  backdrop-filter: saturate(120%) blur(2px);
+}
+.page-gradient .nav-pills .nav-link:hover { background-color: rgba(255,255,255,.14); }
+.page-gradient .nav-pills .nav-link.active {
+  color: #fff;
+  background: rgba(255,255,255,.22);
+  border-color: rgba(255,255,255,.25);
+}
+
+/* Cards “flotando” sobre el gradiente */
+.page-gradient .card {
+  background: rgba(255,255,255,.92);
+  backdrop-filter: saturate(150%) blur(6px);
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+}
+
+/* Inputs con tu estándar */
+.page-gradient .form-control,
+.page-gradient .form-select,
+.page-gradient .input-group-text {
+  background-color: #fff;
+  color: #212529;
+  border: 2px solid var(--border-strong, #dfe3e7);
+  border-radius: 10px;
+  height: 42px;
+}
+
+/* Botón gradiente de acción */
+.btn-gradient {
+  background-image: linear-gradient(90deg, #004aad, #cb6ce6);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 16px;
+}
+.btn-gradient:disabled {
+  background-image: none;
+  background-color: #e9ecef;
+  color: #9aa0a6;
+}
+
+/* Más espacio entre columnas (tu preferencia) */
+.container, .container-fluid { --bs-gutter-x: 2rem; }
 
 /* contenedor recorta bordes superiores como la card */
 .card-cover{
@@ -136,20 +146,97 @@ html, body {
 }
 
 /* utilidad para no deformar y recortar centrado */
-.of-cover{
-  object-fit: cover;
-  object-position: center;
+.of-cover{ object-fit: cover; object-position: center; }
+:root{
+  --grad-a:#004aad;
+  --grad-b:#cb6ce6;
 }
 
-/* La tarjeta principal del panel (Resumen / Reservas) ocupa casi toda la altura de la viewport */
-.host-panel-card {
-  min-height: calc(100dvh - 220px); /* ajusta 220px según header/breadcrumb */
+/* La banda de secciones ocupa el 100% del container, con radios y borde sutil */
+.hd-tabs-band{
+  width:100%;
+  display:flex;
+  gap:.5rem;
+  padding:.6rem;                 /* mismo acolchado del recuadro blanco */
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.45);
+  background:rgba(255,255,255,.08);   /* leve “glass” sobre el gradient */
+  backdrop-filter:saturate(160%) blur(2px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.15);
 }
 
-/* En móviles mejor dejamos altura natural para evitar scroll raro */
-@media (max-width: 768px) {
-  .host-panel-card {
-    min-height: auto;
+/* Botones dentro de la banda */
+.hd-tabs-band .nav-link{
+  color:#fff;
+  border:1px solid rgba(255,255,255,.45);
+  background:transparent;
+  border-radius:12px;
+  padding:.55rem .9rem;
+  transition:background .2s, border-color .2s, box-shadow .2s, color .2s;
+}
+
+/* Hover */
+.hd-tabs-band .nav-link:hover{
+  border-color: rgba(255,255,255,.7);
+  box-shadow: 0 2px 10px rgba(0,0,0,.08);
+}
+
+/* Activo con tu gradiente */
+.hd-tabs-band .nav-link.active{
+  border-color: transparent;
+  background: linear-gradient(90deg, var(--grad-a), var(--grad-b));
+  box-shadow: 0 0 0 2px rgba(255,255,255,.25) inset;
+}
+
+/* Responsive: si no cabe, que salten de línea manteniendo la misma banda */
+@media (max-width: 768px){
+  .hd-tabs-band{
+    flex-wrap: wrap;
+    row-gap: .5rem;
   }
+}
+
+:root{
+  --grad-a:#004aad;
+  --grad-b:#cb6ce6;
+}
+
+/* La banda ocupa el 100% del container */
+.dashboard-page .nav.nav-pills{
+  width:100%;
+  display:flex;
+  gap:.5rem;
+  padding:.6rem;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.45);
+  background:rgba(255,255,255,.08);
+  backdrop-filter:saturate(160%) blur(2px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.15);
+  box-sizing:border-box;
+  margin-bottom: .75rem !important; /* acércala al recuadro blanco */
+}
+
+/* Botones dentro de la banda */
+.dashboard-page .nav.nav-pills .nav-link{
+  color:#fff;
+  border:1px solid rgba(255,255,255,.45);
+  background:transparent;
+  border-radius:12px;
+  padding:.55rem .9rem;
+  transition:background .2s, border-color .2s, box-shadow .2s, color .2s;
+}
+.dashboard-page .nav.nav-pills .nav-link:hover{
+  border-color: rgba(255,255,255,.7);
+  box-shadow: 0 2px 10px rgba(0,0,0,.08);
+}
+.dashboard-page .nav.nav-pills .nav-link.active{
+  border-color: transparent;
+  background: linear-gradient(90deg, var(--grad-a), var(--grad-b));
+  box-shadow: 0 0 0 2px rgba(255,255,255,.25) inset;
+}
+
+/* Responsive: si no caben, que salten de línea */
+@media (max-width: 768px){
+  .dashboard-page .nav.nav-pills{ flex-wrap: wrap; row-gap:.5rem; }
 }
 

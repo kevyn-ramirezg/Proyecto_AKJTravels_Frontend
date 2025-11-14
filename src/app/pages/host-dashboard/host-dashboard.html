@@ -11,42 +11,25 @@
     </div>
 
     <!-- Tabs ÚNICAS -->
-    <ul class="nav nav-pills gap-2 mb-3 hd-tabs-band w-100">
-      <li class="nav-item flex-fill">
-        <button
-          class="nav-link w-100 d-flex align-items-center justify-content-center"
-          [class.active]="section()==='metrics'"
-          (click)="setSection('metrics')">
-          <span class="material-symbols-rounded align-middle me-2">insights</span>
-          <span>Resumen</span>
+    <ul class="nav nav-pills gap-2 mb-3 hd-tabs-band">
+      <li class="nav-item">
+        <button class="nav-link" [class.active]="section()==='metrics'" (click)="setSection('metrics')">
+          <span class="material-symbols-rounded align-middle me-1">insights</span> Resumen
         </button>
       </li>
-
-      <li class="nav-item flex-fill">
-        <button
-          class="nav-link w-100 d-flex align-items-center justify-content-center"
-          [class.active]="section()==='places'"
-          (click)="setSection('places')">
-          <span class="material-symbols-rounded align-middle me-2">home</span>
-          <span>Alojamientos</span>
+      <li class="nav-item">
+        <button class="nav-link" [class.active]="section()==='places'" (click)="setSection('places')">
+          <span class="material-symbols-rounded align-middle me-1">home</span> Alojamientos
         </button>
       </li>
-
-      <li class="nav-item flex-fill">
-        <button
-          class="nav-link w-100 d-flex align-items-center justify-content-center"
-          [class.active]="section()==='bookings'"
-          (click)="setSection('bookings')">
-          <span class="material-symbols-rounded align-middle me-2">calendar_month</span>
-          <span>Reservas</span>
+      <li class="nav-item">
+        <button class="nav-link" [class.active]="section()==='bookings'" (click)="setSection('bookings')">
+          <span class="material-symbols-rounded align-middle me-1">calendar_month</span> Reservas
         </button>
       </li>
-
-      <li class="nav-item flex-fill">
-        <button
-          class="nav-link w-100 d-flex align-items-center justify-content-center disabled">
-          <span class="material-symbols-rounded align-middle me-2">chat_bubble</span>
-          <span>Comentarios</span>
+      <li class="nav-item">
+        <button class="nav-link disabled">
+          <span class="material-symbols-rounded align-middle me-1">chat_bubble</span> Comentarios
         </button>
       </li>
     </ul>
@@ -62,19 +45,15 @@
                 <span class="input-group-text">
                   <span class="material-symbols-rounded">search</span>
                 </span>
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="Buscar por nombre, ciudad…"
-                  [ngModel]="searchTerm()"
-                  (ngModelChange)="searchTerm.set($event)" />
+                <input type="text" class="form-control"
+                       placeholder="Buscar por nombre, ciudad…"
+                       [ngModel]="searchTerm()"
+                       (ngModelChange)="searchTerm.set($event)" />
               </div>
             </div>
             <div class="col-auto">
-              <button
-                type="button"
-                class="btn btn-gradient"
-                (click)="navigateCreatePlace()">
+              <button type="button" class="btn btn-gradient"
+                      (click)="navigateCreatePlace()">
                 <span class="material-symbols-rounded align-middle me-1">add</span>
                 Añadir alojamiento
               </button>
@@ -87,11 +66,10 @@
               <div class="col-12 col-sm-6 col-lg-4">
                 <article class="card h-100 border-0 shadow-sm">
                   <div class="ratio ratio-16x9 card-cover">
-                    <img
-                      [src]="p.photo_url || 'https://picsum.photos/640/400'"
-                      [alt]="p.title"
-                      class="w-100 h-100 of-cover"
-                      loading="lazy">
+                    <img [src]="p.photo_url || 'https://picsum.photos/640/400'"
+                         [alt]="p.title"
+                         class="w-100 h-100 of-cover"
+                         loading="lazy">
                   </div>
                   <div class="card-body d-flex flex-column">
                     <div class="d-flex justify-content-between align-items-start mb-1">
@@ -103,33 +81,24 @@
                     </div>
                     <div class="text-muted mb-2">{{ p.city }}</div>
                     <div class="mb-3">
-                      <span
-                        class="badge rounded-pill"
-                        [class.text-bg-success]="p.state==='ACTIVE'"
-                        [class.text-bg-secondary]="p.state==='DELETED'">
+                      <span class="badge rounded-pill"
+                            [class.text-bg-success]="p.state==='ACTIVE'"
+                            [class.text-bg-secondary]="p.state==='DELETED'">
                         {{ p.state==='DELETED' ? 'Eliminado' : 'Activo' }}
                       </span>
                     </div>
                     <div class="mt-auto d-flex gap-2">
-                      <button
-                        class="btn btn-outline-secondary"
-                        [routerLink]="['/place', p.id]">
-                        <span class="material-symbols-rounded align-middle me-1">visibility</span>
-                        Ver
+                      <button class="btn btn-outline-secondary" [routerLink]="['/place', p.id]">
+                        <span class="material-symbols-rounded align-middle me-1">visibility</span> Ver
                       </button>
-                      <button
-                        class="btn btn-outline-primary"
-                        [routerLink]="['/edit-place', p.id]"
-                        [disabled]="p.state==='DELETED'">
-                        <span class="material-symbols-rounded align-middle me-1">edit</span>
-                        Editar
+                      <button class="btn btn-outline-primary"
+                              [routerLink]="['/edit-place', p.id]"
+                              [disabled]="p.state==='DELETED'">
+
+                      <span class="material-symbols-rounded align-middle me-1">edit</span> Editar
                       </button>
-                      <button
-                        class="btn btn-outline-danger ms-auto"
-                        (click)="deletePlace(p.id)"
-                        [disabled]="p.state==='DELETED'">
-                        <span class="material-symbols-rounded align-middle me-1">delete</span>
-                        Eliminar
+                      <button class="btn btn-outline-danger ms-auto" (click)="deletePlace(p.id)" [disabled]="p.state==='DELETED'">
+                        <span class="material-symbols-rounded align-middle me-1">delete</span> Eliminar
                       </button>
                     </div>
                   </div>
@@ -155,31 +124,18 @@
           <div class="row g-3 align-items-end">
             <div class="col-12 col-md-4">
               <label class="form-label text-uppercase small">Alojamiento</label>
-              <select
-                class="form-select"
-                [ngModel]="selectedPlaceId()"
-                (ngModelChange)="selectedPlaceId.set($event)">
+              <select class="form-select" [ngModel]="selectedPlaceId()" (ngModelChange)="selectedPlaceId.set($event)">
                 <option [ngValue]="null">— Selecciona —</option>
-                @for (p of places(); track p.id) {
-                  <option [ngValue]="p.id">{{ p.title }}</option>
-                }
+                @for (p of places(); track p.id) { <option [ngValue]="p.id">{{ p.title }}</option> }
               </select>
             </div>
             <div class="col-6 col-md-3">
               <label class="form-label text-uppercase small">Desde</label>
-              <input
-                class="form-control"
-                type="date"
-                [ngModel]="from()"
-                (ngModelChange)="from.set($event)" />
+              <input class="form-control" type="date" [ngModel]="from()" (ngModelChange)="from.set($event)"/>
             </div>
             <div class="col-6 col-md-3">
               <label class="form-label text-uppercase small">Hasta</label>
-              <input
-                class="form-control"
-                type="date"
-                [ngModel]="to()"
-                (ngModelChange)="to.set($event)" />
+              <input class="form-control" type="date" [ngModel]="to()" (ngModelChange)="to.set($event)"/>
             </div>
             <div class="col-12 col-md-auto">
               <button class="btn btn-gradient w-100" (click)="loadStats()">Aplicar</button>
@@ -192,9 +148,7 @@
               <div class="mt-2">Consultando métricas…</div>
             </div>
           } @else if (!stats()) {
-            <div class="text-center text-muted py-4">
-              Selecciona rango y alojamiento para ver métricas.
-            </div>
+            <div class="text-center text-muted py-4">Selecciona rango y alojamiento para ver métricas.</div>
           } @else {
             <div class="row g-3 mt-3">
               <div class="col-12 col-md-6 col-lg-4">
@@ -209,9 +163,7 @@
                 <div class="card border-0 shadow-sm">
                   <div class="card-body">
                     <div class="text-uppercase small text-muted">Calificación promedio</div>
-                    <div class="display-6 fw-semibold">
-                      {{ stats()?.averageRating || 0 | number:'1.1-1' }}
-                    </div>
+                    <div class="display-6 fw-semibold">{{ stats()?.averageRating || 0 | number:'1.1-1' }}</div>
                   </div>
                 </div>
               </div>
@@ -228,22 +180,14 @@
           <div class="row g-3 align-items-end">
             <div class="col-12 col-md-4">
               <label class="form-label text-uppercase small">Alojamiento</label>
-              <select
-                class="form-select"
-                [ngModel]="selectedPlaceId()"
-                (ngModelChange)="selectedPlaceId.set($event)">
+              <select class="form-select" [ngModel]="selectedPlaceId()" (ngModelChange)="selectedPlaceId.set($event)">
                 <option [ngValue]="null">— Selecciona —</option>
-                @for (p of places(); track p.id) {
-                  <option [ngValue]="p.id">{{ p.title }}</option>
-                }
+                @for (p of places(); track p.id) { <option [ngValue]="p.id">{{ p.title }}</option> }
               </select>
             </div>
             <div class="col-6 col-md-2">
               <label class="form-label text-uppercase small">Estado</label>
-              <select
-                class="form-select"
-                [ngModel]="bookingStatus()"
-                (ngModelChange)="bookingStatus.set($event)">
+              <select class="form-select" [ngModel]="bookingStatus()" (ngModelChange)="bookingStatus.set($event)">
                 <option value="">Todos</option>
                 <option value="PENDING">Pendiente</option>
                 <option value="CONFIRMED">Confirmada</option>
@@ -253,24 +197,14 @@
             </div>
             <div class="col-6 col-md-2">
               <label class="form-label text-uppercase small">Desde</label>
-              <input
-                class="form-control"
-                type="date"
-                [ngModel]="from()"
-                (ngModelChange)="from.set($event)" />
+              <input class="form-control" type="date" [ngModel]="from()" (ngModelChange)="from.set($event)"/>
             </div>
             <div class="col-6 col-md-2">
               <label class="form-label text-uppercase small">Hasta</label>
-              <input
-                class="form-control"
-                type="date"
-                [ngModel]="to()"
-                (ngModelChange)="to.set($event)" />
+              <input class="form-control" type="date" [ngModel]="to()" (ngModelChange)="to.set($event)"/>
             </div>
             <div class="col-12 col-md-auto">
-              <button class="btn btn-gradient w-100" (click)="loadBookings()">
-                Ver reservas
-              </button>
+              <button class="btn btn-gradient w-100" (click)="loadBookings()">Ver reservas</button>
             </div>
           </div>
 
@@ -304,43 +238,30 @@
                       <td>{{ b.checkIn | date:'short' }}</td>
                       <td>{{ b.checkOut | date:'short' }}</td>
                       <td>
-                        <span
-                          class="badge rounded-pill"
-                          [class.text-bg-warning]="b.state==='PENDING'"
-                          [class.text-bg-success]="b.state==='CONFIRMED' || b.state==='COMPLETED'"
-                          [class.text-bg-secondary]="b.state==='CANCELED'">
+                        <span class="badge rounded-pill"
+                              [class.text-bg-warning]="b.state==='PENDING'"
+                              [class.text-bg-success]="b.state==='CONFIRMED' || b.state==='COMPLETED'"
+                              [class.text-bg-secondary]="b.state==='CANCELED'">
                           {{ b.state | titlecase }}
                         </span>
                       </td>
                       <td class="text-end">
                         @if (b.state==='PENDING') {
                           <div class="btn-group">
-                            <button
-                              class="btn btn-outline-success btn-sm"
-                              (click)="confirmBooking(b.id!)">
-                              <span class="material-symbols-rounded align-middle me-1">check</span>
-                              Aprobar
+                            <button class="btn btn-outline-success btn-sm" (click)="confirmBooking(b.id!)">
+                              <span class="material-symbols-rounded align-middle me-1">check</span> Aprobar
                             </button>
-                            <button
-                              class="btn btn-outline-danger btn-sm"
-                              (click)="rejectBooking(b.id!)">
-                              <span class="material-symbols-rounded align-middle me-1">close</span>
-                              Rechazar
+                            <button class="btn btn-outline-danger btn-sm" (click)="rejectBooking(b.id!)">
+                              <span class="material-symbols-rounded align-middle me-1">close</span> Rechazar
                             </button>
                           </div>
                         } @else {
                           <div class="btn-group">
-                            <button
-                              class="btn btn-outline-secondary btn-sm"
-                              (click)="showBookingInfo(b)">
-                              <span class="material-symbols-rounded align-middle me-1">info</span>
-                              Info
+                            <button class="btn btn-outline-secondary btn-sm" (click)="showBookingInfo(b)">
+                              <span class="material-symbols-rounded align-middle me-1">info</span> Info
                             </button>
-                            <button
-                              class="btn btn-outline-danger btn-sm"
-                              (click)="deleteBooking(b.id!)">
-                              <span class="material-symbols-rounded align-middle me-1">delete</span>
-                              Eliminar
+                            <button class="btn btn-outline-danger btn-sm" (click)="deleteBooking(b.id!)">
+                              <span class="material-symbols-rounded align-middle me-1">delete</span> Eliminar
                             </button>
                           </div>
                         }

@@ -14,11 +14,13 @@ import {normalizeListFromMessage, PageMeta} from '../utils/normalize';
 @Injectable({ providedIn: 'root' })
 export class PlacesApiService {
   private readonly baseUrl: string;     // /api/places
-  private readonly bookingsUrl: string; // /api/places  (para .../{placeId}/bookings)
+  private readonly bookingsUrl: string;// /api/places  (para .../{placeId}/bookings)
+  private readonly imagesBaseUrl = 'http://localhost:8080/api/images';
 
   constructor(private http: HttpClient, @Inject(API_BASE) private api: string) {
     this.baseUrl     = `${this.api}/places`;
     this.bookingsUrl = `${this.api}/bookings`;
+
   }
 
 
@@ -75,7 +77,7 @@ export class PlacesApiService {
   create(payload: CreatePlaceDTO): Observable<string> {
     return this.http
       .post<ResponseDTO<string>>(this.baseUrl, payload)
-      .pipe(map(res => res.message));
+      .pipe(map(res => res.message));  // ← AHORA devolvemos el ID
   }
 
   // EDITAR
@@ -148,7 +150,21 @@ export class PlacesApiService {
       .get<ResponseDTO<any>>(`${this.baseUrl}/${placeId}/stats`, { params })
       .pipe(map(res => res.message));
   }
+  uploadImage(file: File): Observable<string> {
+    const formData = new FormData();
+    formData.append('file', file);
 
+    return this.http
+      .post<ResponseDTO<Record<string, any>>>(this.imagesBaseUrl, formData)
+      .pipe(
+        map(res => {
+          const data = res.message as any;
+          // Ajusta la clave según lo que devuelva tu Map en el backend
+          // por ejemplo: data.url, data.imageUrl, data.location...
+          return data.url as string;
+        })
+      );
+  }
   // SUBIR IMÁGENES
   uploadImages(placeId: string, files: File[], mainIndex: number): Observable<any> {
     const form = new FormData();

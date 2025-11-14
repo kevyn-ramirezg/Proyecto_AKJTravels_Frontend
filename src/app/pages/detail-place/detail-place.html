@@ -1,8 +1,136 @@
-<p>detail-place works!</p>
-<div class="container pt-5 pb-5">
-  <h5 class="mb-3 d-flex align-items-center">
-    <span class="material-symbols-rounded filled fs-2 me-3">home</span>
-    Detalle de alojamiento
-  </h5>
-  <pre class="bg-light p-3 rounded">{{ place | json }}</pre>
+<div class="detail-page page-gradient">
+  <div class="container detail-container">
+
+    <!-- ESTADO DE CARGA / ERROR -->
+    <div *ngIf="loading" class="loading-state">
+      Cargando información del sitio...
+    </div>
+    <div *ngIf="!loading && error" class="error-state">
+      {{ error }}
+    </div>
+
+    <!-- place as p: dentro de este bloque p NUNCA es undefined -->
+    <ng-container *ngIf="!loading && !error && place as p">
+
+      <!-- CABECERA -->
+      <div class="detail-header row align-items-start">
+        <div class="col-lg-8 col-md-7 col-12">
+          <h1 class="place-title">
+            {{ p.title }}
+          </h1>
+          <div class="place-location">
+            <span class="material-symbols-rounded location-icon">
+              location_on
+            </span>
+            <span class="location-text">
+              Capacidad {{ p.capacity }} huéspedes ·
+              $ {{ p.price | number:'1.0-0' }} / noche
+            </span>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-5 col-12 header-right">
+          <button type="button"
+                  class="btn btn-gradient btn-reserve"
+                  (click)="goToBooking()">
+            RESERVAR AHORA
+          </button>
+
+          <div class="rating-card">
+            <div class="rating-label">
+              Calificación del sitio
+            </div>
+            <div class="rating-row">
+              <span class="material-symbols-rounded thumb-icon">
+                thumb_up
+              </span>
+              <div class="stars">
+                <ng-container *ngFor="let star of roundedRating">
+                  <span class="material-symbols-rounded star"
+                        [class.star-filled]="star === 1">
+                    star
+                  </span>
+                </ng-container>
+              </div>
+              <div class="rating-number">
+                {{ p.averageRatings | number:'1.1-1' }}/5
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GALERÍA + SIDEBAR -->
+      <div class="row gx-4 main-section">
+        <!-- Galería -->
+        <div class="col-lg-8 col-12">
+          <div class="gallery-card">
+            <div class="gallery-main">
+              <img *ngIf="selectedImage"
+                   [src]="selectedImage"
+                   alt="Imagen principal del sitio"
+                   class="main-image" />
+
+              <div class="secondary-grid" *ngIf="p.pics_url.length > 1">
+                <div
+                  class="secondary-image-wrapper"
+                  *ngFor="let image of p.pics_url.slice(1, 4)"
+                  (click)="changeImage(image)"
+                >
+                  <img [src]="image"
+                       alt="Imagen del sitio"
+                       class="secondary-image" />
+                </div>
+              </div>
+            </div>
+
+            <div class="thumbs-row" *ngIf="p.pics_url.length > 0">
+              <div
+                class="thumb"
+                *ngFor="let image of p.pics_url; let i = index"
+                (click)="changeImage(image)"
+                [class.thumb-active]="image === selectedImage"
+              >
+                <img [src]="image"
+                     [alt]="'Foto ' + (i + 1)"
+                     class="thumb-image" />
+              </div>
+
+              <div class="more-photos" *ngIf="p.pics_url.length > 6">
+                + {{ p.pics_url.length - 6 }} fotos más
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar: solo mapa por ahora -->
+        <div class="col-lg-4 col-12 sidebar">
+          <div class="sidebar-card">
+            <div class="sidebar-title">
+              Ubicación del sitio
+            </div>
+
+            <div class="map-wrapper">
+              <div id="place-map" class="map-container"></div>
+              <button type="button" class="btn btn-gradient btn-map">
+                Ver en el mapa
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DESCRIPCIÓN -->
+      <div class="description-card">
+        <div class="description-title">
+          Descripción del sitio
+        </div>
+        <p class="description-text">
+          {{ p.description }}
+        </p>
+      </div>
+
+    </ng-container>
+
+  </div>
 </div>

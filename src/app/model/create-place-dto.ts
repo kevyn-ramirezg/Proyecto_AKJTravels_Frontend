@@ -2,7 +2,7 @@ export interface CreatePlaceDTO {
   title: string;
   description: string;
   price: number;
-  picsUrl: string[];        // camelCase (¡diferente a Edit!)
+  pics_url: string[];        // camelCase (¡diferente a Edit!)
   placeType: string;        // luego lo reemplazas por enum
   capacity: number;
   country: string;

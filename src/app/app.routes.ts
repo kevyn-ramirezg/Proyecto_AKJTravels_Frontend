@@ -10,33 +10,30 @@ import { loginGuard } from './guards/login-guard';
 import { roleGuard } from './guards/role-guard';
 import { authGuard } from './guards/auth-guard';
 import { ForgotPassword } from './pages/forgot-password/forgot-password';
+
+// ⬇️ Nuevo: componente de edición de perfil (standalone)
 import { EditProfile } from './pages/edit-profile/edit-profile';
-import { EditPlace } from './pages/edit-place/edit-place';
-import { SearchResultsComponent } from './pages/search-results/search-results';
+import {EditPlace} from './pages/edit-place/edit-place';
 
 export const routes: Routes = [
   { path: '', component: Home },
 
-  // Auth públicass
+  // Auth públicas (con guard que evita entrar si ya estás logueado)
   { path: 'login', component: Login, canActivate: [loginGuard] },
   { path: 'register', component: Register, canActivate: [loginGuard] },
 
-  // Perfil
+  // Perfil del usuario (PROTEGIDO)
   { path: 'mi-perfil', component: EditProfile, canActivate: [authGuard] },
 
-  // Host
+  // Zonas de HOST (PROTEGIDAS por rol)
   { path: 'my-places', component: MyPlaces, canActivate: [authGuard, roleGuard], data: { expectedRole: ['HOST', 'ROLE_HOST'] } },
   { path: 'create-place', component: CreatePlace, canActivate: [authGuard, roleGuard], data: { expectedRole: ['HOST', 'ROLE_HOST'] } },
   { path: 'host-dashboard', component: HostDashboard, canActivate: [authGuard, roleGuard], data: { expectedRole: ['HOST', 'ROLE_HOST'] } },
-  { path: 'edit-place/:id', component: EditPlace, canActivate: [authGuard] },
-
+  {path: 'edit-place/:id', component: EditPlace, canActivate: [authGuard]},
   // Público
   { path: 'place/:id', component: DetailPlace },
 
-  // Resultados de búsqueda
-  { path: 'search', component: SearchResultsComponent },
-
-  // Grupo /auth
+  // Grupo /auth (público)
   {
     path: 'auth',
     children: [
@@ -44,6 +41,5 @@ export const routes: Routes = [
     ]
   },
 
-  // Wildcard SIEMPRE al final
   { path: '**', pathMatch: 'full', redirectTo: '' },
 ];

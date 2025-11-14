@@ -25,13 +25,6 @@
 .title-icon{ font-size:48px; margin-right:10px }
 .logo{ position:absolute; left:20px; top:50%; transform: translateY(-50%); }
 
-/* Stepper sits visually on top of the white card: pull it up with negative margin */
-/*.stepper{ display:flex; gap:18px; align-items:center; justify-content:space-between; margin:-22px 0 8px; z-index:2 }
-.stepper .step{ flex:1; position:relative; text-align:center; font-size:12px; color:var(--muted); padding-top:18px }
-.stepper .step::before{ content:''; position:absolute; left:12%; right:12%; top:6px; height:8px; background:#e6e6e6; border-radius:12px }
-.stepper .step.active::before{ background: linear-gradient(90deg, var(--primary-start), var(--primary-end)) }*/
-
-
 .card.wizard{ border-radius:18px; padding: 28px; background:var(--card-bg); box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
 .card.wizard .card-body{ padding:0 }
 
