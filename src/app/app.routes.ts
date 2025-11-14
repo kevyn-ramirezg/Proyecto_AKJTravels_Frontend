@@ -4,16 +4,19 @@ import { Login } from './pages/login/login';
 import { Register } from './pages/register/register';
 import { CreatePlace } from './pages/create-place/create-place';
 import { MyPlaces } from './pages/my-places/my-places';
-import { DetailPlace } from './pages/detail-place/detail-place';
+
 import { HostDashboard } from './pages/host-dashboard/host-dashboard';
 import { loginGuard } from './guards/login-guard';
 import { roleGuard } from './guards/role-guard';
 import { authGuard } from './guards/auth-guard';
 import { ForgotPassword } from './pages/forgot-password/forgot-password';
 
+
 // ⬇️ Nuevo: componente de edición de perfil (standalone)
 import { EditProfile } from './pages/edit-profile/edit-profile';
 import {EditPlace} from './pages/edit-place/edit-place';
+import DetailPlaceComponent from './pages/detail-place/detail-place';
+import { SearchResultsComponent } from './pages/search-results/search-results';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -29,9 +32,12 @@ export const routes: Routes = [
   { path: 'my-places', component: MyPlaces, canActivate: [authGuard, roleGuard], data: { expectedRole: ['HOST', 'ROLE_HOST'] } },
   { path: 'create-place', component: CreatePlace, canActivate: [authGuard, roleGuard], data: { expectedRole: ['HOST', 'ROLE_HOST'] } },
   { path: 'host-dashboard', component: HostDashboard, canActivate: [authGuard, roleGuard], data: { expectedRole: ['HOST', 'ROLE_HOST'] } },
+  { path: 'search', component: SearchResultsComponent },
   {path: 'edit-place/:id', component: EditPlace, canActivate: [authGuard]},
+  //path search-results con parámetros de consulta
+
   // Público
-  { path: 'place/:id', component: DetailPlace },
+  { path: 'place/:id', component: DetailPlaceComponent },
 
   // Grupo /auth (público)
   {
@@ -42,4 +48,5 @@ export const routes: Routes = [
   },
 
   { path: '**', pathMatch: 'full', redirectTo: '' },
+
 ];
