@@ -6,6 +6,9 @@ import { ResponseDTO } from '../model/response-dto';
 import { BookingDTO, SearchBookingsParams } from '../model/booking-dto/booking-dto';
 import { API_BASE } from '../core/api-base-token';
 import{normalizeListFromMessage, PageMeta } from '../utils/normalize';
+import { UserBookingDTO } from '../model/booking-dto/user-booking-dto';
+
+
 
 
 /*type Page<T> = { content: T[]; totalPages?: number; totalElements?: number; number?: number; size?: number };*/
@@ -54,11 +57,18 @@ export class BookingsApiService {
   create(placeId: string, dto: any) {
     return this.http.post(`${this.baseUrl}/bookings/${placeId}`, dto);
   }
-  listUserBookings(page: number = 0) {
-    return this.http.get<ResponseDTO<BookingDTO[]>>(
-      `${this.baseUrl}/bookings/user?page=${page}`
+  listUserBookings() {
+    return this.http.get<ResponseDTO<UserBookingDTO[]>>(
+      `${this.baseUrl}/bookings/user`
     );
   }
+  cancel(id: string) {
+    return this.http.delete<ResponseDTO<string>>(
+      `${this.baseUrl}/bookings/${id}`
+    );
+  }
+
+
 
 
 }

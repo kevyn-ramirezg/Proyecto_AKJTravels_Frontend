@@ -1,32 +1,13 @@
 .reservations-page {
   min-height: 100vh;
   background: #f5f7fb;
-}
-
-/* Barra superior marca */
-.brand-bar {
-  width: 100%;
-  padding: 18px 40px;
-  background: linear-gradient(90deg, #004aad, #cb6ce6);
-  display: flex;
-  align-items: center;
-}
-
-.brand {
-  font-size: 22px;
-  font-weight: 600;
-  color: #fff;
-  letter-spacing: 0.05em;
-}
-
-.brand span {
-  font-weight: 400;
+  padding-top: 32px;
 }
 
 /* Título MIS RESERVAS */
 .reservations-header {
   max-width: 1120px;
-  margin: 18px auto 8px;
+  margin: 0 auto 16px;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.2em;
@@ -37,7 +18,7 @@
 /* Lista de tarjetas */
 .reservations-list {
   max-width: 1120px;
-  margin: 0 auto;
+  margin: 0 auto 40px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -51,9 +32,9 @@
   box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
   padding: 18px 22px;
   display: grid;
-  grid-template-columns: minmax(0, 280px) minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 320px) minmax(0, 1fr) auto;
   align-items: center;
-  column-gap: 24px;
+  column-gap: 32px;
 }
 
 /* Columna izquierda */
@@ -91,15 +72,6 @@
   color: #111827;
 }
 
-.place-rating {
-  font-size: 13px;
-  color: #6b7280;
-}
-
-.rating-text {
-  margin-left: 4px;
-}
-
 .place-location {
   display: flex;
   align-items: center;
@@ -116,7 +88,7 @@
 /* Columna central */
 .res-middle {
   border-left: 1px solid #e5e7eb;
-  padding-left: 24px;
+  padding-left: 32px;
 }
 
 .section-title {
@@ -171,8 +143,16 @@
   font-weight: 600;
 }
 
-.status-activa span {
+.status-activa {
   color: #10b981;
+}
+
+.status-pasada {
+  color: #f97316;
+}
+
+.status-cancelada {
+  color: #ef4444;
 }
 
 /* Botones */
@@ -202,7 +182,7 @@
   padding-inline: 20px;
 }
 
-/* Estado vacío */
+/* Estado vacío / carga */
 .empty {
   max-width: 1120px;
   margin: 32px auto;
@@ -230,4 +210,23 @@
   .actions {
     flex-wrap: wrap;
   }
+}
+
+/* Botón cancelar outline – más específico para ganar a estilos globales */
+.reservation-card .actions .btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 9px 22px;
+  border: 1px solid #e11d48;
+  background: #ffffff;
+  color: #e11d48;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 0 0 0 transparent;
 }

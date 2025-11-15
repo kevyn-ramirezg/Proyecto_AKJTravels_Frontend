@@ -150,3 +150,96 @@ html, body { height: 100%; }
 
 /* más separación entre columnas */
 .container, .container-fluid { --bs-gutter-x: 2rem; }
+
+/* === Modal de calificación (SweetAlert) === */
+
+.swal2-popup.rating-popup {
+  padding: 24px 24px 28px;
+  border-radius: 24px;
+  font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+}
+
+.rating-modal {
+  text-align: left;
+}
+
+.rating-title {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 12px;
+  color: #111827;
+}
+
+.rating-stars {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 6px 0 18px;
+}
+
+.rating-stars .star {
+  font-size: 32px;
+  color: #e5e7eb;
+  cursor: pointer;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.rating-stars .star.active {
+  color: #facc15;
+  transform: scale(1.05);
+}
+
+.rating-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #111827;
+}
+
+.rating-textarea {
+  width: 100%;
+  border-radius: 10px;
+  border: 2px solid #dde2eb;
+  padding: 10px 12px;
+  font-size: 13px;
+  resize: vertical;
+  font-family: inherit;
+  outline: none;
+}
+
+.rating-textarea::placeholder {
+  color: #d1d5db;
+}
+
+.rating-textarea:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgba(79, 70, 229, 0.35);
+}
+
+/* Botón "Publicar" con gradiente tipo AKJ */
+.swal2-confirm.rating-confirm-btn {
+  border-radius: 999px !important;
+  padding: 10px 32px !important;
+  background: linear-gradient(90deg, #004aad, #cb6ce6) !important;
+  border: none !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* Botón "Cerrar" simple gris */
+.swal2-cancel.rating-cancel-btn {
+  border-radius: 999px !important;
+  padding: 9px 22px !important;
+  border: 1px solid #d1d5db !important;
+  background: #ffffff !important;
+  color: #6b7280 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
