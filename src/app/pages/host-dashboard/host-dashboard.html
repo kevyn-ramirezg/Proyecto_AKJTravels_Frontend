@@ -46,7 +46,7 @@
         <button
           class="nav-link w-100 d-flex align-items-center justify-content-center"
           [class.active]="section()==='comments'"
-          (click)="setSection('comments')">
+          (click)="setSection('comments'); loadHostComments()">
           <span class="material-symbols-rounded align-middle me-2">chat_bubble</span>
           <span>Comentarios</span>
         </button>

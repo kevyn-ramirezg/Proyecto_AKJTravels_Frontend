@@ -533,5 +533,42 @@
   color: #374151;
   margin: 0;
 }
+.favorite-btn {
+  border: none;
+  background: #ffffff;
+  border-radius: 999px;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  padding: 0;
+}
+
+.favorite-btn .material-symbols-rounded {
+  font-size: 22px;
+  color: #ff6b81;
+}
+
+.favorite-btn.favorite-active {
+  background: rgba(255, 0, 0, 0.66);
+}
+
+.favorite-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.favorite-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.favorite-count {
+  margin-left: 4px;
+}
 
 

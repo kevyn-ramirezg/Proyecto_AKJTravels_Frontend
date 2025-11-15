@@ -19,6 +19,7 @@ import DetailPlaceComponent from './pages/detail-place/detail-place';
 import { SearchResultsComponent } from './pages/search-results/search-results';
 import {CreateBooking} from './pages/create-booking/create-booking';
 import { MyReservations } from './pages/my-reservations/my-reservations';
+import {MyFavorites} from './pages/my-favorites/my-favorites';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -36,7 +37,7 @@ export const routes: Routes = [
   { path: 'edit-place/:id', component: EditPlace, canActivate: [authGuard] },
 
   { path: 'place/:id', component: DetailPlaceComponent },
-
+  {path: 'my-favorites', component: MyFavorites},
   {
     path: 'auth',
     children: [

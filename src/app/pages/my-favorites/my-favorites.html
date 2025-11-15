@@ -1,0 +1,60 @@
+<div class="favorites-page page-gradient py-5">
+  <div class="container">
+
+    <!-- Header -->
+    <div *ngIf="loading()" class="text-center text-muted py-5">
+      <div class="spinner-border" role="status"></div>
+      <div class="mt-2">Cargando tus favoritos…</div>
+    </div>
+
+    <div *ngIf="!loading() && error()" class="alert alert-danger">
+      {{ error() }}
+    </div>
+
+    <div *ngIf="!loading() && !error() && !hasFavorites()" class="alert alert-light border text-center">
+      Aún no tienes alojamientos marcados como favoritos.
+    </div>
+
+    <div class="row g-4" *ngIf="!loading() && !error() && hasFavorites()">
+      <div class="col-12 col-sm-6 col-lg-4" *ngFor="let p of favorites()">
+        <article class="card h-100 border-0 shadow-sm">
+          <div class="ratio ratio-16x9">
+            <img
+              [src]="p.photo_url || 'https://picsum.photos/640/400'"
+              [alt]="p.title"
+              class="w-100 h-100"
+              style="object-fit: cover;">
+          </div>
+          <div class="card-body d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-start mb-1">
+              <h5 class="card-title mb-0">{{ p.title }}</h5>
+              <div class="d-flex align-items-center gap-1 text-warning">
+                <span class="material-symbols-rounded">star</span>
+                <span>{{ p.average_rating | number:'1.1-1' }}</span>
+              </div>
+            </div>
+            <div class="text-muted mb-3">
+              {{ p.city || '—' }}
+            </div>
+
+            <div class="mt-auto d-flex gap-2">
+              <button
+                type="button"
+                class="btn btn-gradient flex-fill"
+                (click)="goToDetail(p)">
+                Ver detalle
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-danger"
+                (click)="removeFromFavorites(p)">
+                <span class="material-symbols-rounded">favorite</span>
+              </button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+
+  </div>
+</div>
