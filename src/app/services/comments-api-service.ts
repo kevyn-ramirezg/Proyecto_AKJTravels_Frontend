@@ -43,7 +43,7 @@ export class CommentsApiService {
       .pipe(map(res => res.message));
   }
 
-  // =====================================
+  // =======================================
   // 2) CREAR COMENTARIO (HUESPED / USER)
   // Endpoint backend: POST /api/places/{placeId}/comments
   // =====================================
