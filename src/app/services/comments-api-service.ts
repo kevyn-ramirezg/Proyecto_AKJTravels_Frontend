@@ -45,7 +45,7 @@ export class CommentsApiService {
 
   // =======================================
   // 2) CREAR COMENTARIO (HUESPED / USER)
-  // Endpoint backend: POST /api/places/{placeId}/comments
+  // Endpoint backend: POST /api/places/{placeId}/comments..
   // =====================================
   createForPlace(
     placeId: string,
