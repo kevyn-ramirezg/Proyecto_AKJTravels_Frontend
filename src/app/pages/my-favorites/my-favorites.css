@@ -1,0 +1,11 @@
+.favorites-page {
+  min-height: 100vh;
+}
+
+.favorite-card .card-cover img.of-cover {
+  object-fit: cover;
+}
+
+.logo span {
+  font-weight: 700;
+}

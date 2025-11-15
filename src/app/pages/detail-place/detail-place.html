@@ -14,10 +14,35 @@
 
       <!-- CABECERA -->
       <div class="detail-header row align-items-start">
+
+        <!-- Título + favoritos + info básica -->
         <div class="col-lg-8 col-md-7 col-12">
-          <h1 class="place-title">
-            {{ p.title }}
-          </h1>
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <h1 class="place-title mb-0">
+              {{ p.title }}
+            </h1>
+
+            <!-- Corazón: solo huésped logueado -->
+            <button
+              *ngIf="canFavorite()"
+              type="button"
+              class="favorite-btn"
+              [class.favorite-active]="isFavorite"
+              [disabled]="favoriteLoading"
+              (click)="toggleFavorite()">
+              <span class="material-symbols-rounded">
+                favorite
+              </span>
+            </button>
+
+            <!-- Conteo de favoritos -->
+            <span
+              *ngIf="favoriteCount !== null"
+              class="favorite-count small text-muted">
+              {{ favoriteCount }} favoritos
+            </span>
+          </div>
+
           <div class="place-location">
             <span class="material-symbols-rounded location-icon">
               location_on
@@ -29,10 +54,12 @@
           </div>
         </div>
 
+        <!-- Botón reservar + rating -->
         <div class="col-lg-4 col-md-5 col-12 header-right">
-          <button type="button"
-                  class="btn btn-gradient btn-reserve"
-                  (click)="goToBooking()">
+          <button
+            type="button"
+            class="btn btn-gradient btn-reserve"
+            (click)="goToBooking()">
             RESERVAR AHORA
           </button>
 
@@ -46,8 +73,9 @@
               </span>
               <div class="stars">
                 <ng-container *ngFor="let star of roundedRating">
-                  <span class="material-symbols-rounded star"
-                        [class.star-filled]="star === 1">
+                  <span
+                    class="material-symbols-rounded star"
+                    [class.star-filled]="star === 1">
                     star
                   </span>
                 </ng-container>
@@ -66,20 +94,21 @@
         <div class="col-lg-8 col-12">
           <div class="gallery-card">
             <div class="gallery-main">
-              <img *ngIf="selectedImage"
-                   [src]="selectedImage"
-                   alt="Imagen principal del sitio"
-                   class="main-image" />
+              <img
+                *ngIf="selectedImage"
+                [src]="selectedImage"
+                alt="Imagen principal del sitio"
+                class="main-image" />
 
               <div class="secondary-grid" *ngIf="p.pics_url.length > 1">
                 <div
                   class="secondary-image-wrapper"
                   *ngFor="let image of p.pics_url.slice(1, 4)"
-                  (click)="changeImage(image)"
-                >
-                  <img [src]="image"
-                       alt="Imagen del sitio"
-                       class="secondary-image" />
+                  (click)="changeImage(image)">
+                  <img
+                    [src]="image"
+                    alt="Imagen del sitio"
+                    class="secondary-image" />
                 </div>
               </div>
             </div>
@@ -89,11 +118,11 @@
                 class="thumb"
                 *ngFor="let image of p.pics_url; let i = index"
                 (click)="changeImage(image)"
-                [class.thumb-active]="image === selectedImage"
-              >
-                <img [src]="image"
-                     [alt]="'Foto ' + (i + 1)"
-                     class="thumb-image" />
+                [class.thumb-active]="image === selectedImage">
+                <img
+                  [src]="image"
+                  [alt]="'Foto ' + (i + 1)"
+                  class="thumb-image" />
               </div>
 
               <div class="more-photos" *ngIf="p.pics_url.length > 6">
@@ -103,18 +132,19 @@
           </div>
         </div>
 
-        <!-- Sidebar: solo mapa por ahora -->
+        <!-- Sidebar -->
         <div class="col-lg-4 col-12 sidebar">
           <div class="sidebar-stack">
 
             <!-- TARJETA DEL ANFITRIÓN -->
             <section class="host-card" *ngIf="hasHost">
-              <div class="host-avatar" [ngClass]="{ 'host-avatar--placeholder': !hostAvatar }">
+              <div
+                class="host-avatar"
+                [ngClass]="{ 'host-avatar--placeholder': !hostAvatar }">
                 <img
                   *ngIf="hostAvatar; else hostInitialsTpl"
                   [src]="hostAvatar!"
-                  [alt]="hostName"
-                />
+                  [alt]="hostName" />
                 <ng-template #hostInitialsTpl>
                   {{ hostInitials }}
                 </ng-template>
@@ -164,7 +194,6 @@
       </div>
 
       <!-- COMENTARIOS -->
-
       <div class="comments-card">
         <div class="comments-header">
           Comentarios de huéspedes
@@ -174,8 +203,9 @@
           Cargando comentarios...
         </div>
 
-        <div *ngIf="!commentsLoading && !commentsError && comments.length === 0"
-             class="comments-state">
+        <div
+          *ngIf="!commentsLoading && !commentsError && comments.length === 0"
+          class="comments-state">
           Aún no hay comentarios para este sitio.
         </div>
 
@@ -183,14 +213,19 @@
           {{ commentsError }}
         </div>
 
-        <div class="comments-list"
-             *ngIf="!commentsLoading && comments.length > 0">
+        <div
+          class="comments-list"
+          *ngIf="!commentsLoading && comments.length > 0">
           <article class="comment-item" *ngFor="let c of comments">
-            <div class="comment-avatar"
-                 [ngClass]="{ 'comment-avatar--placeholder': !getCommentUserAvatar(c) }">
-              <img *ngIf="getCommentUserAvatar(c); else commentInitialsTpl"
-                   [src]="getCommentUserAvatar(c)!"
-                   [alt]="getCommentUserName(c)" />
+            <div
+              class="comment-avatar"
+              [ngClass]="{
+                'comment-avatar--placeholder': !getCommentUserAvatar(c)
+              }">
+              <img
+                *ngIf="getCommentUserAvatar(c); else commentInitialsTpl"
+                [src]="getCommentUserAvatar(c)!"
+                [alt]="getCommentUserName(c)" />
               <ng-template #commentInitialsTpl>
                 {{ getCommentUserInitials(c) }}
               </ng-template>
@@ -202,9 +237,10 @@
                   {{ getCommentUserName(c) }}
                 </div>
                 <div class="comment-rating">
-                  <span class="material-symbols-rounded star"
-                        *ngFor="let s of [1,2,3,4,5]"
-                        [class.star-filled]="s <= c.rating">
+                  <span
+                    class="material-symbols-rounded star"
+                    *ngFor="let s of [1, 2, 3, 4, 5]"
+                    [class.star-filled]="s <= c.rating">
                     star
                   </span>
                   <span class="comment-rating-number">
@@ -214,7 +250,7 @@
               </div>
 
               <div class="comment-date">
-                {{ c.commentDate | date:'dd/MM/yyyy' }}
+                {{ c.commentDate | date: 'dd/MM/yyyy' }}
               </div>
 
               <p class="comment-text">

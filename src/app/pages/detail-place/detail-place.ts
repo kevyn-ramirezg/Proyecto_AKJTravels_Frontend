@@ -7,6 +7,9 @@ import { PlaceDetailDTO } from '../../model/place-dto/place-detail-dto';
 import { ResponseDTO } from '../../model/response-dto';
 import { MapService } from '../../services/map-service';
 import {CommentDTO} from '../../model/comment-dto/comment-dto';
+import {FavoritesApiService} from '../../services/favorites-api-service';
+import {TokenService} from '../../services/token-service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-detail-place',
@@ -21,13 +24,19 @@ export default class DetailPlace {
   private placesApi = inject(PlacesApiService);
   private router = inject(Router);
   private mapService = inject(MapService);
+  private favoritesApi = inject(FavoritesApiService);
+  private token        = inject(TokenService);
+
 
   loading = true;
   error?: string;
 
   place?: PlaceDetailDTO;
   selectedImage?: string;
-
+  // FAVORITE
+  favoriteCount: number | null = null;
+  favoriteLoading = false;
+  isFavorite = false;
   // COMMENTS
   comments: CommentDTO[] = [];
   commentsLoading = false;
@@ -56,7 +65,10 @@ export default class DetailPlace {
 
         this.loading = false;
 
-        // Damos un pequeño tiempo para que el div del mapa exista en el DOM
+// 🔹 NUEVO
+        this.loadFavoriteMeta();
+
+// Damos un pequeño tiempo para que el div del mapa exista en el DOM
         this.initMap();
       },
       error: () => {
@@ -205,6 +217,67 @@ export default class DetailPlace {
     const first = parts[0]?.[0] ?? '';
     const last = parts.length > 1 ? parts[parts.length - 1][0] : '';
     return (first + last).toUpperCase();
+  }
+  private loadFavoriteMeta(): void {
+    if (!this.place) return;
+    const placeId = this.place.id;
+
+    // Conteo de favoritos
+    this.favoritesApi.countFavorites(placeId).subscribe({
+      next: n => this.favoriteCount = (n ?? 0),
+      error: () => this.favoriteCount = null
+    });
+
+    // Estado "es mi favorito" solo si es huésped logueado
+    if (this.canFavorite()) {
+      this.favoritesApi.isMyFavorite(placeId).subscribe({
+        next: flag => this.isFavorite = !!flag,
+        error: () => this.isFavorite = false
+      });
+    }
+  }
+
+  /** Solo huéspedes logueados pueden guardar favoritos */
+  canFavorite(): boolean {
+    return this.token.isLogged() && this.token.getRole() !== 'HOST';
+  }
+
+  toggleFavorite(): void {
+    if (!this.place) return;
+
+    if (!this.canFavorite()) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Inicia sesión como huésped',
+        text: 'Solo los huéspedes pueden guardar alojamientos como favoritos.'
+      });
+      return;
+    }
+
+    this.favoriteLoading = true;
+    const placeId = this.place.id;
+    const obs = this.isFavorite
+      ? this.favoritesApi.remove(placeId)
+      : this.favoritesApi.add(placeId);
+
+    obs.subscribe({
+      next: () => {
+        this.isFavorite = !this.isFavorite;
+        if (this.favoriteCount == null) this.favoriteCount = 0;
+        this.favoriteCount += this.isFavorite ? 1 : -1;
+        if (this.favoriteCount < 0) this.favoriteCount = 0;
+        this.favoriteLoading = false;
+      },
+      error: (err) => {
+        console.error('[DetailPlace] toggleFavorite error', err);
+        this.favoriteLoading = false;
+        Swal.fire({
+          icon: 'error',
+          title: 'No se pudo actualizar tu favorito',
+          text: err?.error?.message ?? 'Inténtalo de nuevo.'
+        });
+      }
+    });
   }
 
 }

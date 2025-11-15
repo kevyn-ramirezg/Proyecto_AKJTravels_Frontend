@@ -530,5 +530,50 @@ export class HostDashboard implements OnInit {
       }
     });
   }
+  public loadHostComments(): void {
+    this.commentsLoading = true;
+    this.commentsError = undefined;
+    this.comments = [];
+    this.filteredComments = [];
 
+    const places = this.places() || [];
+    if (!places.length) {
+      this.commentsLoading = false;
+      return;
+    }
+
+    // Una petición por alojamiento: /places/{id}/comments/0
+    const requests = places.map(p =>
+      this.placesApi.listComments(String((p as any).id), 0).pipe(
+        catchError(() => of([] as any[])) // si falla un place, lo ignoramos
+      )
+    );
+
+    forkJoin(requests).subscribe({
+      next: (results) => {
+        const all: HostComment[] = [];
+
+        results.forEach((list, index) => {
+          const place = places[index];
+          (list ?? []).forEach((raw: any) => {
+            all.push(this.mapToHostComment(raw, place)); // 👈 aquí entra reply también
+          });
+        });
+
+        // Ordenar de más reciente a más antiguo
+        all.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+        this.comments = all;
+        this.applyCommentFilters();  // ya usas esto para texto/fechas
+        this.commentsLoading = false;
+      },
+      error: (err) => {
+        console.error('[HostDashboard] loadHostComments error', err);
+        this.commentsLoading = false;
+        this.comments = [];
+        this.filteredComments = [];
+        this.commentsError = 'No se pudieron cargar los comentarios.';
+      }
+    });
+  }
 }
