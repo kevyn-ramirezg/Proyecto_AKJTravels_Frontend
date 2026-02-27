@@ -3,7 +3,7 @@ import { Home } from './pages/home/home';
 import { Login } from './pages/login/login';
 import { Register } from './pages/register/register';
 import { CreatePlace } from './pages/create-place/create-place';
-import { MyPlaces } from './pages/my-places/my-places';
+
 
 import { HostDashboard } from './pages/host-dashboard/host-dashboard';
 import { loginGuard } from './guards/login-guard';
@@ -29,7 +29,6 @@ export const routes: Routes = [
 
   { path: 'mi-perfil', component: EditProfile, canActivate: [authGuard] },
 
-  { path: 'my-places', component: MyPlaces, canActivate: [authGuard, roleGuard], data: { expectedRole: ['HOST', 'ROLE_HOST'] } },
   { path: 'create-place', component: CreatePlace, canActivate: [authGuard, roleGuard], data: { expectedRole: ['HOST', 'ROLE_HOST'] } },
   { path: 'host-dashboard', component: HostDashboard, canActivate: [authGuard, roleGuard], data: { expectedRole: ['HOST', 'ROLE_HOST'] } },
 

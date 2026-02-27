@@ -21,9 +21,6 @@
         <!-- Solo HOST -->
         @if (isLogged() && role()==='HOST') {
           <li class="nav-item">
-            <a routerLink="/my-places" class="nav-link px-2 text-white">Gestión Alojamientos</a>
-          </li>
-          <li class="nav-item">
             <a routerLink="/host-dashboard" class="nav-link px-2 text-white">Panel anfitrión</a>
           </li>
         }
@@ -64,7 +61,6 @@
 
               <!-- Opciones HOST -->
               @if (role()==='HOST') {
-                <li><a class="dropdown-item" routerLink="/my-places">Mis alojamientos</a></li>
                 <li><a class="dropdown-item" routerLink="/host-dashboard">Panel anfitrión</a></li>
               }
 
