@@ -11,6 +11,7 @@ import { ListPlaceDTO } from '../model/place-dto/list-place-dto';
 import { API_BASE } from '../core/api-base-token';
 import {normalizeListFromMessage, PageMeta} from '../utils/normalize';
 import {CommentDTO} from '../model/comment-dto/comment-dto';
+import {TokenService} from './token-service';
 
 @Injectable({ providedIn: 'root' })
 export class PlacesApiService {
@@ -18,10 +19,13 @@ export class PlacesApiService {
   private readonly bookingsUrl: string;// /api/places  (para .../{placeId}/bookings)
   private readonly imagesBaseUrl = 'http://localhost:8080/api/images';
 
-  constructor(private http: HttpClient, @Inject(API_BASE) private api: string) {
-    this.baseUrl     = `${this.api}/places`;
+  constructor(
+    private http: HttpClient,
+    @Inject(API_BASE) private api: string,
+    private token: TokenService
+  ) {
+    this.baseUrl = `${this.api}/places`;
     this.bookingsUrl = `${this.api}/bookings`;
-
   }
 
 
@@ -135,9 +139,10 @@ export class PlacesApiService {
       .get<ResponseDTO<any[] | { content: any[] }>>(`${this.bookingsUrl}/${placeId}/bookings`, { params })
       .pipe(map(res => normalizeListFromMessage<any>(res.message)));
   }
-  getMine(page = 0) {
+  getMine(page = 0): Observable<PlaceListItemDTO[]> {
+    const userId = this.token.getUserId();
     return this.http
-      .get<ResponseDTO<PlaceListItemDTO[]>>(`http://localhost:8080/api/places/me/${page}`)
+      .get<ResponseDTO<PlaceListItemDTO[]>>(`${this.api}/users/${userId}/places/host/${page}`)
       .pipe(map(res => res.message));
   }
   // STATS
