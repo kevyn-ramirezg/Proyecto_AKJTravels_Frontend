@@ -15,6 +15,7 @@ import {CommentsApiService} from '../../services/comments-api-service';
 import {forkJoin, map, of} from 'rxjs';
 import {catchError} from 'rxjs/operators';
 import {CommentDTO} from '../../model/comment-dto/comment-dto';
+import { FavoritesApiService } from '../../services/favorites-api-service';
 
 type Section = 'places' | 'metrics' | 'bookings' | 'comments';
 
@@ -80,6 +81,7 @@ export class HostDashboard implements OnInit {
   to   = signal<string>('');
   stats = signal<PlaceStatsDTO | null>(null);
   loadingStats = signal<boolean>(false);
+  favoritesCount = signal<number>(0);
 
   // =====================
   // Reservas por alojamiento
@@ -106,6 +108,7 @@ export class HostDashboard implements OnInit {
     private readonly placesApi: PlacesApiService,
     private readonly bookingsApi: BookingsApiService,
     private readonly commentsApi: CommentsApiService,
+    private readonly favoritesApi: FavoritesApiService,
   ) {}
 
   ngOnInit(): void {
@@ -216,6 +219,7 @@ export class HostDashboard implements OnInit {
       return;
     }
     this.loadingStats.set(true);
+
     this.placesApi.stats(String(pid), this.from() || undefined, this.to() || undefined).subscribe({
       next: (data) => { this.stats.set(data); this.loadingStats.set(false); },
       error: (err) => {
@@ -223,6 +227,12 @@ export class HostDashboard implements OnInit {
         this.loadingStats.set(false);
         Swal.fire({ icon: 'error', title: 'No se pudieron cargar métricas' });
       }
+    });
+    this.favoritesCount.set(0);
+
+    this.favoritesApi.countFavorites(String(pid)).subscribe({
+      next: (n: number) => this.favoritesCount.set(n ?? 0),
+      error: () => this.favoritesCount.set(0)
     });
   }
 
