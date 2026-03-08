@@ -18,7 +18,7 @@ export interface ResetPasswordDTO {
   code: string;
   newPassword: string;
 }
-
+//
 @Injectable({ providedIn: 'root' })
 export class AuthRegisterService {
   private readonly base: string;
