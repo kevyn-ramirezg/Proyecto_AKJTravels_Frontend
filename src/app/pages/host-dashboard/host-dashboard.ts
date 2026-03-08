@@ -230,9 +230,17 @@ export class HostDashboard implements OnInit {
     });
     this.favoritesCount.set(0);
 
-    this.favoritesApi.countFavorites(String(pid)).subscribe({
+    const pidStr = String(pid);
+    const from = this.from() || undefined;
+    const to   = this.to() || undefined;
+
+    const fav$ = (from || to)
+      ? this.favoritesApi.countFavoritesBetween(pidStr, from, to)
+      : this.favoritesApi.countFavorites(pidStr);
+
+    fav$.subscribe({
       next: (n: number) => this.favoritesCount.set(n ?? 0),
-      error: () => this.favoritesCount.set(0)
+      error: () => this.favoritesCount.set(0),
     });
   }
 

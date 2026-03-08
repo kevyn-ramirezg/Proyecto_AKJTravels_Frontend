@@ -9,6 +9,7 @@ import { MapService } from '../../services/map-service';
 import { PlacesApiService } from '../../services/places-api-service';
 import {CreatePlaceDTO} from '../../model/place-dto/create-place-dto';
 import Swal from 'sweetalert2';
+import {Router} from '@angular/router';
 // Ajusta si necesitas un tipo fuerte para tu backend
 
 
@@ -52,7 +53,8 @@ export class CreatePlace implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private mapService: MapService,
     private cdr: ChangeDetectorRef,
-    private placesApi: PlacesApiService
+    private placesApi: PlacesApiService,
+    private router: Router
   ) {
     this.createForm();
   }
@@ -170,7 +172,22 @@ export class CreatePlace implements OnInit, OnDestroy {
     if (this.files[i]) this.files.splice(i, 1);
     if (this.mainIndex >= this.previews.length) this.mainIndex = Math.max(0, this.previews.length - 1);
   }
+  // soluciona error container 'map' not found in domm
+  private initMapWhenReady(attempt = 0): void {
+    // si el contenedor aún no existe, reintenta un poquito
+    const el = document.getElementById('map');
+    if (!el) {
+      if (attempt >= 10) return; // evita loop infinito
+      setTimeout(() => this.initMapWhenReady(attempt + 1), 50);
+      return;
+    }
 
+    // ya existe: inicializa mapa
+    this.initStep1Map();
+
+    // por si el div aparece con tamaño 0 al renderizar, fuerza resize
+    setTimeout(() => this.mapService.mapInstance?.resize(), 0);
+  }
   // ============= MAPA =============
   private initStep1Map(): void {
     // Si ya teníamos un listener de clicks, lo limpiamos
@@ -249,11 +266,24 @@ export class CreatePlace implements OnInit, OnDestroy {
       // Al entrar al paso 1 desde el 0
       if (this.step === 1) {
         this.cdr.detectChanges();
-        requestAnimationFrame(() => this.initStep1Map());
+        this.initMapWhenReady();
       }
-
       return;
     }
+
+    // --- helpers locales ---
+    const cleanupFiles = () => {
+      this.files.forEach((_, i) => {
+        try { URL.revokeObjectURL(this.previews[i]); } catch {}
+      });
+      this.previews = [];
+      this.files = [];
+    };
+
+    const afterCreated = () => {
+      cleanupFiles();
+      this.router.navigate(['/host-dashboard']);
+    };
 
     // Paso final: confirmación
     const basePayload = this.buildPayload();
@@ -275,73 +305,57 @@ export class CreatePlace implements OnInit, OnDestroy {
         allowEscapeKey: false,
       });
 
-      // 1) Sin fotos → crear directamente
-      if (this.files.length === 0) {
-        const payload = { ...basePayload, picsUrl: [] };
+      // ✅ 1) Crear SIEMPRE sin fotos en el JSON
+      const createPayload = { ...basePayload, pics_url: [] };
 
-        this.placesApi.create(payload).subscribe({
-          next: (_msg) => {
+      this.placesApi.create(createPayload).subscribe({
+        next: (placeId: string) => {
+          const finishOk = () => {
             Swal.fire({
               icon: 'success',
               title: '¡Alojamiento creado!',
               text: 'Se creó correctamente.',
-            });
-            // limpiar previews/files
-          },
-          error: (err) => {
-            Swal.fire({
-              icon: 'error',
-              title: 'No se pudo crear',
-              text: err?.error?.message ?? 'Inténtalo de nuevo.',
-            });
-          }
-        });
-
-        return;
-      }
-
-      // 2) Con fotos → subir primero todas al ImageController
-      const uploads$ = this.files.map(f => this.placesApi.uploadImage(f));
-
-      forkJoin(uploads$).subscribe({
-        next: (urls: string[]) => {
-          const payload = {
-            ...basePayload,
-            pics_url: urls
+            }).then(() => afterCreated());
           };
 
-          this.placesApi.create(payload).subscribe({
-            next: (_msg) => {
-              Swal.fire({
-                icon: 'success',
-                title: '¡Alojamiento creado!',
-                text: 'Se creó correctamente.',
-              });
-              this.files.forEach((_, i) => {
-                try { URL.revokeObjectURL(this.previews[i]); } catch {}
-              });
-              this.previews = [];
-              this.files = [];
-            },
+          // ✅ 2) Si no hay fotos, terminamos
+          if (this.files.length === 0) {
+            finishOk();
+            return;
+          }
+
+          // ✅ 3) Si hay fotos: subirlas asociadas al placeId
+          this.placesApi.uploadImages(placeId, this.files, this.mainIndex ?? 0).subscribe({
+            next: () => finishOk(),
             error: (err) => {
               Swal.fire({
-                icon: 'error',
-                title: 'No se pudo crear',
-                text: err?.error?.message ?? 'Inténtalo de nuevo.',
-              });
+                icon: 'warning',
+                title: 'Creado (con aviso)',
+                text: 'Se creó el alojamiento, pero no se pudieron subir imágenes: ' + (err?.error?.message ?? 'Inténtalo de nuevo.'),
+              }).then(() => afterCreated());
             }
           });
         },
         error: (err) => {
+          console.error('CREATE ERROR FULL', err);
+
+          const raw = err?.error?.message;
+
+          const msg =
+            Array.isArray(raw)
+              ? raw.map((e: any) =>
+                e?.defaultMessage ?? e?.message ?? e?.field ?? JSON.stringify(e)
+              ).join('\n')
+              : (raw ?? err?.message ?? 'Inténtalo de nuevo.');
+
           Swal.fire({
             icon: 'error',
-            title: 'Error al subir imágenes',
-            text: err?.error?.message ?? 'Inténtalo de nuevo.',
+            title: 'No se pudo crear',
+            text: msg,
           });
         }
       });
     });
-
   }
 
 

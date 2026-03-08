@@ -72,4 +72,11 @@ export class FavoritesApiService {
       state: raw.state ?? 'ACTIVE'
     } as PlaceListItemDTO;
   }
+  countFavoritesBetween(placeId: string, from?: string, to?: string) {
+    let params = new HttpParams();
+    if (from) params = params.set('from', from);
+    if (to) params = params.set('to', to);
+
+    return this.http.get<number>(`${this.baseUrl}/count/${placeId}/between`, { params });
+  }
 }
