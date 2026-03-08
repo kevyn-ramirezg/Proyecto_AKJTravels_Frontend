@@ -18,10 +18,6 @@ export interface CreateCommentPayload {
 @Injectable({ providedIn: 'root' })
 export class CommentsApiService {
 
-  /**
-   * api = http://localhost:8080/api  (environment.apiBase)
-   * baseUrl = http://localhost:8080/api/comments
-   */
   private readonly baseUrl: string;
 
   constructor(

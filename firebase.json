@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "dist/AKJTravels",
+    "public": "dist/AKJTravels/browser",
     "ignore": [
       "firebase.json",
       "**/.*",

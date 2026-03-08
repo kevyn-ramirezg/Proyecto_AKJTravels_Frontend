@@ -17,7 +17,7 @@ import {TokenService} from './token-service';
 export class PlacesApiService {
   private readonly baseUrl: string;     // /api/places
   private readonly bookingsUrl: string;// /api/places  (para .../{placeId}/bookings)
-  private readonly imagesBaseUrl = 'http://localhost:8080/api/images';
+  private readonly imagesBaseUrl: string;
 
   constructor(
     private http: HttpClient,
@@ -26,6 +26,7 @@ export class PlacesApiService {
   ) {
     this.baseUrl = `${this.api}/places`;
     this.bookingsUrl = `${this.api}/bookings`;
+    this.imagesBaseUrl = `${this.api}/images`;
   }
 
 
