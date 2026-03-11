@@ -34,22 +34,42 @@ export class BookingsApiService {
     q: SearchBookingsParams = {}
   ): Observable<{ rows: BookingDTO[]; page?: PageMeta<BookingDTO> }> {
     let params = new HttpParams();
-    if (q.state)        params = params.set('state', q.state);
-    if (q.from)         params = params.set('from', this.toLocalDateTime(q.from));
-    if (q.to)           params = params.set('to',   this.toLocalDateTime(q.to));
+    if (q.state) params = params.set('state', q.state);
+    if (q.from) params = params.set('from', this.toLocalDateTime(q.from));
+    if (q.to) params = params.set('to', this.toLocalDateTime(q.to));
     if (q.guest_number) params = params.set('guest_number', String(q.guest_number));
     if (q.page !== undefined) params = params.set('page', String(q.page));
 
     return this.http
-      .get<ResponseDTO<BookingDTO[] | PageMeta<BookingDTO>>>(`${this.baseUrl}/bookings/${placeId}/bookings`, { params })
-      .pipe(map(res => normalizeListFromMessage<BookingDTO>(res.message)));
+      .get<ResponseDTO<any[] | PageMeta<any>>>(`${this.baseUrl}/bookings/${placeId}/bookings`, { params })
+      .pipe(
+        map(res => {
+          const normalized = normalizeListFromMessage<any>(res.message);
+
+          const rows: BookingDTO[] = (normalized.rows || []).map((b: any) => ({
+            id: b.id,
+            guestName: b.user
+              ? `${b.user.name ?? ''} ${b.user.lastName ?? ''}`.trim()
+              : '—',
+            placeTitle: '—',
+            checkIn: b.checkIn,
+            checkOut: b.checkOut,
+            state: b.bookingState
+          }));
+
+          return {
+            rows,
+            page: normalized.page
+          };
+        })
+      );
   }
 
   confirm(bookingId: string) {
     return this.http.post<ResponseDTO>(`${this.baseUrl}/bookings/${bookingId}/confirm`, {});
   }
   reject(bookingId: string) {
-    return this.http.post<ResponseDTO>(`${this.baseUrl}/bookings/${bookingId}/reject`, {});
+    return this.http.patch<ResponseDTO>(`${this.baseUrl}/bookings/${bookingId}/reject`, {});
   }
   delete(bookingId: string) {
     return this.http.delete<ResponseDTO>(`${this.baseUrl}/bookings/${bookingId}`);

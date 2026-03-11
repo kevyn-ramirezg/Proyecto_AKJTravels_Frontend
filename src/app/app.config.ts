@@ -11,7 +11,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor])),
-    { provide: API_BASE, useValue: environment.apiBase },
+    { provide: API_BASE, useValue: `${environment.apiBase}/api` },
     // <-- habilita HttpClient (mínimo requerido)
     // Si luego usas interceptores (p.ej., JWT), usa:
     // provideHttpClient(withInterceptors([authInterceptor])),

@@ -250,31 +250,67 @@ export class HostDashboard implements OnInit {
   loadBookings() {
     const pid = this.selectedPlaceId();
     if (!pid) {
-      Swal.fire({ icon:'info', title:'Selecciona un alojamiento', text:'Elige un alojamiento para ver reservas.' });
+      Swal.fire({
+        icon: 'info',
+        title: 'Selecciona un alojamiento',
+        text: 'Elige un alojamiento para ver reservas.'
+      });
       return;
     }
 
     const q: any = { page: 0 };
     if (this.from()) q.from = this.from();
-    if (this.to())   q.to = this.to();
+    if (this.to()) q.to = this.to();
     if (this.bookingStatus()) q.state = this.bookingStatus();
 
     this.loadingBookings.set(true);
+
     this.bookingsApi.listByPlace(String(pid), q).subscribe({
-      next: ({ rows, page }) => { this.bookings.set(rows || []); this.pageMeta.set(page); this.loadingBookings.set(false); },
+      next: ({ rows, page }) => {
+        const selectedPlace = this.places().find(p => p.id === pid);
+        const selectedPlaceTitle = selectedPlace?.title ?? '—';
+
+        const mappedRows = (rows || []).map(b => ({
+          ...b,
+          placeTitle: b.placeTitle && b.placeTitle !== '—'
+            ? b.placeTitle
+            : selectedPlaceTitle
+        }));
+
+        this.bookings.set(mappedRows);
+        this.pageMeta.set(page);
+        this.loadingBookings.set(false);
+      },
       error: (err) => {
         console.error('[HostDashboard] listByPlace error', err);
         this.loadingBookings.set(false);
-        Swal.fire({ icon:'error', title:'No se pudieron cargar reservas' });
+        Swal.fire({
+          icon: 'error',
+          title: 'No se pudieron cargar reservas'
+        });
       }
     });
   }
 
   confirmBooking(bookingId: string) {
-    Swal.fire({ title: 'Confirmando…', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+    Swal.fire({
+      title: 'Confirmando…',
+      didOpen: () => Swal.showLoading(),
+      allowOutsideClick: false
+    });
+
     this.bookingsApi.confirm(bookingId).subscribe({
-      next: () => { Swal.fire({ icon:'success', title:'Reserva confirmada' }); this.loadBookings(); },
-      error: (err) => { Swal.fire({ icon:'error', title:'No se pudo confirmar', text: err?.error?.message ?? 'Inténtalo de nuevo.' }); }
+      next: () => {
+        Swal.fire({ icon: 'success', title: 'Reserva confirmada' });
+        this.loadBookings();
+      },
+      error: (err) => {
+        Swal.fire({
+          icon: 'error',
+          title: 'No se pudo confirmar',
+          text: err?.error?.message ?? 'Inténtalo de nuevo.'
+        });
+      }
     });
   }
 
@@ -288,45 +324,78 @@ export class HostDashboard implements OnInit {
       cancelButtonText: 'Cancelar'
     }).then(r => {
       if (!r.isConfirmed) return;
-      Swal.fire({ title: 'Rechazando…', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+
+      Swal.fire({
+        title: 'Rechazando…',
+        didOpen: () => Swal.showLoading(),
+        allowOutsideClick: false
+      });
+
       this.bookingsApi.reject(bookingId).subscribe({
-        next: () => { Swal.fire({ icon:'success', title:'Reserva rechazada' }); this.loadBookings(); },
-        error: (err) => { Swal.fire({ icon:'error', title:'No se pudo rechazar', text: err?.error?.message ?? 'Verifica que el endpoint /reject esté habilitado.' }); }
+        next: () => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Reserva rechazada'
+          });
+          this.loadBookings();
+        },
+        error: (err) => {
+          Swal.fire({
+            icon: 'error',
+            title: 'No se pudo rechazar',
+            text: err?.error?.message ?? 'Inténtalo de nuevo.'
+          });
+        }
       });
     });
   }
 
   deleteBooking(bookingId: string) {
     Swal.fire({
-      icon:'warning',
-      title:'Eliminar reserva',
-      text:'¿Seguro que deseas eliminar esta reserva?',
-      showCancelButton:true,
-      confirmButtonText:'Sí, eliminar',
-      cancelButtonText:'Cancelar'
+      icon: 'warning',
+      title: 'Eliminar reserva',
+      text: '¿Seguro que deseas eliminar esta reserva?',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
     }).then(r => {
       if (!r.isConfirmed) return;
-      Swal.fire({ title: 'Eliminando…', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+
+      Swal.fire({
+        title: 'Eliminando…',
+        didOpen: () => Swal.showLoading(),
+        allowOutsideClick: false
+      });
+
       this.bookingsApi.delete(bookingId).subscribe({
-        next: () => { Swal.fire({ icon:'success', title:'Reserva eliminada' }); this.loadBookings(); },
-        error: (err) => { Swal.fire({ icon:'error', title:'No se pudo eliminar', text: err?.error?.message ?? 'Inténtalo de nuevo.' }); }
+        next: () => {
+          Swal.fire({ icon: 'success', title: 'Reserva eliminada' });
+          this.loadBookings();
+        },
+        error: (err) => {
+          Swal.fire({
+            icon: 'error',
+            title: 'No se pudo eliminar',
+            text: err?.error?.message ?? 'Inténtalo de nuevo.'
+          });
+        }
       });
     });
   }
 
-  // Info rápida de reserva
+// Info rápida de reserva
   showBookingInfo(b: BookingDTO) {
     Swal.fire({
       icon: 'info',
       title: b.placeTitle || 'Reserva',
       html: `
-        <div style="text-align:left">
-          <div><b>Huésped:</b> ${b.guestName ?? '—'}</div>
-          <div><b>Entrada:</b> ${new Date(b.checkIn).toLocaleString()}</div>
-          <div><b>Salida:</b> ${new Date(b.checkOut).toLocaleString()}</div>
-          <div><b>Estado:</b> ${b.state}</div>
-        </div>
-      `
+      <div style="text-align:left">
+        <div><b>Huésped:</b> ${b.guestName ?? '—'}</div>
+        <div><b>Entrada:</b> ${new Date(b.checkIn).toLocaleString()}</div>
+        <div><b>Salida:</b> ${new Date(b.checkOut).toLocaleString()}</div>
+        <div><b>Estado:</b> ${b.state}</div>
+      </div>
+    `
     });
   }
 

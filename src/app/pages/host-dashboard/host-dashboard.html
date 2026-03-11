@@ -339,20 +339,12 @@
                             </button>
                           </div>
                         } @else {
-                          <div class="btn-group">
-                            <button
-                              class="btn btn-outline-secondary btn-sm"
-                              (click)="showBookingInfo(b)">
-                              <span class="material-symbols-rounded align-middle me-1">info</span>
-                              Info
-                            </button>
-                            <button
-                              class="btn btn-outline-danger btn-sm"
-                              (click)="deleteBooking(b.id!)">
-                              <span class="material-symbols-rounded align-middle me-1">delete</span>
-                              Eliminar
-                            </button>
-                          </div>
+                          <button
+                            class="btn btn-outline-secondary btn-sm"
+                            (click)="showBookingInfo(b)">
+                            <span class="material-symbols-rounded align-middle me-1">info</span>
+                            Info
+                          </button>
                         }
                       </td>
                     </tr>
