@@ -1,7 +1,7 @@
 export const environment = {
   production: false,
   apiBase: 'http://localhost:8080',
-  mapboxToken: ''
+  mapboxToken: '__MAPBOX_TOKEN__'
 };
 
 

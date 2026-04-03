@@ -143,6 +143,10 @@
   font-weight: 600;
 }
 
+.status-pendiente {
+  color: #f59e0b;
+}
+
 .status-activa {
   color: #10b981;
 }

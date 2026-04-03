@@ -177,6 +177,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  position: relative;
 }
 
 .field-label {
@@ -202,6 +203,16 @@
   box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgba(79, 70, 229, 0.35);
 }
 
+.input[readonly] {
+  cursor: pointer;
+  background: #f9fafb;
+}
+
+.input[readonly]:hover {
+  border-color: #c7d2fe;
+  background: #f3f4f6;
+}
+
 .input-small {
   max-width: 140px;
 }
@@ -209,6 +220,117 @@
 .date-human {
   font-size: 13px;
   color: #6b7280;
+}
+
+/* Calendario visual */
+.calendar-picker {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  min-width: 280px;
+  font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, Arial;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.calendar-month {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  text-transform: capitalize;
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.nav-btn:hover {
+  background: #f3f4f6;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.day-header {
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  color: #9ca3af;
+  padding: 6px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+  background: #f9fafb;
+  color: #374151;
+}
+
+.day:not(.empty):hover:not(.occupied) {
+  background: #e0e7ff;
+  border-color: #c7d2fe;
+}
+
+.day.empty {
+  cursor: default;
+  background: transparent;
+}
+
+/* Días ocupados */
+.day.occupied {
+  background: #fce7f3;
+  color: #be123c;
+  cursor: not-allowed;
+  border-color: #fbcfe8;
+}
+
+.day.occupied:hover {
+  background: #fce7f3;
+  opacity: 0.8;
+}
+
+/* Días seleccionados */
+.day.selected {
+  background: linear-gradient(135deg, #004aad, #cb6ce6);
+  color: #ffffff;
+  border-color: #004aad;
+  font-weight: 600;
+}
+
+.day.selected:hover {
+  box-shadow: 0 2px 8px rgba(0, 74, 173, 0.25);
 }
 
 .divider {

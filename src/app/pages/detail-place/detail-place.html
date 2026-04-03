@@ -31,7 +31,7 @@
               [disabled]="favoriteLoading"
               (click)="toggleFavorite()">
               <span class="material-symbols-rounded">
-                favorite
+                {{ isFavorite ? 'favorite' : 'favorite_border' }}
               </span>
             </button>
 
@@ -43,12 +43,24 @@
             </span>
           </div>
 
+          <!-- Dirección: información secundaria debajo del título -->
+          <div class="place-address" *ngIf="hasAddress()">
+            <span class="material-symbols-rounded address-icon">location_on</span>
+            <span>{{ fullAddress }}</span>
+          </div>
+
           <div class="place-location">
-            <span class="material-symbols-rounded location-icon">
-              location_on
+            <span class="material-symbols-rounded capacity-icon">
+              group
             </span>
             <span class="location-text">
-              Capacidad {{ p.capacity }} huéspedes ·
+              Capacidad {{ p.capacity }} huéspedes
+            </span>
+            <span class="separator">·</span>
+            <span class="material-symbols-rounded price-icon">
+              attach_money
+            </span>
+            <span class="location-text">
               $ {{ p.price | number:'1.0-0' }} / noche
             </span>
           </div>
@@ -173,9 +185,6 @@
 
               <div class="map-wrapper">
                 <div id="place-map" class="map-container"></div>
-                <button type="button" class="btn btn-gradient btn-map">
-                  Ver en el mapa
-                </button>
               </div>
             </div>
 
@@ -191,6 +200,23 @@
         <p class="description-text">
           {{ p.description }}
         </p>
+      </div>
+
+      <!-- SERVICIOS -->
+      <div class="services-card" *ngIf="mappedServices.length > 0">
+        <div class="services-title">
+          Servicios disponibles
+        </div>
+        <div class="services-grid">
+          <div class="service-item" *ngFor="let service of mappedServices">
+            <span class="material-symbols-rounded service-icon">
+              {{ service.icon }}
+            </span>
+            <span class="service-label">
+              {{ service.label }}
+            </span>
+          </div>
+        </div>
       </div>
 
       <!-- COMENTARIOS -->
@@ -256,6 +282,20 @@
               <p class="comment-text">
                 {{ c.comment }}
               </p>
+
+              <!-- RESPUESTA DEL ANFITRIÓN -->
+              <div class="comment-reply-section" *ngIf="c.reply">
+                <div class="reply-header">
+                  <span class="material-symbols-rounded reply-icon">admin_panel_settings</span>
+                  <span class="reply-label">Respuesta del anfitrión</span>
+                  <span class="reply-date" *ngIf="c.replyDate">
+                    {{ c.replyDate | date: 'dd/MM/yyyy' }}
+                  </span>
+                </div>
+                <p class="reply-text">
+                  {{ c.reply }}
+                </p>
+              </div>
             </div>
           </article>
         </div>

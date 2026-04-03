@@ -62,8 +62,8 @@ export class CreatePlace implements OnInit, OnDestroy {
   private createForm(): void {
     this.createPlaceForm = this.fb.group({
       // Paso 0 – Info básica
-      title: ['', [Validators.required, Validators.maxLength(120)]],
-      description: ['', [Validators.required, Validators.maxLength(2000)]],
+      title: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(120)]],
+      description: ['', [Validators.required, Validators.minLength(20), Validators.maxLength(2000)]],
       capacity: [1, [Validators.required, Validators.min(1), Validators.max(50)]],
 
       country: ['', Validators.required],
@@ -93,6 +93,40 @@ export class CreatePlace implements OnInit, OnDestroy {
 
   get selectedServices() { return this.servicesList.filter((_, i) => this.amenityActive(i)); }
   hasSelectedAmenities(): boolean { return this.selectedServices.length > 0; }
+
+  // Getters para campos
+  get titleControl() { return this.createPlaceForm.get('title'); }
+  get descriptionControl() { return this.createPlaceForm.get('description'); }
+
+  // Validación visual para título y descripción
+  isTitleTouched(): boolean { return !!this.titleControl?.touched; }
+  isDescriptionTouched(): boolean { return !!this.descriptionControl?.touched; }
+
+  getTitleError(): string {
+    const c = this.titleControl;
+    if (!c || !c.errors || !this.isTitleTouched()) return '';
+    if (c.errors['required']) return 'El título es requerido';
+    if (c.errors['minlength']) return `El título debe tener mínimo ${c.errors['minlength'].requiredLength} caracteres (tienes ${c.errors['minlength'].actualLength})`;
+    if (c.errors['maxlength']) return `El título no puede exceder ${c.errors['maxlength'].requiredLength} caracteres`;
+    return '';
+  }
+
+  getDescriptionError(): string {
+    const c = this.descriptionControl;
+    if (!c || !c.errors || !this.isDescriptionTouched()) return '';
+    if (c.errors['required']) return 'La descripción es requerida';
+    if (c.errors['minlength']) return `La descripción debe tener mínimo ${c.errors['minlength'].requiredLength} caracteres (tienes ${c.errors['minlength'].actualLength})`;
+    if (c.errors['maxlength']) return `La descripción no puede exceder ${c.errors['maxlength'].requiredLength} caracteres`;
+    return '';
+  }
+
+  hasInvalidTitle(): boolean {
+    return !!this.titleControl?.invalid && this.isTitleTouched();
+  }
+
+  hasInvalidDescription(): boolean {
+    return !!this.descriptionControl?.invalid && this.isDescriptionTouched();
+  }
 
   // Contador de huéspedes
   decCapacity(): void { const v = this.createPlaceForm.value.capacity || 1; if (v > 1) this.createPlaceForm.patchValue({ capacity: v - 1 }); }
@@ -251,11 +285,36 @@ export class CreatePlace implements OnInit, OnDestroy {
   submit(): void {
     // Validación del paso actual
     if (!this.currentGroupValid()) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Faltan datos',
-        text: 'Completa los campos del paso actual antes de continuar.',
-      });
+      // Mensaje específico para el paso 0 (info básica)
+      if (this.step === 0) {
+        const errors: string[] = [];
+        if (this.titleControl?.invalid) {
+          if (this.titleControl.errors?.['required']) {
+            errors.push('El título es requerido');
+          } else if (this.titleControl.errors?.['minlength']) {
+            errors.push(`El título debe tener mínimo ${this.titleControl.errors['minlength'].requiredLength} caracteres`);
+          }
+        }
+        if (this.descriptionControl?.invalid) {
+          if (this.descriptionControl.errors?.['required']) {
+            errors.push('La descripción es requerida');
+          } else if (this.descriptionControl.errors?.['minlength']) {
+            errors.push(`La descripción debe tener mínimo ${this.descriptionControl.errors['minlength'].requiredLength} caracteres`);
+          }
+        }
+        
+        Swal.fire({
+          icon: 'warning',
+          title: 'Faltan datos requeridos',
+          html: errors.length > 0 ? `<ul style="text-align: left">` + errors.map(e => `<li>${e}</li>`).join('') + `</ul>` : 'Completa los campos correctamente',
+        });
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Faltan datos',
+          text: 'Completa los campos del paso actual antes de continuar.',
+        });
+      }
       return;
     }
 
@@ -331,7 +390,7 @@ export class CreatePlace implements OnInit, OnDestroy {
               Swal.fire({
                 icon: 'warning',
                 title: 'Creado (con aviso)',
-                text: 'Se creó el alojamiento, pero no se pudieron subir imágenes: ' + (err?.error?.message ?? 'Inténtalo de nuevo.'),
+                text: 'Se creó el alojamiento, pero no se pudieron subir las imágenes. Intenta de nuevo desde editar alojamiento.',
               }).then(() => afterCreated());
             }
           });
@@ -339,19 +398,10 @@ export class CreatePlace implements OnInit, OnDestroy {
         error: (err) => {
           console.error('CREATE ERROR FULL', err);
 
-          const raw = err?.error?.message;
-
-          const msg =
-            Array.isArray(raw)
-              ? raw.map((e: any) =>
-                e?.defaultMessage ?? e?.message ?? e?.field ?? JSON.stringify(e)
-              ).join('\n')
-              : (raw ?? err?.message ?? 'Inténtalo de nuevo.');
-
           Swal.fire({
             icon: 'error',
-            title: 'No se pudo crear',
-            text: msg,
+            title: 'No se pudo crear el alojamiento',
+            text: 'Hubo un problema al guardar tu alojamiento. Por favor revisa los datos e intenta nuevamente.',
           });
         }
       });

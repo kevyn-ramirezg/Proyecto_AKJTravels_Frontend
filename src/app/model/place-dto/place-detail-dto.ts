@@ -10,4 +10,11 @@ export interface PlaceDetailDTO {
   capacity: number;
   averageRatings: number;
   userDetailDTO: any;
+  // Dirección / ubicación
+  street?: string | null;
+  neighborhood?: string | null;
+  city?: string | null;
+  department?: string | null;
+  country?: string | null;
+  postalCode?: string | null;
 }

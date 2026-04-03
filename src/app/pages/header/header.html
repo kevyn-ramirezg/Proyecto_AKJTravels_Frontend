@@ -28,7 +28,7 @@
         <!-- Solo HUESPED (o no-host) -->
         @if (isLogged() && role()!=='HOST') {
           <li class="nav-item">
-            <a routerLink="/my-bookings" class="nav-link">Mis reservas</a>
+            <a routerLink="/my-reservations" class="nav-link">Mis reservas</a>
           </li>
           <li class="nav-item">
             <a routerLink="/my-favorites" class="nav-link">
@@ -67,7 +67,7 @@
               <!-- Opciones HUESPED (no-host) -->
               @if (role()!=='HOST') {
                 <li>
-                  <a class="dropdown-item" routerLink="/my-bookings">Mis reservas</a>
+                  <a class="dropdown-item" routerLink="/my-reservations">Mis reservas</a>
                 </li>
                 <li>
                   <a class="dropdown-item d-flex align-items-center" routerLink="/my-favorites">

@@ -30,6 +30,29 @@ export class Register {
     this.createForm();
   }
 
+  // Getters para evaluación visual de criterios de contraseña
+  get passwordValue(): string {
+    return this.registerForm.get('password')?.value || '';
+  }
+
+  get repeatPasswordValue(): string {
+    return this.registerForm.get('repeatPassword')?.value || '';
+  }
+
+  get hasMinLength(): boolean {
+    return this.passwordValue.length >= 8;
+  }
+
+  get hasUpperCase(): boolean {
+    return /[A-Z]/.test(this.passwordValue);
+  }
+
+  get passwordsMatch(): boolean {
+    const p = this.passwordValue;
+    const r = this.repeatPasswordValue;
+    return p.length > 0 && r.length > 0 && p === r;
+  }
+
   private createForm(): void {
     this.registerForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(60)]],
@@ -45,7 +68,7 @@ export class Register {
           Validators.required,
           Validators.minLength(8),
           Validators.maxLength(64),
-          Validators.pattern(/^(?=.*[A-Z])(?=.*\d).+$/) // 1 mayúscula y 1 dígito
+          Validators.pattern(/^(?=.*[A-Z]).+$/) // 1 mayúscula
         ]
       ],
       repeatPassword: [

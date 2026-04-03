@@ -1,53 +1,112 @@
-<div class="favorites-page page-gradient py-5">
-  <div class="container">
+<section class="favorites-page">
+  <div class="home-container">
+    <!-- HEADER -->
+    <header class="favorites-header">
+      <a routerLink="/" class="back-link">
+        <span class="material-symbols-rounded">arrow_back</span>
+        Volver al inicio
+      </a>
 
-    <!-- Header -->
-    <div *ngIf="loading()" class="text-center text-muted py-5">
-      <div class="spinner-border" role="status"></div>
-      <div class="mt-2">Cargando tus favoritos…</div>
+      <h1 class="page-title">
+        Mis alojamientos favoritos
+      </h1>
+
+      <p class="page-subtitle">
+        Aquí están todos los alojamientos que has marcado como tus favoritos
+      </p>
+    </header>
+
+    <!-- ESTADO: CARGANDO -->
+    <div class="state state-loading" *ngIf="loading()">
+      <span class="material-symbols-rounded spinner">progress_activity</span>
+      <p>Cargando tus favoritos…</p>
     </div>
 
-    <div *ngIf="!loading() && error()" class="alert alert-danger">
-      {{ error() }}
+    <!-- ESTADO: ERROR -->
+    <div class="state state-error" *ngIf="!loading() && error()">
+      <span class="material-symbols-rounded">error</span>
+      <div>
+        <p class="error-title">No pudimos cargar tus favoritos</p>
+        <p class="error-message">{{ error() }}</p>
+        <button type="button" class="btn-retry" (click)="loadFavorites()">
+          Intentar de nuevo
+        </button>
+      </div>
     </div>
 
-    <div *ngIf="!loading() && !error() && !hasFavorites()" class="alert alert-light border text-center">
-      Aún no tienes alojamientos marcados como favoritos.
+    <!-- ESTADO: SIN FAVORITOS -->
+    <div class="state state-empty" *ngIf="!loading() && !error() && !hasFavorites()">
+      <span class="material-symbols-rounded empty-icon">favorite_border</span>
+      <div class="empty-content">
+        <h2>Aún no tienes favoritos</h2>
+        <p>Explora nuestros alojamientos y marca los que más te gusten como favoritos.</p>
+        <a routerLink="/" class="btn btn-gradient">
+          Explorar alojamientos
+        </a>
+      </div>
     </div>
 
-    <div class="row g-4" *ngIf="!loading() && !error() && hasFavorites()">
-      <div class="col-12 col-sm-6 col-lg-4" *ngFor="let p of favorites()">
-        <article class="card h-100 border-0 shadow-sm">
-          <div class="ratio ratio-16x9">
+    <!-- GRID DE FAVORITOS -->
+    <div *ngIf="!loading() && !error() && hasFavorites()">
+      <div class="results-head">
+        <p class="result-count">
+          {{ favorites().length }} alojamiento{{ favorites().length > 1 ? 's' : '' }} en favoritos
+        </p>
+      </div>
+
+      <div class="favorites-grid">
+        <article class="place-card" *ngFor="let p of favorites()" [routerLink]="['/place', p.id]">
+          <!-- Imagen -->
+          <div class="place-thumb">
             <img
-              [src]="p.photo_url || 'https://picsum.photos/640/400'"
-              [alt]="p.title"
-              class="w-100 h-100"
-              style="object-fit: cover;">
+              [src]="p.photo_url || 'assets/img/place-placeholder.jpg'"
+              [alt]="p.title || 'Alojamiento'"
+              loading="lazy"
+              (error)="onImgError($event)"
+            />
           </div>
-          <div class="card-body d-flex flex-column">
-            <div class="d-flex justify-content-between align-items-start mb-1">
-              <h5 class="card-title mb-0">{{ p.title }}</h5>
-              <div class="d-flex align-items-center gap-1 text-warning">
+
+          <!-- Contenido -->
+          <div class="place-body">
+            <!-- Título + Rating -->
+            <div class="place-top-row">
+              <h2 class="place-title">
+                {{ p.title || 'Alojamiento sin título' }}
+              </h2>
+              <div class="place-rating">
                 <span class="material-symbols-rounded">star</span>
                 <span>{{ p.average_rating | number:'1.1-1' }}</span>
               </div>
             </div>
-            <div class="text-muted mb-3">
-              {{ p.city || '—' }}
-            </div>
 
-            <div class="mt-auto d-flex gap-2">
+            <!-- Ubicación -->
+            <p class="place-location" *ngIf="p.city">
+              {{ p.city }}
+            </p>
+
+            <!-- Precio -->
+            <p class="place-price">
+              <span class="place-price-value">
+                $ {{ p.price | number:'1.0-0' }}
+              </span>
+              <span class="suffix">/ noche</span>
+            </p>
+
+            <!-- Acciones -->
+            <div class="place-actions">
               <button
                 type="button"
-                class="btn btn-gradient flex-fill"
-                (click)="goToDetail(p)">
+                class="btn-action btn-detail"
+                [routerLink]="['/place', p.id]">
+                <span class="material-symbols-rounded">open_in_new</span>
                 Ver detalle
               </button>
               <button
                 type="button"
-                class="btn btn-outline-danger"
-                (click)="removeFromFavorites(p)">
+                class="btn-action btn-unfavorite"
+                [disabled]="false"
+                (click)="removeFromFavorites(p); $event.stopPropagation()"
+                title="Quitar de favoritos">
                 <span class="material-symbols-rounded">favorite</span>
               </button>
             </div>
@@ -55,6 +114,5 @@
         </article>
       </div>
     </div>
-
   </div>
-</div>
+</section>

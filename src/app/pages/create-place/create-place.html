@@ -40,7 +40,10 @@
             <div class="grid">
               <div class="col-span-12">
                 <label class="form-label" for="title">Nombre del alojamiento</label>
-                <input id="title" class="form-control" type="text" placeholder="Ej. ApartaHotel AKJA Centro" formControlName="title" />
+                <input id="title" class="form-control" [class.is-invalid]="hasInvalidTitle()" type="text" placeholder="Ej. ApartaHotel AKJA Centro" formControlName="title" />
+                <div class="validation-error" *ngIf="getTitleError()">
+                  {{ getTitleError() }}
+                </div>
               </div>
 
               <div class="col-span-12">
@@ -54,7 +57,10 @@
 
               <div class="col-span-12">
                 <label class="form-label" for="description">Descripción detallada</label>
-                <textarea id="description" class="form-control" rows="5" placeholder="Cuéntale a tus huéspedes qué hace único tu espacio..." formControlName="description"></textarea>
+                <textarea id="description" class="form-control" [class.is-invalid]="hasInvalidDescription()" rows="5" placeholder="Cuéntale a tus huéspedes qué hace único tu espacio..." formControlName="description"></textarea>
+                <div class="validation-error" *ngIf="getDescriptionError()">
+                  {{ getDescriptionError() }}
+                </div>
               </div>
             </div>
           }
@@ -196,7 +202,7 @@
                       <strong>{{ createPlaceForm.value.title || 'Alojamiento sin nombre' }}</strong>
                     </div>
                     <div class="summary-item">
-                      {{ createPlaceForm.value.placeType | titlecase }} – {{ createPlaceForm.value.guests }} huéspedes
+                      {{ createPlaceForm.value.placeType | titlecase }} – {{ createPlaceForm.value.capacity }} huéspedes
                     </div>
                     <div class="summary-item">{{ createPlaceForm.value.city || 'Armenia' }}</div>
                     <div class="summary-item">{{ currencyCOP(createPlaceForm.value.pricePerNight) }} / noche</div>

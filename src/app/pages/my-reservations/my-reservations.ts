@@ -15,8 +15,8 @@ interface ReservationCardVM {
   nights: number;
   guests: number;
   bookingState: BookingState;
-  statusLabel: string;   // ACTIVA / PASADA / CANCELADA
-  statusClass: 'status-activa' | 'status-pasada' | 'status-cancelada';
+  statusLabel: string;   // PENDIENTE / ACTIVA / PASADA / CANCELADA
+  statusClass: 'status-pendiente' | 'status-activa' | 'status-pasada' | 'status-cancelada';
   placeId: string;
 }
 
@@ -84,9 +84,13 @@ export class MyReservations implements OnInit {
     return out.getTime() < today.getTime();
   }
 
-  private calculateStatus(b: UserBookingDTO): { label: string; cssClass: 'status-activa' | 'status-pasada' | 'status-cancelada' } {
-    if (b.bookingState === 'CANCELED') {
+  private calculateStatus(b: UserBookingDTO): { label: string; cssClass: 'status-pendiente' | 'status-activa' | 'status-pasada' | 'status-cancelada' } {
+    if (b.bookingState === 'CANCELED' || b.bookingState === 'REJECTED') {
       return { label: 'CANCELADA', cssClass: 'status-cancelada' };
+    }
+
+    if (b.bookingState === 'PENDING') {
+      return { label: 'PENDIENTE', cssClass: 'status-pendiente' };
     }
 
     if (this.isPast(b.checkOut)) {
@@ -97,7 +101,13 @@ export class MyReservations implements OnInit {
   }
 
   puedeCancelar(r: ReservationCardVM): boolean {
-    if (r.bookingState !== 'PENDING' && r.bookingState !== 'CONFIRMED') {
+    // Las reservas PENDING pueden cancelarse en cualquier momento (no confirmadas aún)
+    if (r.bookingState === 'PENDING') {
+      return true;
+    }
+
+    // Las CONFIRMED se pueden cancelar solo si faltan 48+ horas
+    if (r.bookingState !== 'CONFIRMED') {
       return false;
     }
 
@@ -151,7 +161,7 @@ export class MyReservations implements OnInit {
           r.statusClass = cssClass;
         },
         error: err => {
-          Swal.fire('Error', err.error?.message || 'No se pudo cancelar la reserva', 'error');
+          Swal.fire('Error', 'No se pudo cancelar la reserva. Por favor intenta nuevamente.', 'error');
         }
       });
     });
@@ -240,7 +250,7 @@ export class MyReservations implements OnInit {
           Swal.fire('¡Gracias!', msg || 'Tu calificación ha sido registrada.', 'success');
         },
         error: err => {
-          Swal.fire('Error', err.error?.message || 'No se pudo registrar tu calificación', 'error');
+          Swal.fire('Error', 'No se pudo registrar tu calificación. Por favor intenta nuevamente.', 'error');
         }
       });
     });

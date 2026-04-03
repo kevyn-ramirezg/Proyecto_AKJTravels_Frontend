@@ -28,10 +28,8 @@ export class Header {
   }
 
   email(): string {
-    // Usa email si viene en el JWT; si no, intenta username/sub
-    const u1 = (this.token as any).getEmail?.();
-    const u2 = this.token.getUsername?.();
-    return u1 || u2 || '';
+    // Usa username del JWT
+    return this.token.getUsername() || '';
   }
 
   logout(): void {

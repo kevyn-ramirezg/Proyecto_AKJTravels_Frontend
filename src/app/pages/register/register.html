@@ -58,6 +58,24 @@
             <label for="password" class="form-label">Clave</label>
             <input id="password" type="password" class="form-control" formControlName="password"
                    placeholder="********" autocomplete="new-password"/>
+            
+            <!-- Bloque de criterios de validación -->
+            @if (passwordValue) {
+              <div class="password-criteria">
+                <div class="criteria-item" [class.met]="hasMinLength">
+                  <span class="criteria-indicator"></span>
+                  <span class="criteria-text">Mínimo 8 caracteres</span>
+                </div>
+                <div class="criteria-item" [class.met]="hasUpperCase">
+                  <span class="criteria-indicator"></span>
+                  <span class="criteria-text">Al menos 1 mayúscula</span>
+                </div>
+                <div class="criteria-item" [class.met]="passwordsMatch">
+                  <span class="criteria-indicator"></span>
+                  <span class="criteria-text">Coincide con confirmar clave</span>
+                </div>
+              </div>
+            }
           </div>
 
           <!-- Confirmar clave -->
@@ -66,13 +84,6 @@
             <input id="repeatPassword" type="password" class="form-control" formControlName="repeatPassword"
                    placeholder="********" autocomplete="new-password"/>
           </div>
-
-          <!-- Error de contraseñas -->
-          @if (registerForm.hasError('passwordsMismatch')) {
-            <div class="col-12">
-              <div class="alert alert-danger" role="alert">Las contraseñas no coinciden</div>
-            </div>
-          }
 
           <!-- CTA -->
           <div class="col-12">

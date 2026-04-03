@@ -11,6 +11,12 @@ import {FavoritesApiService} from '../../services/favorites-api-service';
 import {TokenService} from '../../services/token-service';
 import Swal from 'sweetalert2';
 
+interface ServiceItem {
+  code: string;
+  label: string;
+  icon: string;
+}
+
 @Component({
   selector: 'app-detail-place',
   standalone: true,
@@ -41,6 +47,20 @@ export default class DetailPlace {
   comments: CommentDTO[] = [];
   commentsLoading = false;
   commentsError?: string;
+  // SERVICIOS
+  servicesList: ServiceItem[] = [
+    { code: 'WIFI',               label: 'Wi-Fi',              icon: 'wifi' },
+    { code: 'BREAKFAST_INCLUDED', label: 'Desayuno',           icon: 'restaurant' },
+    { code: 'AIR_CONDITIONING',   label: 'Aire acondicionado', icon: 'ac_unit' },
+    { code: 'POOL',               label: 'Piscina',            icon: 'pool' },
+    { code: 'TELEVISION',         label: 'Televisión',         icon: 'tv' },
+    { code: 'PARKING',            label: 'Parqueadero',        icon: 'local_parking' },
+    { code: 'GYM',                label: 'Gimnasio',           icon: 'fitness_center' },
+    { code: 'SPA',                label: 'Spa',                icon: 'spa' },
+    { code: 'RESTAURANT',         label: 'Restaurante',        icon: 'restaurant_menu' },
+    { code: 'BAR',                label: 'Bar',                icon: 'local_bar' }
+  ];
+  mappedServices: ServiceItem[] = [];
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -62,6 +82,11 @@ export default class DetailPlace {
         if (this.place?.pics_url && this.place.pics_url.length > 0) {
           this.selectedImage = this.place.pics_url[0];
         }
+
+        // Mapear los servicios disponibles
+        this.mappedServices = (this.place?.services || [])
+          .map(code => this.servicesList.find(s => s.code === code))
+          .filter((s): s is ServiceItem => !!s);
 
         this.loading = false;
 
@@ -122,7 +147,7 @@ export default class DetailPlace {
           return;
         }
         console.error('Error al cargar comentarios', err);
-        this.commentsError = err?.error?.message ?? 'No se pudieron cargar los comentarios.';
+        this.commentsError = 'No pudimos cargar los comentarios. Por favor recarga la página.';
         this.commentsLoading = false;
       }
     });
@@ -274,10 +299,26 @@ export default class DetailPlace {
         Swal.fire({
           icon: 'error',
           title: 'No se pudo actualizar tu favorito',
-          text: err?.error?.message ?? 'Inténtalo de nuevo.'
+          text: 'Hubo un problema al procesar tu solicitud. Por favor intenta de nuevo.'
         });
       }
     });
+  }
+
+  // Construir dirección legible
+  get fullAddress(): string {
+    const parts: string[] = [];
+    if (this.place?.street) parts.push(this.place.street);
+    if (this.place?.neighborhood) parts.push(this.place.neighborhood);
+    if (this.place?.city) parts.push(this.place.city);
+    if (this.place?.department) parts.push(this.place.department);
+    if (this.place?.country) parts.push(this.place.country);
+    if (this.place?.postalCode) parts.push(this.place.postalCode);
+    return parts.filter(p => p).join(', ');
+  }
+
+  hasAddress(): boolean {
+    return !!this.fullAddress;
   }
 
 }

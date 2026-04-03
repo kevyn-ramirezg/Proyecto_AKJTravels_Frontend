@@ -104,7 +104,7 @@ export class EditProfile implements OnInit {
       .catch((err) => {
         console.error('[EditProfile] PUT error:', err?.status, err?.error);
         this.guardando.set(false);
-        const backendMsg = err?.error?.message ?? err?.error ?? null;
+        const backendMsg = 'Ocurrió un error. Por favor intenta más tarde.';
         this.errorMsg.set(backendMsg || 'No se pudo guardar. Revisa los datos o intenta más tarde.');
       });
   }
@@ -165,7 +165,7 @@ export class EditProfile implements OnInit {
       });
     } catch (err: any) {
       this.guardando.set(false);
-      const msg = (typeof err?.error === 'string' && err.error) || err?.error?.message || 'No fue posible actualizar la contraseña.';
+      const msg = 'No fue posible actualizar la contraseña. Por favor inténtalo de nuevo.';
       Swal.fire({ icon: 'error', title: 'Error', text: msg });
     }
   }
@@ -195,7 +195,7 @@ export class EditProfile implements OnInit {
       Swal.fire({ icon: 'success', title: 'Foto actualizada', text: 'Se cambió tu avatar correctamente.' });
       await this.cargarMe(); // refresca la URL canónica del backend (Cloudinary)
     } catch (err: any) {
-      const msg = (typeof err?.error === 'string' && err.error) || err?.error?.message || 'No fue posible actualizar la foto.';
+      const msg = 'No fue posible actualizar la foto. Inténtalo de nuevo.';
       Swal.fire({ icon: 'error', title: 'Error', text: msg });
     } finally {
       this.guardando.set(false);

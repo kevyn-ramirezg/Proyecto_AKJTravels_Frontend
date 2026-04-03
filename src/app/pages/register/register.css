@@ -1,7 +1,7 @@
 :root{
   --card-bg:#ffffff;
   --muted:#6b6b6b;
-  --border-strong:#bdbdbd;
+  --border-strong: #ffffff;
 }
 
 /* Página y contenedor */
@@ -124,4 +124,59 @@
 /* Más amplio en pantallas grandes */
 @media (min-width: 992px){
   .register-page form.row { --bs-gutter-x: 3.5rem; }
+}
+/* Bloque de criterios de contraseña */
+.password-criteria {
+  margin-top: 10px;
+  padding: 12px 14px;
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e8ecf1;
+}
+
+.criteria-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #6b7280;
+  padding: 4px 0;
+  transition: color 0.2s ease;
+}
+
+.criteria-item:not(:last-child) {
+  margin-bottom: 6px;
+}
+
+.criteria-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #d1d5db;
+  border: 1px solid #d1d5db;
+  transition: all 0.2s ease;
+}
+
+.criteria-item.met {
+  color: #004aad;
+}
+
+.criteria-item.met .criteria-indicator {
+  background: linear-gradient(90deg, #004aad, #cb6ce6);
+  border-color: #004aad;
+}
+
+.criteria-item.met .criteria-indicator::after {
+  content: '✓';
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.criteria-text {
+  flex: 1;
 }

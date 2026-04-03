@@ -4,6 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { FavoritesApiService } from '../../services/favorites-api-service';
 import { PlaceListItemDTO } from '../../model/place-dto/place-list-item-dto';
 import { TokenService } from '../../services/token-service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-my-favorites',
@@ -18,7 +19,7 @@ export class MyFavorites implements OnInit {
   error = signal<string | undefined>(undefined);
   favorites = signal<PlaceListItemDTO[]>([]);
 
-  hasFavorites = computed(() => (this.favorites() ?? []).length > 0);
+  hasFavorites = computed(() => this.favorites().length > 0);
 
   constructor(
     private readonly favoritesApi: FavoritesApiService,
@@ -27,11 +28,17 @@ export class MyFavorites implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Si no está logueado, puedes decidir redirigir
     if (!this.token.isLogged()) {
-      // opcional: this.router.navigateByUrl('/login');
+      Swal.fire({
+        icon: 'info',
+        title: 'Inicia sesión',
+        text: 'Debes estar logueado para ver tus favoritos.'
+      }).then(() => {
+        this.router.navigateByUrl('/login');
+      });
       return;
     }
+
     this.loadFavorites();
   }
 
@@ -46,7 +53,7 @@ export class MyFavorites implements OnInit {
       },
       error: (err) => {
         console.error('[MyFavorites] listMyFavorites error', err);
-        this.error.set(err?.error?.message ?? 'No se pudieron cargar tus favoritos.');
+        this.error.set('No pudimos cargar tus favoritos. Intenta recargando la página.');
         this.loading.set(false);
       }
     });
@@ -60,11 +67,27 @@ export class MyFavorites implements OnInit {
     this.favoritesApi.remove(String(place.id)).subscribe({
       next: () => {
         this.favorites.set(this.favorites().filter(p => p.id !== place.id));
+        Swal.fire({
+          icon: 'success',
+          title: 'Favorito eliminado',
+          text: `${place.title} ha sido quitado de tus favoritos`,
+          timer: 2000,
+          showConfirmButton: false
+        });
       },
       error: (err) => {
-        console.error('[MyFavorites] removeFavorite error', err);
-        // Opcional: mostrar algún mensaje visual
+        console.error('[MyFavorites] removeFromFavorites error', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No pudimos quitar el favorito. Intenta de nuevo.'
+        });
       }
     });
+  }
+
+  onImgError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.src = 'assets/img/place-placeholder.jpg';
   }
 }

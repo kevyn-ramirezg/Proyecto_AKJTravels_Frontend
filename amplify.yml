@@ -1,0 +1,19 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm install -g pnpm
+        - pnpm install --frozen-lockfile
+        - sed -i "s|__MAPBOX_TOKEN__|$MAPBOX_TOKEN|g" src/environments/environment.prod.ts
+    build:
+      commands:
+        - pnpm run build
+  artifacts:
+    baseDirectory: dist/AKJTravels/browser
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
+      - .pnpm-store/**/*

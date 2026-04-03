@@ -98,7 +98,7 @@ export class ForgotPassword implements OnDestroy {
       },
       error: (err: HttpErrorResponse) => {
         this.cargando = false;
-        const text = (typeof err?.error === 'string' && err.error) || err?.error?.message || 'No pudimos enviar el código.';
+        const text = 'No pudimos enviar el código. Verifica que el correo sea correcto e intenta de nuevo.';
         Swal.fire({ icon: 'error', title: 'Error', text });
       }
     });
@@ -145,7 +145,7 @@ export class ForgotPassword implements OnDestroy {
       },
       error: (err: HttpErrorResponse) => {
         this.cargando = false;
-        const text = (typeof err?.error === 'string' && err.error) || err?.error?.message || 'No fue posible restablecer la contraseña.';
+        const text = 'No fue posible restablecer la contraseña. Por favor intenta de nuevo.';
         Swal.fire({ icon: 'error', title: 'Error', text });
       }
     });

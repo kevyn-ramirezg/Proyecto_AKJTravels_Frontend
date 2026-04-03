@@ -4,6 +4,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { API_BASE } from '../core/api-base-token';
 import { PlaceListItemDTO } from '../model/place-dto/place-list-item-dto';
+import {FavoritePlaceDTO} from '../model/favorite-dto/favorite-place-dto';
+import {PageResponse} from '../model/page-response';
 
 @Injectable({ providedIn: 'root' })
 export class FavoritesApiService {
@@ -17,61 +19,47 @@ export class FavoritesApiService {
     this.baseUrl = `${api}/favorites`;
   }
 
-  /** Marca un alojamiento como favorito (idempotente). */
   add(placeId: string): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/${placeId}`, {});
   }
 
-  /** Quita un alojamiento de favoritos (idempotente). */
   remove(placeId: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${placeId}`);
   }
 
-  /** ¿Este alojamiento es favorito del usuario actual? */
   isMyFavorite(placeId: string): Observable<boolean> {
     return this.http.get<boolean>(`${this.baseUrl}/me/${placeId}`);
   }
 
-  /** ¿Cuántos usuarios lo han marcado como favorito? (para métricas de host más adelante). */
   countFavorites(placeId: string): Observable<number> {
     return this.http.get<number>(`${this.baseUrl}/count/${placeId}`);
   }
 
-  /**
-   * Lista plana de mis alojamientos favoritos.
-   * El backend devuelve Page<Place>, aquí lo convertimos a PlaceListItemDTO[]
-   * usando los campos básicos que necesitamos para las tarjetas.
-   */
   listMyFavorites(page = 0, size = 50): Observable<PlaceListItemDTO[]> {
     const params = new HttpParams()
       .set('page', page)
       .set('size', size);
 
     return this.http
-      .get<any>(`${this.baseUrl}/me`, { params })
+      .get<PageResponse<FavoritePlaceDTO>>(`${this.baseUrl}/me`, { params })
       .pipe(
-        map(pageObj => {
-          const content = pageObj?.content ?? [];
-          return content.map((raw: any) => this.mapPlaceFromFavorite(raw));
-        })
+        map(pageObj => (pageObj.content ?? []).map(item => this.mapFavoriteToPlaceCard(item)))
       );
   }
 
-  // --- Mapeo Place (backend) -> PlaceListItemDTO (frontend) ---
-  private mapPlaceFromFavorite(raw: any): PlaceListItemDTO {
-    const pics = raw.pics_url ?? raw.picsUrl ?? [];
-    const photo_url =
-      Array.isArray(pics) && pics.length > 0 ? pics[0] : '';
-
+  private mapFavoriteToPlaceCard(raw: FavoritePlaceDTO): PlaceListItemDTO {
     return {
       id: raw.id,
       title: raw.title ?? 'Alojamiento',
       city: raw.city ?? '',
-      photo_url,
-      average_rating: raw.averageRatings ?? raw.average_rating ?? 0,
-      state: raw.state ?? 'ACTIVE'
+      photo_url: raw.photoUrl ?? '',
+      average_rating: raw.averageRating ?? 0,
+      price: raw.price ?? 0,
+      capacity: raw.capacity ?? 0,
+      state: 'ACTIVE'
     } as PlaceListItemDTO;
   }
+
   countFavoritesBetween(placeId: string, from?: string, to?: string) {
     let params = new HttpParams();
     if (from) params = params.set('from', from);

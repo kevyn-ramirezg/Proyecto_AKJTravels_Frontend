@@ -149,7 +149,7 @@ export class EditPlace implements OnInit, OnDestroy {
     Swal.fire({ title: 'Cargando…', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
     const s = this.placesApi.getDetail(this.placeId)
       .pipe(catchError(err => {
-        Swal.fire({ icon: 'error', title: 'No se pudo cargar', text: err?.error?.message ?? 'Inténtalo de nuevo.' });
+        Swal.fire({ icon: 'error', title: 'No se pudo cargar', text: 'Hubo un problema al cargar los datos del alojamiento. Por favor intenta de nuevo.' });
         return of(null as unknown as PlaceDetailDTO);
       }))
       .subscribe(detail => {
@@ -227,7 +227,7 @@ export class EditPlace implements OnInit, OnDestroy {
               Swal.fire({
                 icon: 'warning',
                 title: 'Actualizado (con aviso)',
-                text: 'Los datos se guardaron, pero las imágenes no se pudieron subir: ' + (err?.error?.message ?? '')
+                text: 'Los datos se guardaron, pero las imágenes no se pudieron subir. Por favor intenta de nuevo desde editar.'
               }).then(() => this.router.navigate(['/host-dashboard']));
             }
           });
@@ -236,7 +236,7 @@ export class EditPlace implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
-        Swal.fire({ icon: 'error', title: 'No se pudo actualizar', text: err?.error?.message ?? 'Inténtalo de nuevo.' });
+        Swal.fire({ icon: 'error', title: 'No se pudo actualizar', text: 'Hubo un problema al guardar los cambios. Por favor intenta de nuevo.' });
       }
     });
   }

@@ -59,7 +59,7 @@ export class Login {
         this.router.navigate([role === 'HOST' ? '/host-dashboard' : '/']);
       },
       error: (err) => {
-        const msg = err?.error?.message ?? 'No se pudo iniciar sesión';
+        const msg = 'El correo o contraseña son incorrectos.';
         Swal.fire({ icon: 'error', title: 'Error', text: msg });
       }
     });
