@@ -86,13 +86,14 @@
                 </p>
               }
 
-              <!-- PRECIO: sin pipes ni condicional, para que siempre se vea -->
-              <p class="place-price">
-                <span class="place-price-value">
-                  $ {{ p.price }}
-                </span>
-                <span class="suffix">/ noche</span>
-              </p>
+              <!-- PRECIO: Badge con Gradient y Icono -->
+              <div class="price-badge">
+                <span class="material-symbols-rounded price-icon">attach_money</span>
+                <div class="price-content">
+                  <span class="price-amount">{{ p.price | number:'1.0-0' }}</span>
+                  <span class="price-period">/ noche</span>
+                </div>
+              </div>
             </div>
           </article>
         }

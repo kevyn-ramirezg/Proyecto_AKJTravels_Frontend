@@ -220,25 +220,74 @@
   color: var(--muted);
 }
 
-/* ================= PRECIO ================= */
-.place-price{
-  margin: 8px 0 0;
-  font-size: 14px;
+/* ================= PRECIO: BADGE CON GRADIENT ================= */
+.price-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  margin-top: 8px;
+  position: relative;
+  background: linear-gradient(135deg, rgba(0, 74, 173, 0.06), rgba(203, 108, 230, 0.06));
+  border: 1px solid rgba(0, 74, 173, 0.15);
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+.price-badge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
+  opacity: 0;
+  z-index: 0;
+  border-radius: 12px;
+  transition: opacity 0.3s ease;
+}
+
+.price-icon {
+  font-size: 18px;
+  color: var(--primary-start);
+  font-weight: 500;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  transition: color 0.3s ease;
+}
+
+.price-content {
   display: flex;
   align-items: baseline;
-  gap: 4px;
+  gap: 3px;
+  position: relative;
+  z-index: 1;
 }
-.place-price .amount{
+
+.price-amount {
+  font-size: 16px;
   font-weight: 700;
-  font-size: 15px;
-  color: #222 !important;
-  background: none !important;
-  -webkit-background-clip: initial !important;
-  background-clip: initial !important;
+  color: var(--primary-start);
+  transition: color 0.3s ease;
 }
-.place-price .suffix{
-  font-size: 13px;
+
+.price-period {
+  font-size: 11px;
+  font-weight: 500;
   color: var(--muted);
+  transition: color 0.3s ease;
+}
+
+.place-card:hover .price-badge {
+  border-color: rgba(0, 74, 173, 0.3);
+  background: linear-gradient(135deg, rgba(0, 74, 173, 0.1), rgba(203, 108, 230, 0.1));
+}
+
+.place-card:hover .price-badge::before {
+  opacity: 0.08;
 }
 
 /* ================= RESPONSIVE ================= */
@@ -265,27 +314,4 @@
     flex-direction: column;
     align-items: flex-start;
   }
-  .place-price{
-    margin: 8px 0 0;
-    font-size: 14px;
-    display: flex;
-    align-items: baseline;
-    gap: 4px;
-  }
-
-  .place-price .amount{
-    font-weight: 700;
-    font-size: 15px;
-    color: #222 !important;
-    background: none !important;
-    -webkit-background-clip: initial !important;
-    background-clip: initial !important;
-  }
-
-  .place-price .suffix{
-    font-size: 13px;
-    color: var(--muted);
-  }
-
-
 }

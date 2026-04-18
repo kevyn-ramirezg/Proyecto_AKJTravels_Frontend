@@ -30,6 +30,12 @@ export class CreatePlace implements OnInit, OnDestroy {
 
   placeTypes: string[] = ['APARTMENT', 'HOUSE', 'FARM'];
 
+  placeTypesWithIcons = [
+    { code: 'HOUSE', label: 'Casa', icon: 'cottage' },
+    { code: 'APARTMENT', label: 'Apartamento', icon: 'apartment' },
+    { code: 'FARM', label: 'Finca', icon: 'agriculture' }
+  ];
+
   // Enum Services del backend
   servicesList: ServiceItem[] = [
     { code: 'WIFI', label: 'Wi-Fi', icon: 'wifi' },

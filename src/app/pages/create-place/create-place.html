@@ -136,16 +136,30 @@
               </div>
 
               <div class="col-span-12">
-                <label class="form-label" for="placeType">Tipo de alojamiento</label>
-                <select id="placeType" class="form-control" formControlName="placeType">
-                  <option *ngFor="let t of placeTypes" [value]="t">{{ t | titlecase }}</option>
-                </select>
+                <label class="form-label">Tipo de alojamiento</label>
+                <div class="place-types-grid">
+                  <button type="button"
+                          *ngFor="let pt of placeTypesWithIcons"
+                          class="place-type-btn"
+                          [class.active]="createPlaceForm.get('placeType')?.value === pt.code"
+                          (click)="createPlaceForm.get('placeType')?.setValue(pt.code)">
+                    <span class="fill" aria-hidden="true"></span>
+                    <span class="material-symbols-rounded pt-icon">{{ pt.icon }}</span>
+                    <span class="pt-label">{{ pt.label }}</span>
+                  </button>
+                </div>
               </div>
 
               <div class="col-span-12">
                 <label class="form-label" for="pricePerNight">Precio por noche</label>
                 <input id="pricePerNight" type="range" min="50000" max="2000000" step="5000" formControlName="pricePerNight" />
-                <div class="price-text">Precio: <strong>{{ currencyCOP(createPlaceForm.value.pricePerNight) }}</strong></div>
+                <div class="price-display">
+                  <span class="material-symbols-rounded price-icon">attach_money</span>
+                  <div class="price-content">
+                    <span class="price-amount">{{ currencyCOP(createPlaceForm.value.pricePerNight) }}</span>
+                    <span class="price-period">/ noche</span>
+                  </div>
+                </div>
               </div>
             </div>
           }
@@ -154,77 +168,130 @@
           @if (step === 3) {
             <div class="grid">
 
-              <!-- Galería (col izquierda) -->
-              <div class="col-span-12 col-lg-7 step-photos">
-                <div class="section-title label-caps">
-                  <span class="material-symbols-rounded">image</span>
-                  Galería (máx 10)
-                </div>
+              <!-- Columna Izquierda: Galería + Resumen -->
+              <div class="col-span-12 col-lg-7">
 
-                <div class="uploader">
-                  <input class="form-control file-42"
-                         type="file"
-                         multiple
-                         accept="image/*"
-                         (change)="onFilesSelected($event)" />
-                </div>
-
-                <div class="drop-zone"
-                     [class.has-previews]="previews.length > 0"
-                     [class.dragover]="isDragOver"
-                     (dragover)="onDragOver($event)"
-                     (dragleave)="onDragLeave($event)"
-                     (drop)="onDrop($event)">
-                  <span class="dz-badge">{{ previews.length }}/10</span>
-
-                  <ng-container *ngIf="!previews.length; else thumbs">
-                    <span class="dz-hint">Sube o arrastra imágenes aquí</span>
-                  </ng-container>
-
-                  <ng-template #thumbs>
-                    <div class="previews">
-                      <div class="thumb" *ngFor="let src of previews; let i = index">
-                        <img [src]="src" alt="preview {{ i + 1 }}" />
-                        <button type="button" class="thumb-remove" (click)="remove(i)" aria-label="Eliminar imagen">×</button>
-                      </div>
-                    </div>
-                  </ng-template>
-                </div>
-              </div> <!-- 👈 CERRAR la columna izquierda -->
-
-              <!-- Columna derecha -->
-              <div class="col-span-12 col-lg-5">
-                <aside class="aside sticky">
-                  <!-- Card: Resumen -->
-                  <div class="card-lite summary">
-                    <div class="summary-title">Resumen</div>
-                    <div class="summary-item">
-                      <strong>{{ createPlaceForm.value.title || 'Alojamiento sin nombre' }}</strong>
-                    </div>
-                    <div class="summary-item">
-                      {{ createPlaceForm.value.placeType | titlecase }} – {{ createPlaceForm.value.capacity }} huéspedes
-                    </div>
-                    <div class="summary-item">{{ createPlaceForm.value.city || 'Armenia' }}</div>
-                    <div class="summary-item">{{ currencyCOP(createPlaceForm.value.pricePerNight) }} / noche</div>
+                <!-- Galería -->
+                <div class="step-photos">
+                  <div class="section-title label-caps">
+                    <span class="material-symbols-rounded">image</span>
+                    Galería (máx 10)
                   </div>
 
-                  <!-- Card: Servicios incluidos -->
-                  <div class="card-lite services-card">
-                    <div class="summary-title">Servicios incluidos</div>
-                    <div class="chips">
-                      <ng-container *ngFor="let s of servicesList; index as i">
-                        <span class="chip" *ngIf="amenityActive(i)">{{ s.label }}</span>
-                      </ng-container>
-                      <span class="chip muted" *ngIf="!hasSelectedAmenities()">Sin servicios seleccionados</span>
+                  <div class="uploader">
+                    <input class="form-control file-42"
+                           type="file"
+                           multiple
+                           accept="image/*"
+                           (change)="onFilesSelected($event)" />
+                  </div>
+
+                  <div class="drop-zone"
+                       [class.has-previews]="previews.length > 0"
+                       [class.dragover]="isDragOver"
+                       (dragover)="onDragOver($event)"
+                       (dragleave)="onDragLeave($event)"
+                       (drop)="onDrop($event)">
+                    <span class="dz-badge">{{ previews.length }}/10</span>
+
+                    <ng-container *ngIf="!previews.length; else thumbs">
+                      <span class="dz-hint">Sube o arrastra imágenes aquí</span>
+                    </ng-container>
+
+                    <ng-template #thumbs>
+                      <div class="previews">
+                        <div class="thumb" *ngFor="let src of previews; let i = index">
+                          <img [src]="src" alt="preview {{ i + 1 }}" />
+                          <button type="button" class="thumb-remove" (click)="remove(i)" aria-label="Eliminar imagen">×</button>
+                        </div>
+                      </div>
+                    </ng-template>
+                  </div>
+                </div>
+
+                <!-- Resumen del Alojamiento -->
+                <div class="summary-card">
+                    <!-- Encabezado del Resumen -->
+                    <div class="summary-header">
+                      <h3 class="summary-title">Tu alojamiento</h3>
                     </div>
+
+                    <!-- Título y Descripción -->
+                    <div class="summary-main">
+                      <h4 class="summary-place-title">{{ createPlaceForm.value.title || 'Alojamiento sin nombre' }}</h4>
+                      <p class="summary-description" *ngIf="createPlaceForm.value.description">
+                        {{ (createPlaceForm.value.description | slice:0:120) + (createPlaceForm.value.description.length > 120 ? '...' : '') }}
+                      </p>
+                    </div>
+
+                    <!-- Info Grid: Tipo, Capacidad, Ubicación -->
+                    <div class="summary-grid">
+                      <div class="summary-info-item">
+                        <span class="material-symbols-rounded info-icon">home</span>
+                        <div class="info-content">
+                          <span class="info-label">Tipo</span>
+                          <span class="info-value">{{ createPlaceForm.value.placeType | titlecase }}</span>
+                        </div>
+                      </div>
+
+                      <div class="summary-info-item">
+                        <span class="material-symbols-rounded info-icon">group</span>
+                        <div class="info-content">
+                          <span class="info-label">Capacidad</span>
+                          <span class="info-value">{{ createPlaceForm.value.capacity }} huésped{{ createPlaceForm.value.capacity > 1 ? 'es' : '' }}</span>
+                        </div>
+                      </div>
+
+                      <div class="summary-info-item">
+                        <span class="material-symbols-rounded info-icon">location_on</span>
+                        <div class="info-content">
+                          <span class="info-label">Ciudad</span>
+                          <span class="info-value">{{ createPlaceForm.value.city || 'Armenia' }}</span>
+                        </div>
+                      </div>
+
+                      <div class="summary-info-item">
+                        <span class="material-symbols-rounded info-icon">attach_money</span>
+                        <div class="info-content">
+                          <span class="info-label">Precio</span>
+                          <span class="info-value">{{ currencyCOP(createPlaceForm.value.pricePerNight) }} / noche</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Divisor -->
+                    <div class="summary-divider"></div>
+
+                    <!-- Servicios Incluidos -->
+                    <div class="summary-services">
+                      <div class="services-header">
+                        <span class="material-symbols-rounded">verified</span>
+                        <h5>Servicios incluidos</h5>
+                      </div>
+                      <div class="services-list">
+                        <ng-container *ngIf="hasSelectedAmenities(); else noServices">
+                          <span class="service-chip" *ngFor="let s of selectedServices">{{ s.label }}</span>
+                        </ng-container>
+                        <ng-template #noServices>
+                          <p class="no-services">Selecciona servicios para mostrarlos aquí</p>
+                        </ng-template>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              <!-- Columna Derecha: Solo Mensaje -->
+              <div class="col-span-12 col-lg-5">
+                <aside class="aside sticky-msg">
+                  <div class="success-message">
+                    <span class="success-icon">🚀</span>
+                    <h5 class="success-title">¡Casi listo!</h5>
+                    <p class="success-text">Tu alojamiento está a punto de ser publicado. ¡Gracias por compartir tu espacio en AKJTravels!</p>
                   </div>
                 </aside>
               </div>
-
             </div>
           }
-
-          <!-- Footer actions -->
           <div class="actions">
             <button type="button" class="btn btn-outline" (click)="back()" [disabled]="step===0">Atrás</button>
             <button

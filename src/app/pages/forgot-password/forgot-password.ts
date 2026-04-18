@@ -67,6 +67,15 @@ export class ForgotPassword implements OnDestroy {
 
   ngOnDestroy(): void { this.stopTimer(); }
 
+  private extractMessage(msg: string): string {
+    try {
+      const parsed = JSON.parse(msg);
+      return parsed.Message || parsed.message || msg;
+    } catch {
+      return msg || 'Código enviado correctamente';
+    }
+  }
+
   private startTimer(): void {
     this.stopTimer();
     this.remainingSec = 15 * 60; // 15 minutos
@@ -90,7 +99,8 @@ export class ForgotPassword implements OnDestroy {
     this.authService.requestResetPassword({ email } as RequestResetPasswordDTO).subscribe({
       next: (msg: string) => {
         this.cargando = false;
-        Swal.fire({ icon: 'success', title: 'Código enviado', text: msg || 'Revisa tu correo. Válido 15 min.' });
+        const cleanMsg = this.extractMessage(msg);
+        Swal.fire({ icon: 'success', title: 'Código enviado', text: cleanMsg || 'Revisa tu correo. Válido 15 min.' });
         this.restablecerForm.patchValue({ email });
         this.restablecerForm.get('email')?.disable();
         this.paso = 'restablecer';
@@ -111,7 +121,7 @@ export class ForgotPassword implements OnDestroy {
     this.authService.requestResetPassword({ email } as RequestResetPasswordDTO).subscribe({
       next: () => {
         this.cargando = false;
-        Swal.fire({ icon: 'info', title: 'Nuevo código enviado' });
+        Swal.fire({ icon: 'info', title: 'Nuevo código enviado', text: 'Revisa tu correo para el nuevo código.' });
         this.startTimer(); // reinicia contador
       },
       error: () => {
@@ -140,7 +150,8 @@ export class ForgotPassword implements OnDestroy {
       next: (msg: string) => {
         this.cargando = false;
         this.stopTimer();
-        Swal.fire({ icon: 'success', title: 'Contraseña actualizada', text: msg || 'Ahora puedes iniciar sesión.' })
+        const cleanMsg = this.extractMessage(msg);
+        Swal.fire({ icon: 'success', title: 'Contraseña actualizada', text: cleanMsg || 'Ahora puedes iniciar sesión.' })
           .then(() => this.router.navigate(['/login']));
       },
       error: (err: HttpErrorResponse) => {

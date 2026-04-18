@@ -28,8 +28,12 @@ export class EditPlace implements OnInit, OnDestroy {
   // Id del place a editar
   private placeId!: string;
 
-  // Tipos (ajusta si tu backend tiene otros)
-  placeTypes: string[] = ['APARTMENT', 'HOUSE', 'FARM'];
+  // Tipos con iconos
+  placeTypesWithIcons = [
+    { code: 'HOUSE', label: 'Casa', icon: 'cottage' },
+    { code: 'APARTMENT', label: 'Apartamento', icon: 'apartment' },
+    { code: 'FARM', label: 'Finca', icon: 'agriculture' }
+  ];
 
   // Enum Services del backend
   servicesList: ServiceItem[] = [
@@ -70,9 +74,10 @@ export class EditPlace implements OnInit, OnDestroy {
       title:        ['', [Validators.required, Validators.maxLength(120)]],
       description:  ['', [Validators.required, Validators.maxLength(2000)]],
       capacity:     [1,  [Validators.required, Validators.min(1), Validators.max(50)]],
+      city:         ['', Validators.required],
 
       // Paso 1 – Servicios + tipo + precio
-      placeType:     [this.placeTypes[0], Validators.required],
+      placeType:     ['APARTMENT', Validators.required],
       amenities:     this.fb.array(this.servicesList.map(() => this.fb.control(false))),
       pricePerNight: [430000, [Validators.required, Validators.min(10000)]],
 
@@ -161,7 +166,8 @@ export class EditPlace implements OnInit, OnDestroy {
           title:        (detail as any).title ?? '',
           description:  (detail as any).description ?? '',
           capacity:     (detail as any).capacity ?? 1,
-          placeType:    (detail as any).place_type ?? (detail as any).placeType ?? this.placeTypes[0],
+          city:         (detail as any).city ?? '',
+          placeType:    (detail as any).place_type ?? (detail as any).placeType ?? 'APARTMENT',
           pricePerNight:(detail as any).price ?? (detail as any).pricePerNight ?? 430000,
         });
 
