@@ -1,7 +1,10 @@
 // src/app/pages/detail-place/detail-place.ts
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { DomSanitizer } from '@angular/platform-browser';
 import { PlacesApiService } from '../../services/places-api-service';
 import { PlaceDetailDTO } from '../../model/place-dto/place-detail-dto';
 import { ResponseDTO } from '../../model/response-dto';
@@ -10,28 +13,29 @@ import {CommentDTO} from '../../model/comment-dto/comment-dto';
 import {FavoritesApiService} from '../../services/favorites-api-service';
 import {TokenService} from '../../services/token-service';
 import Swal from 'sweetalert2';
-
-interface ServiceItem {
-  code: string;
-  label: string;
-  icon: string;
-}
+import { SERVICES_LIST, ServiceItem } from '../../constants/services';
+import { UserDetailDTO } from '../../model/user-dto/user-detail-dto';
+import { SafeHtmlPipe } from '../../pipes/sanitization.pipe';
 
 @Component({
   selector: 'app-detail-place',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, SafeHtmlPipe],
   templateUrl: './detail-place.html',
-  styleUrl: './detail-place.css'
+  styleUrl: './detail-place.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export default class DetailPlace {
+export default class DetailPlace implements OnInit, OnDestroy {
 
   private route = inject(ActivatedRoute);
   private placesApi = inject(PlacesApiService);
   private router = inject(Router);
+  private sanitizer = inject(DomSanitizer);
   private mapService = inject(MapService);
   private favoritesApi = inject(FavoritesApiService);
   private token        = inject(TokenService);
+  private cdr          = inject(ChangeDetectorRef);
+  private destroy$ = new Subject<void>();
 
 
   loading = true;
@@ -47,19 +51,8 @@ export default class DetailPlace {
   comments: CommentDTO[] = [];
   commentsLoading = false;
   commentsError?: string;
-  // SERVICIOS
-  servicesList: ServiceItem[] = [
-    { code: 'WIFI',               label: 'Wi-Fi',              icon: 'wifi' },
-    { code: 'BREAKFAST_INCLUDED', label: 'Desayuno',           icon: 'restaurant' },
-    { code: 'AIR_CONDITIONING',   label: 'Aire acondicionado', icon: 'ac_unit' },
-    { code: 'POOL',               label: 'Piscina',            icon: 'pool' },
-    { code: 'TELEVISION',         label: 'Televisión',         icon: 'tv' },
-    { code: 'PARKING',            label: 'Parqueadero',        icon: 'local_parking' },
-    { code: 'GYM',                label: 'Gimnasio',           icon: 'fitness_center' },
-    { code: 'SPA',                label: 'Spa',                icon: 'spa' },
-    { code: 'RESTAURANT',         label: 'Restaurante',        icon: 'restaurant_menu' },
-    { code: 'BAR',                label: 'Bar',                icon: 'local_bar' }
-  ];
+  // SERVICIOS desde constante centralizada
+  servicesList: ServiceItem[] = SERVICES_LIST;
   mappedServices: ServiceItem[] = [];
 
   ngOnInit(): void {
@@ -73,8 +66,9 @@ export default class DetailPlace {
 
     this.loadComments(id);
 
-
-    this.placesApi.getDetail(id).subscribe({
+    this.placesApi.getDetail(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (res: ResponseDTO<PlaceDetailDTO> | PlaceDetailDTO) => {
         // Por si tu backend envuelve en ResponseDTO o no
         this.place = ('data' in res ? res.data : res) as PlaceDetailDTO;
@@ -95,10 +89,12 @@ export default class DetailPlace {
 
 // Damos un pequeño tiempo para que el div del mapa exista en el DOM
         this.initMap();
+        this.cdr.markForCheck();
       },
       error: () => {
         this.error = 'No se pudo cargar la información del sitio.';
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -134,21 +130,32 @@ export default class DetailPlace {
     this.commentsLoading = true;
     this.commentsError = undefined;
 
-    this.placesApi.listComments(placeId, 0).subscribe({
+    this.placesApi.listComments(placeId, 0)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (list) => {
         this.comments = list ?? [];
         this.commentsLoading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
-        // Si no hay comentarios, tu back lanza ResourceNotFound
+        this.commentsLoading = false;
+        
+        // 404 = Sin comentarios (no es un error real)
+        // El backend devuelve 404 cuando no hay comentarios registrados
         if (err?.status === 404) {
           this.comments = [];
-          this.commentsLoading = false;
+          console.log('[DetailPlace] No hay comentarios registrados para este alojamiento');
+          this.cdr.markForCheck();
           return;
         }
-        console.error('Error al cargar comentarios', err);
-        this.commentsError = 'No pudimos cargar los comentarios. Por favor recarga la página.';
-        this.commentsLoading = false;
+
+        // Para todos los otros errores (500, network, etc), mostrar mensaje al usuario
+        // El error interceptor global ya notificó al usuario, aquí solo informamos localmente
+        console.error('[DetailPlace] Error al cargar comentarios:', err);
+        this.commentsError = 'No pudimos cargar los comentarios en este momento.';
+        this.comments = [];
+        this.cdr.markForCheck();
       }
     });
   }
@@ -204,8 +211,32 @@ export default class DetailPlace {
     return (first + last).toUpperCase();
   }
 
+  getCommentText(c: any): string {
+    // Maneja múltiples nombres posibles para el campo de comentario
+    return (
+      c?.comment ??
+      c?.text ??
+      c?.message ??
+      c?.description ??
+      c?.contenido ??
+      c?.comentario ??
+      ''
+    );
+  }
 
-  get hostRaw(): any {
+  getCommentReply(c: any): string {
+    // Maneja múltiples nombres posibles para la respuesta del anfitrión
+    return (
+      c?.reply ??
+      c?.replyText ??
+      c?.replyMessage ??
+      c?.respuesta ??
+      ''
+    );
+  }
+
+
+  get hostRaw(): UserDetailDTO | null {
     return this.place?.userDetailDTO ?? null;
   }
 
@@ -215,22 +246,25 @@ export default class DetailPlace {
 
   get hostName(): string {
     const h = this.hostRaw;
+    if (!h) return 'Anfitrión';
     return (
-      h?.fullName ??
-      h?.name ??
-      h?.nombreCompleto ??
-      h?.username ??
+      h.fullName ??
+      h.name ??
+      h.nombreCompleto ??
+      h.username ??
       'Anfitrión'
     );
   }
 
   get hostAvatar(): string | null {
     const h = this.hostRaw;
+    if (!h) return null;
     return (
-      h?.profilePicUrl ??
-      h?.photoUrl ??
-      h?.avatarUrl ??
-      h?.imageUrl ??
+      h.profilePicUrl ??
+      h.photoUrl ??
+      h.avatarUrl ??
+      h.imageUrl ??
+      h.avatar ??
       null
     );
   }
@@ -248,16 +282,32 @@ export default class DetailPlace {
     const placeId = this.place.id;
 
     // Conteo de favoritos
-    this.favoritesApi.countFavorites(placeId).subscribe({
-      next: n => this.favoriteCount = (n ?? 0),
-      error: () => this.favoriteCount = null
+    this.favoritesApi.countFavorites(placeId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+      next: n => {
+        this.favoriteCount = (n ?? 0);
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.favoriteCount = null;
+        this.cdr.markForCheck();
+      }
     });
 
     // Estado "es mi favorito" solo si es huésped logueado
     if (this.canFavorite()) {
-      this.favoritesApi.isMyFavorite(placeId).subscribe({
-        next: flag => this.isFavorite = !!flag,
-        error: () => this.isFavorite = false
+      this.favoritesApi.isMyFavorite(placeId)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+        next: flag => {
+          this.isFavorite = !!flag;
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.isFavorite = false;
+          this.cdr.markForCheck();
+        }
       });
     }
   }
@@ -285,17 +335,21 @@ export default class DetailPlace {
       ? this.favoritesApi.remove(placeId)
       : this.favoritesApi.add(placeId);
 
-    obs.subscribe({
+    obs
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: () => {
         this.isFavorite = !this.isFavorite;
         if (this.favoriteCount == null) this.favoriteCount = 0;
         this.favoriteCount += this.isFavorite ? 1 : -1;
         if (this.favoriteCount < 0) this.favoriteCount = 0;
         this.favoriteLoading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('[DetailPlace] toggleFavorite error', err);
         this.favoriteLoading = false;
+        this.cdr.markForCheck();
         Swal.fire({
           icon: 'error',
           title: 'No se pudo actualizar tu favorito',
@@ -321,4 +375,8 @@ export default class DetailPlace {
     return !!this.fullAddress;
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }

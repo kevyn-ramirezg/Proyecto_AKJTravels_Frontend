@@ -7,12 +7,7 @@ import Swal from 'sweetalert2';
 import { PlacesApiService } from '../../services/places-api-service';
 import { BookingsApiService } from '../../services/bookings-api-service';
 import { PlaceDetailDTO } from '../../model/place-dto/place-detail-dto';
-
-interface ServiceItem {
-  code: string;
-  label: string;
-  icon: string;
-}
+import { SERVICES_LIST, ServiceItem } from '../../constants/services';
 
 interface OccupiedRange {
   checkIn: Date;
@@ -37,19 +32,7 @@ export class CreateBooking implements OnInit {
   showCheckOutCalendar = false;
   currentCalendarMonth: Date = new Date();
   
-  servicesList: ServiceItem[] = [
-    { code: 'WIFI',               label: 'Wi-Fi',              icon: 'wifi' },
-    { code: 'BREAKFAST_INCLUDED', label: 'Desayuno',           icon: 'restaurant' },
-    { code: 'AIR_CONDITIONING',   label: 'Aire acondicionado', icon: 'ac_unit' },
-    { code: 'POOL',               label: 'Piscina',            icon: 'pool' },
-    { code: 'TELEVISION',         label: 'Televisión',         icon: 'tv' },
-    { code: 'PARKING',            label: 'Parqueadero',        icon: 'local_parking' },
-    { code: 'GYM',                label: 'Gimnasio',           icon: 'fitness_center' },
-    { code: 'SPA',                label: 'Spa',                icon: 'spa' },
-    { code: 'RESTAURANT',         label: 'Restaurante',        icon: 'restaurant_menu' },
-    { code: 'BAR',                label: 'Bar',                icon: 'local_bar' }
-  ];
-
+  servicesList: ServiceItem[] = SERVICES_LIST;
   mappedServices: ServiceItem[] = [];
 
 

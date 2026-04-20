@@ -1,3 +1,5 @@
+import { UserDetailDTO } from '../user-dto/user-detail-dto';
+
 export interface PlaceDetailDTO {
   id: string;
   latitude: number;
@@ -9,7 +11,7 @@ export interface PlaceDetailDTO {
   title: string;
   capacity: number;
   averageRatings: number;
-  userDetailDTO: any;
+  userDetailDTO: UserDetailDTO;
   // Dirección / ubicación
   street?: string | null;
   neighborhood?: string | null;

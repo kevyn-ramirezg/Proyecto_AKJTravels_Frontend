@@ -10,10 +10,7 @@ import { PlacesApiService } from '../../services/places-api-service';
 import {CreatePlaceDTO} from '../../model/place-dto/create-place-dto';
 import Swal from 'sweetalert2';
 import {Router} from '@angular/router';
-// Ajusta si necesitas un tipo fuerte para tu backend
-
-
-interface ServiceItem { code: string; label: string; icon?: string }
+import { SERVICES_LIST, ServiceItem } from '../../constants/services';
 
 @Component({
   selector: 'app-create-place',
@@ -36,19 +33,8 @@ export class CreatePlace implements OnInit, OnDestroy {
     { code: 'FARM', label: 'Finca', icon: 'agriculture' }
   ];
 
-  // Enum Services del backend
-  servicesList: ServiceItem[] = [
-    { code: 'WIFI', label: 'Wi-Fi', icon: 'wifi' },
-    { code: 'BREAKFAST_INCLUDED', label: 'Desayuno', icon: 'restaurant' },
-    { code: 'AIR_CONDITIONING', label: 'Aire acondicionado', icon: 'ac_unit' },
-    { code: 'POOL', label: 'Piscina', icon: 'pool' },
-    { code: 'TELEVISION', label: 'Televisión', icon: 'tv' },
-    { code: 'PARKING', label: 'Parqueadero', icon: 'local_parking' },
-    { code: 'GYM', label: 'Gimnasio', icon: 'fitness_center' },
-    { code: 'SPA', label: 'Spa', icon: 'spa' },
-    { code: 'RESTAURANT', label: 'Restaurante', icon: 'restaurant_menu' },
-    { code: 'BAR', label: 'Bar', icon: 'local_bar' }
-  ];
+  // Servicios desde constante centralizada
+  servicesList: ServiceItem[] = SERVICES_LIST;
 
   previews: string[] = [];
   isDragOver = false;

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FavoritesApiService } from '../../services/favorites-api-service';
@@ -11,7 +11,8 @@ import Swal from 'sweetalert2';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './my-favorites.html',
-  styleUrls: ['./my-favorites.css']
+  styleUrl: './my-favorites.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MyFavorites implements OnInit {
 

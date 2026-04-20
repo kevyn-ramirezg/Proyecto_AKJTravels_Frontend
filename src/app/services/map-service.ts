@@ -3,6 +3,7 @@ import { Observable, Subject } from 'rxjs';
 import mapboxgl, { LngLatLike, Map, Marker, MapMouseEvent } from 'mapbox-gl';
 import { MarkerDTO } from '../model/marker-dto';
 import { environment } from '../../environments/environment';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -11,11 +12,13 @@ export class MapService implements OnDestroy {
   private map?: Map;
   private markers: Marker[] = [];
   private currentLocation: LngLatLike = [-75.6727, 4.53252];
-  private readonly MAPBOX_TOKEN = "pk.eyJ1IjoiYWxleC0xNDEwIiwiYSI6ImNtaHFqNXZwbjBtNWcya3EycHdhYmV6Mm4ifQ.qI9MhHkYPh89Q4fUpJmApg";
   private destroy$ = new Subject<void>();
 
   constructor() {
-    mapboxgl.accessToken = this.MAPBOX_TOKEN;
+    mapboxgl.accessToken = environment.mapboxToken || '';
+    if (!environment.mapboxToken) {
+      console.warn('[MapService] Mapbox token not configured in environment');
+    }
   }
 
   /** Inicializa el mapa dentro del contenedor especificado */

@@ -31,7 +31,7 @@ export class CommentsApiService {
   // 1) RESPONDER COMENTARIO (HOST)
   // ===============================
   reply(commentId: string, replyText: string): Observable<string> {
-    const body: ReplyDTO = { reply: replyText };
+    const body: ReplyDTO = {reply: replyText};
     const url = `${this.baseUrl}/${commentId}/reply`;
 
     return this.http
@@ -54,4 +54,19 @@ export class CommentsApiService {
       .pipe(map(res => res.message));
   }
 
+  // =======================================
+  // 3) CREAR COMENTARIO POR BOOKING (HUESPED / USER)
+  // Endpoint backend: POST /api/bookings/{bookingId}/comments
+  // Usado para calificar después de que termina una reserva
+  // =====================================
+  createForBooking(
+    bookingId: string,
+    payload: Omit<CreateCommentPayload, 'bookingId'>
+  ): Observable<string> {
+    const url = `${this.api}/bookings/${bookingId}/comments`;
+
+    return this.http
+      .post<ResponseDTO<string>>(url, payload)
+      .pipe(map(res => res.message));
+  }
 }

@@ -2,24 +2,14 @@ import { Routes } from '@angular/router';
 import { Home } from './pages/home/home';
 import { Login } from './pages/login/login';
 import { Register } from './pages/register/register';
-import { CreatePlace } from './pages/create-place/create-place';
-
-
-import { HostDashboard } from './pages/host-dashboard/host-dashboard';
+import { ForbiddenComponent } from './pages/forbidden/forbidden';
 import { loginGuard } from './guards/login-guard';
 import { roleGuard } from './guards/role-guard';
 import { authGuard } from './guards/auth-guard';
 import { ForgotPassword } from './pages/forgot-password/forgot-password';
-
-
-// ⬇️ Nuevo: componente de edición de perfil (standalone)
-import { EditProfile } from './pages/edit-profile/edit-profile';
-import {EditPlace} from './pages/edit-place/edit-place';
 import DetailPlaceComponent from './pages/detail-place/detail-place';
 import { SearchResultsComponent } from './pages/search-results/search-results';
-import {CreateBooking} from './pages/create-booking/create-booking';
-import { MyReservations } from './pages/my-reservations/my-reservations';
-import {MyFavorites} from './pages/my-favorites/my-favorites';
+import { CreateBooking } from './pages/create-booking/create-booking';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -27,16 +17,43 @@ export const routes: Routes = [
   { path: 'login', component: Login, canActivate: [loginGuard] },
   { path: 'register', component: Register, canActivate: [loginGuard] },
 
-  { path: 'mi-perfil', component: EditProfile, canActivate: [authGuard] },
+  // Lazy loaded - Feature routes
+  {
+    path: 'mi-perfil',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/edit-profile/edit-profile').then(m => m.EditProfile)
+  },
+  {
+    path: 'create-place',
+    canActivate: [authGuard, roleGuard],
+    data: { expectedRole: ['HOST', 'ROLE_HOST'] },
+    loadComponent: () => import('./pages/create-place/create-place').then(m => m.CreatePlace)
+  },
+  {
+    path: 'host-dashboard',
+    canActivate: [authGuard, roleGuard],
+    data: { expectedRole: ['HOST', 'ROLE_HOST'] },
+    loadComponent: () => import('./pages/host-dashboard/host-dashboard').then(m => m.HostDashboard)
+  },
+  {
+    path: 'edit-place/:id',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/edit-place/edit-place').then(m => m.EditPlace)
+  },
+  {
+    path: 'my-favorites',
+    loadComponent: () => import('./pages/my-favorites/my-favorites').then(m => m.MyFavorites)
+  },
+  {
+    path: 'my-reservations',
+    canActivate: [authGuard, roleGuard],
+    data: { expectedRole: ['USER'] },
+    loadComponent: () => import('./pages/my-reservations/my-reservations').then(m => m.MyReservations)
+  },
 
-  { path: 'create-place', component: CreatePlace, canActivate: [authGuard, roleGuard], data: { expectedRole: ['HOST', 'ROLE_HOST'] } },
-  { path: 'host-dashboard', component: HostDashboard, canActivate: [authGuard, roleGuard], data: { expectedRole: ['HOST', 'ROLE_HOST'] } },
-
+  // Eager loaded - Core routes
   { path: 'search', component: SearchResultsComponent },
-  { path: 'edit-place/:id', component: EditPlace, canActivate: [authGuard] },
-
   { path: 'place/:id', component: DetailPlaceComponent },
-  {path: 'my-favorites', component: MyFavorites},
   {
     path: 'auth',
     children: [
@@ -49,12 +66,8 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard],
     data: { expectedRole: ['USER'] }
   },
-  {
-    path: 'my-reservations',
-    component: MyReservations,
-    canActivate: [authGuard, roleGuard],
-    data: { expectedRole: ['USER'] }
-  },
+  { path: 'forbidden', component: ForbiddenComponent },
+
   // 🚨 SIEMPRE DE ÚLTIMO
   { path: '**', pathMatch: 'full', redirectTo: '' },
 

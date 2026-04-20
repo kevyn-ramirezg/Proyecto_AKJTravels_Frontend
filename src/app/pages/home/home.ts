@@ -1,11 +1,12 @@
-import { Component, AfterViewInit, OnDestroy, OnInit } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import Litepicker from 'litepicker';
 
 import { MapService } from '../../services/map-service';
 import { PlacesApiService } from '../../services/places-api-service';
-import Swal from 'sweetalert2';   // ⬅️ IMPORTANTE
+import Swal from 'sweetalert2';
+import { SERVICES_LIST } from '../../constants/services';
 
 type Destination = { label: string; type: 'Ciudad' | 'Región' | 'País' };
 
@@ -14,7 +15,8 @@ type Destination = { label: string; type: 'Ciudad' | 'Región' | 'País' };
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './home.html',
-  styleUrls: ['./home.css']
+  styleUrls: ['./home.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Home implements AfterViewInit, OnDestroy, OnInit {
 
@@ -204,18 +206,7 @@ export class Home implements AfterViewInit, OnDestroy, OnInit {
   minPrice: number | null = null;
   maxPrice: number | null = null;
 
-  servicesOptions = [
-    { code: 'WIFI',               label: 'Wi-Fi',              icon: 'wifi' },
-    { code: 'BREAKFAST_INCLUDED', label: 'Desayuno incluido',  icon: 'restaurant' },
-    { code: 'AIR_CONDITIONING',   label: 'Aire acondicionado', icon: 'ac_unit' },
-    { code: 'POOL',               label: 'Piscina',            icon: 'pool' },
-    { code: 'TELEVISION',         label: 'Televisión',         icon: 'tv' },
-    { code: 'PARKING',            label: 'Parqueadero',        icon: 'local_parking' },
-    { code: 'GYM',                label: 'Gimnasio',           icon: 'fitness_center' },
-    { code: 'SPA',                label: 'Spa',                icon: 'spa' },
-    { code: 'RESTAURANT',         label: 'Restaurante',        icon: 'restaurant_menu' },
-    { code: 'BAR',                label: 'Bar',                icon: 'local_bar' }
-  ];
+  servicesOptions = SERVICES_LIST;
 
   selectedServices: string[] = [];
 
@@ -414,10 +405,12 @@ export class Home implements AfterViewInit, OnDestroy, OnInit {
     this.placesApi.list(0).subscribe({
       next: (rows) => {
         this.featuredPlaces = (rows ?? []).slice(0, 3);
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Error cargando alojamientos destacados', err);
         this.featuredPlaces = [];
+        this.cdr.markForCheck();
       }
     });
   }
@@ -425,7 +418,8 @@ export class Home implements AfterViewInit, OnDestroy, OnInit {
   constructor(
     private mapService: MapService,
     private placesApi: PlacesApiService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   // ====== ACCIÓN DE BÚSQUEDA ======

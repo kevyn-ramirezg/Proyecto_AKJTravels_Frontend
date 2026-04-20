@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BookingsApiService } from '../../services/bookings-api-service';
 import { UserBookingDTO, BookingState } from '../../model/booking-dto/user-booking-dto';
@@ -25,7 +25,8 @@ interface ReservationCardVM {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './my-reservations.html',
-  styleUrls: ['./my-reservations.css']
+  styleUrls: ['./my-reservations.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MyReservations implements OnInit {
 
@@ -34,7 +35,8 @@ export class MyReservations implements OnInit {
 
   constructor(
     private bookingsApi: BookingsApiService,
-    private commentsApi: CommentsApiService
+    private commentsApi: CommentsApiService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -43,10 +45,12 @@ export class MyReservations implements OnInit {
         const data = res.message || [];
         this.reservas = data.map(b => this.toCardVM(b));
         this.cargando = false;
+        this.cdr.markForCheck();
       },
       error: err => {
         console.error('Error cargando reservas', err);
         this.cargando = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -159,9 +163,11 @@ export class MyReservations implements OnInit {
           });
           r.statusLabel = label;
           r.statusClass = cssClass;
+          this.cdr.markForCheck();
         },
         error: err => {
           Swal.fire('Error', 'No se pudo cancelar la reserva. Por favor intenta nuevamente.', 'error');
+          this.cdr.markForCheck();
         }
       });
     });
@@ -245,12 +251,17 @@ export class MyReservations implements OnInit {
 
       const { rating, comment } = result.value as { rating: number; comment: string };
 
-      this.commentsApi.createForPlace(r.placeId, { rating, comment }).subscribe({
+      // Usar el endpoint correcto: POST /api/bookings/{bookingId}/comments
+      this.commentsApi.createForBooking(r.id, { rating, comment }).subscribe({
         next: msg => {
           Swal.fire('¡Gracias!', msg || 'Tu calificación ha sido registrada.', 'success');
+          this.cdr.markForCheck();
         },
-        error: err => {
-          Swal.fire('Error', 'No se pudo registrar tu calificación. Por favor intenta nuevamente.', 'error');
+        error: (err: any) => {
+          // Intentar obtener mensaje de error específico del backend
+          const errorMsg = err?.error?.message || err?.message || 'No se pudo registrar tu calificación. Por favor intenta nuevamente.';
+          Swal.fire('Error', errorMsg, 'error');
+          this.cdr.markForCheck();
         }
       });
     });

@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { PlacesApiService } from '../../services/places-api-service';
+import { PlaceListItemDTO } from '../../model/place-dto/place-list-item-dto';
+import { ListPlaceDTO } from '../../model/place-dto/list-place-dto';
 
 type SearchCriteria = {
   location?: string;
@@ -18,7 +20,8 @@ type SearchCriteria = {
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './search-results.html',
-  styleUrls: ['./search-results.css']
+  styleUrl: './search-results.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SearchResultsComponent implements OnInit {
 
@@ -26,12 +29,13 @@ export class SearchResultsComponent implements OnInit {
   loading = false;
   error: string | null = null;
 
-  places: any[] = [];
-  filteredPlaces: any[] = [];
+  places: PlaceListItemDTO[] = [];
+  filteredPlaces: PlaceListItemDTO[] = [];
 
   constructor(
     private route: ActivatedRoute,
-    private placesApi: PlacesApiService
+    private placesApi: PlacesApiService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -55,6 +59,7 @@ export class SearchResultsComponent implements OnInit {
         services
       };
 
+      this.cdr.markForCheck();
       this.loadPlaces();
     });
   }
@@ -63,7 +68,7 @@ export class SearchResultsComponent implements OnInit {
     this.loading = true;
     this.error = null;
 
-    const filters: any = {};
+    const filters: Partial<ListPlaceDTO> = {};
 
     const loc = this.criteria.location?.trim();
 
@@ -106,6 +111,7 @@ export class SearchResultsComponent implements OnInit {
         this.places = rows ?? [];
         this.filteredPlaces = this.applyFilters(this.places);
         this.loading = false;
+        this.cdr.markForCheck();
 
         console.log('Criterios front:', this.criteria);
         console.log('Filtros al backend:', filters);
@@ -114,6 +120,7 @@ export class SearchResultsComponent implements OnInit {
         console.error('Error cargando alojamientos', err);
         this.error = 'No fue posible cargar los alojamientos. Intenta de nuevo más tarde.';
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -137,7 +144,7 @@ export class SearchResultsComponent implements OnInit {
    *  - location: city/title contiene el texto
    *  - precio: min/max
    */
-  private applyFilters(rows: any[]): any[] {
+  private applyFilters(rows: PlaceListItemDTO[]): PlaceListItemDTO[] {
     let filtered = [...rows];
 
     const { location, minPrice, maxPrice } = this.criteria;

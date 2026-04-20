@@ -167,12 +167,12 @@
                 <h3 class="host-name">{{ hostName }}</h3>
 
                 <p class="host-meta" *ngIf="hostRaw?.email">
-                  {{ hostRaw.email }}
+                  {{ hostRaw?.email }}
                 </p>
 
                 <p class="host-meta" *ngIf="hostRaw?.phone || hostRaw?.telefono">
                   Teléfono:
-                  <span>{{ hostRaw.phone || hostRaw.telefono }}</span>
+                  <span>{{ hostRaw?.phone || hostRaw?.telefono }}</span>
                 </p>
               </div>
             </section>
@@ -198,7 +198,7 @@
           Descripción del sitio
         </div>
         <p class="description-text">
-          {{ p.description }}
+          {{ p.description | safeHtml }}
         </p>
       </div>
 
@@ -280,11 +280,11 @@
               </div>
 
               <p class="comment-text">
-                {{ c.comment }}
+                {{ getCommentText(c) | safeHtml }}
               </p>
 
               <!-- RESPUESTA DEL ANFITRIÓN -->
-              <div class="comment-reply-section" *ngIf="c.reply">
+              <div class="comment-reply-section" *ngIf="getCommentReply(c)">
                 <div class="reply-header">
                   <span class="material-symbols-rounded reply-icon">admin_panel_settings</span>
                   <span class="reply-label">Respuesta del anfitrión</span>
@@ -293,7 +293,7 @@
                   </span>
                 </div>
                 <p class="reply-text">
-                  {{ c.reply }}
+                  {{ getCommentReply(c) | safeHtml }}
                 </p>
               </div>
             </div>
