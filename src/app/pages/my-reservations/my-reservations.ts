@@ -15,9 +15,10 @@ interface ReservationCardVM {
   nights: number;
   guests: number;
   bookingState: BookingState;
-  statusLabel: string;   // PENDIENTE / ACTIVA / PASADA / CANCELADA
-  statusClass: 'status-pendiente' | 'status-activa' | 'status-pasada' | 'status-cancelada';
+  statusLabel: string;   // PENDIENTE / ACTIVA / PASADA / CANCELADA / RECHAZADA
+  statusClass: 'status-pendiente' | 'status-activa' | 'status-pasada' | 'status-cancelada' | 'status-rechazada';
   placeId: string;
+  hasBeenRated?: boolean;  // Indica si ya fue calificada
 }
 
 @Component({
@@ -71,7 +72,8 @@ export class MyReservations implements OnInit {
       bookingState: b.bookingState,
       statusLabel: label,
       statusClass: cssClass,
-      placeId: b.placeId
+      placeId: b.placeId,
+      hasBeenRated: b.hasBeenRated || false
     };
   }
 
@@ -88,9 +90,14 @@ export class MyReservations implements OnInit {
     return out.getTime() < today.getTime();
   }
 
-  private calculateStatus(b: UserBookingDTO): { label: string; cssClass: 'status-pendiente' | 'status-activa' | 'status-pasada' | 'status-cancelada' } {
-    if (b.bookingState === 'CANCELED' || b.bookingState === 'REJECTED') {
+  private calculateStatus(b: UserBookingDTO): { label: string; cssClass: 'status-pendiente' | 'status-activa' | 'status-pasada' | 'status-cancelada' | 'status-rechazada' } {
+    // ✅ FIX: Diferenciar entre CANCELED (por el usuario) y REJECTED (por el anfitrión)
+    if (b.bookingState === 'CANCELED') {
       return { label: 'CANCELADA', cssClass: 'status-cancelada' };
+    }
+
+    if (b.bookingState === 'REJECTED') {
+      return { label: 'RECHAZADA', cssClass: 'status-rechazada' };
     }
 
     if (b.bookingState === 'PENDING') {
@@ -125,11 +132,15 @@ export class MyReservations implements OnInit {
 
   /**
    * Solo se puede calificar cuando la reserva YA FINALIZÓ
-   * (fecha de salida en el pasado) y no está cancelada/rechazada.
+   * (fecha de salida en el pasado), no está cancelada/rechazada,
+   * y aún NO HA SIDO CALIFICADA.
    */
   puedeCalificar(r: ReservationCardVM): boolean {
     if (r.bookingState === 'CANCELED' || r.bookingState === 'REJECTED') {
       return false;
+    }
+    if (r.hasBeenRated) {
+      return false;  // Ya fue calificada
     }
     return this.isPast(r.checkOut);
   }
@@ -166,7 +177,7 @@ export class MyReservations implements OnInit {
           this.cdr.markForCheck();
         },
         error: err => {
-          Swal.fire('Error', 'No se pudo cancelar la reserva. Por favor intenta nuevamente.', 'error');
+          Swal.fire('Error', 'No se pudo cancelar la reserva. Las cancelaciones deben realizarse con al menos 48 horas de anticipación al check-in.', 'error');
           this.cdr.markForCheck();
         }
       });
@@ -254,6 +265,8 @@ export class MyReservations implements OnInit {
       // Usar el endpoint correcto: POST /api/bookings/{bookingId}/comments
       this.commentsApi.createForBooking(r.id, { rating, comment }).subscribe({
         next: msg => {
+          // ✅ FIX: Marcar la reserva como calificada
+          r.hasBeenRated = true;
           Swal.fire('¡Gracias!', msg || 'Tu calificación ha sido registrada.', 'success');
           this.cdr.markForCheck();
         },

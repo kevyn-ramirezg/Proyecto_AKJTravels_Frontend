@@ -4,6 +4,25 @@ import mapboxgl from 'mapbox-gl';
 
 const TOKEN_KEY = 'AuthToken';
 
+/**
+ * Estructura del payload JWT decodificado
+ * Soporta múltiples formatos de roles/authorities del backend
+ */
+export interface JWTPayload {
+  sub?: string;           // Subject (user ID)
+  name?: string;          // User name
+  username?: string;      // Alternative name field
+  email?: string;         // User email
+  role?: string | string[];  // Single role or comma-separated
+  roles?: string[];       // Array of roles
+  authorities?: Array<{ authority?: string; role?: string; name?: string }>;
+  auth?: string;          // Alternative authority field
+  scope?: string;         // Alternative scope field
+  exp?: number;           // Expiration time (seconds)
+  iat?: number;           // Issued at (seconds)
+  [key: string]: any;     // Allow additional fields
+}
+
 @Injectable({ providedIn: 'root' })
 export class TokenService {
 
@@ -54,8 +73,15 @@ export class TokenService {
   public isLogged(): boolean {
     const t = this.getToken();
     if (!t) return false;
+    
     const expMs = this.getExpMs(t);
-    return expMs ? Date.now() < expMs : true; // si no hay exp, asumimos válido
+    // ✅ FIX: Si no hay exp, rechazar por seguridad (no asumir válido)
+    if (!expMs) {
+      console.warn('[TokenService] Token sin expiración detectado');
+      return false;
+    }
+    
+    return Date.now() < expMs;
   }
 
   public login(token: string) {
@@ -71,17 +97,17 @@ export class TokenService {
   }
 
   // --- Decodificación del payload (JWT) ---
-  private decodePayload(token: string): any {
+  private decodePayload(token: string): JWTPayload | null {
     try {
       const base64Url = token.split('.')[1];
       const json = atob(this.toBase64(base64Url));
-      return JSON.parse(json);
+      return JSON.parse(json) as JWTPayload;
     } catch {
       return null;
     }
   }
 
-  private getPayload(): any {
+  private getPayload(): JWTPayload | null {
     const token = this.getToken();
     return token ? this.decodePayload(token) : null;
   }
@@ -93,9 +119,18 @@ export class TokenService {
     this.clearLogoutTimer();
     const expMs = this.getExpMs(token);
     if (!expMs) return; // sin exp => no programamos
+    
     const delay = expMs - Date.now();
-    if (delay <= 0) { this.logout(); return; }
-    this.logoutTimer = setTimeout(() => this.logout(), delay);
+    
+    // ✅ FIX: Si expira muy pronto, logout inmediato
+    if (delay <= 500) {
+      this.logout();
+      return;
+    }
+    
+    // ✅ FIX: Programar logout un poco antes (30s de amortiguación para race condition)
+    const safeDelay = Math.max(delay - 30000, 1000);
+    this.logoutTimer = setTimeout(() => this.logout(), safeDelay);
   }
   private getExpMs(token: string): number | null {
     const p = this.decodePayload(token);

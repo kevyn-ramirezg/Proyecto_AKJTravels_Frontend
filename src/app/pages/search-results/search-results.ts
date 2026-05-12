@@ -1,6 +1,8 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { PlacesApiService } from '../../services/places-api-service';
 import { PlaceListItemDTO } from '../../model/place-dto/place-list-item-dto';
 import { ListPlaceDTO } from '../../model/place-dto/list-place-dto';
@@ -23,7 +25,7 @@ type SearchCriteria = {
   styleUrl: './search-results.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SearchResultsComponent implements OnInit {
+export class SearchResultsComponent implements OnInit, OnDestroy {
 
   criteria: SearchCriteria = {};
   loading = false;
@@ -31,6 +33,8 @@ export class SearchResultsComponent implements OnInit {
 
   places: PlaceListItemDTO[] = [];
   filteredPlaces: PlaceListItemDTO[] = [];
+  
+  private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
@@ -39,7 +43,9 @@ export class SearchResultsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
       // normalizar servicios (list puede ser string o string[])
       let services: string[] | undefined;
       const rawList = params['list'];
@@ -54,8 +60,9 @@ export class SearchResultsComponent implements OnInit {
         checkIn: params['checkIn'] || undefined,
         checkOut: params['checkOut'] || undefined,
         guests: params['guests'] ? Number(params['guests']) : undefined,
-        minPrice: params['minimum'] ? Number(params['minimum']) : undefined,
-        maxPrice: params['maximum'] ? Number(params['maximum']) : undefined,
+        // ✅ FIX: Use !== undefined instead of truthy check (0 is valid)
+        minPrice: params['minimum'] !== undefined ? Number(params['minimum']) : undefined,
+        maxPrice: params['maximum'] !== undefined ? Number(params['maximum']) : undefined,
         services
       };
 
@@ -106,18 +113,20 @@ export class SearchResultsComponent implements OnInit {
       filters.list = this.criteria.services;
     }
 
-    this.placesApi.list(0, filters).subscribe({
-      next: (rows) => {
-        this.places = rows ?? [];
-        this.filteredPlaces = this.applyFilters(this.places);
-        this.loading = false;
-        this.cdr.markForCheck();
+    this.placesApi.list(0, filters)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (rows) => {
+          this.places = rows ?? [];
+          this.filteredPlaces = this.applyFilters(this.places);
+          this.loading = false;
+          this.cdr.markForCheck();
 
-        console.log('Criterios front:', this.criteria);
-        console.log('Filtros al backend:', filters);
-      },
-      error: (err) => {
-        console.error('Error cargando alojamientos', err);
+          console.log('Criterios front:', this.criteria);
+          console.log('Filtros al backend:', filters);
+        },
+        error: (err) => {
+          console.error('Error cargando alojamientos', err);
         this.error = 'No fue posible cargar los alojamientos. Intenta de nuevo más tarde.';
         this.loading = false;
         this.cdr.markForCheck();
@@ -131,12 +140,25 @@ export class SearchResultsComponent implements OnInit {
     if (parts.length !== 3) return undefined;
 
     const [dd, mm, yyyy] = parts;
-    const day   = dd.padStart(2, '0');
-    const month = mm.padStart(2, '0');
-    const year  = yyyy;
+    const day = parseInt(dd, 10);
+    const month = parseInt(mm, 10);
+    const year = parseInt(yyyy, 10);
+    
+    // ✅ FIX: Validar rango de fecha
+    if (month < 1 || month > 12 || day < 1 || day > 31 || year < 2000 || year > 2100) {
+      return undefined;  // Fecha inválida
+    }
+    
+    const dateObj = new Date(year, month - 1, day);
+    // Validar que la fecha sea válida (ej: 31 febrero es inválido)
+    if (dateObj.getMonth() !== month - 1) {
+      return undefined;
+    }
 
+    const padDay = String(day).padStart(2, '0');
+    const padMonth = String(month).padStart(2, '0');
     const time = endOfDay ? '23:59:59' : '00:00:00';
-    return `${year}-${month}-${day}T${time}`;
+    return `${year}-${padMonth}-${padDay}T${time}`;
   }
 
   /**
@@ -177,5 +199,10 @@ export class SearchResultsComponent implements OnInit {
   onImgError(event: Event): void {
     const img = event.target as HTMLImageElement;
     img.src = 'assets/img/place-placeholder.jpg';
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

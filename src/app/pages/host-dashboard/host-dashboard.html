@@ -316,7 +316,7 @@
                       <td>
                         <span
                           class="badge rounded-pill"
-                          [class.text-bg-warning]="b.state==='PENDING'"
+                          [class.text-bg-warning]="b.state==='PENDING' || b.state==='REJECTED'"
                           [class.text-bg-success]="b.state==='CONFIRMED' || b.state==='COMPLETED'"
                           [class.text-bg-secondary]="b.state==='CANCELED'">
                           {{ b.state | titlecase }}
@@ -431,7 +431,7 @@
             </div>
           } @else {
             <div class="list-group">
-              @for (c of filteredComments; track c.id) {
+              @for (c of filteredComments; track c.draftKey) {
                 <article class="list-group-item border-0 border-bottom py-3">
                   <div class="d-flex justify-content-between align-items-start mb-2">
                     <div>
@@ -464,7 +464,7 @@
                       <textarea
                         class="form-control"
                         rows="2"
-                        [ngModel]="replyDrafts[c.id] || ''"
+                        [ngModel]="replyDrafts[c.draftKey] || ''"
                         (ngModelChange)="onReplyDraftChange(c, $event)">
                   </textarea>
                       <div class="d-flex justify-content-end mt-2">

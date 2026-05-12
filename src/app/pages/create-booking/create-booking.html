@@ -80,16 +80,12 @@
                 @for (i of [].constructor(getFirstDayOfMonth(currentCalendarMonth)); track $index) {
                   <div class="day empty"></div>
                 }
-                @for (day of [].constructor(getDaysInMonth(currentCalendarMonth)); track day; let dayNum = $index) {
-                  @let currentDate = getDateForDay(dayNum + 1);
-                  @let dateString = getDateString(currentDate);
-                  @let isOccupied = isDateOccupiedInRange(currentDate);
-                  @let isSelected = form.value.checkIn === dateString;
-                  <div 
+                @for (day of [].constructor(getDaysInMonth(currentCalendarMonth)); track $index; let dayNum = $index) {
+                  <div
                     class="day"
-                    [class.occupied]="isOccupied"
-                    [class.selected]="isSelected"
-                    (click)="!isOccupied && selectDate(dayNum + 1, true)"
+                    [class.occupied]="isDateOccupiedInRange(getDateForDay(dayNum + 1))"
+                    [class.selected]="form.value.checkIn === getDateString(getDateForDay(dayNum + 1))"
+                    (click)="!isDateOccupiedInRange(getDateForDay(dayNum + 1)) && selectDate(dayNum + 1, true)"
                   >
                     {{ dayNum + 1 }}
                   </div>
@@ -134,16 +130,12 @@
                 @for (i of [].constructor(getFirstDayOfMonth(currentCalendarMonth)); track $index) {
                   <div class="day empty"></div>
                 }
-                @for (day of [].constructor(getDaysInMonth(currentCalendarMonth)); track day; let dayNum = $index) {
-                  @let currentDate = getDateForDay(dayNum + 1);
-                  @let dateString = getDateString(currentDate);
-                  @let isOccupied = isDateOccupiedInRange(currentDate);
-                  @let isSelected = form.value.checkOut === dateString;
-                  <div 
+                @for (day of [].constructor(getDaysInMonth(currentCalendarMonth)); track $index; let dayNum = $index) {
+                  <div
                     class="day"
-                    [class.occupied]="isOccupied"
-                    [class.selected]="isSelected"
-                    (click)="!isOccupied && selectDate(dayNum + 1, false)"
+                    [class.occupied]="isDateOccupiedInRange(getDateForDay(dayNum + 1))"
+                    [class.selected]="form.value.checkOut === getDateString(getDateForDay(dayNum + 1))"
+                    (click)="!isDateOccupiedInRange(getDateForDay(dayNum + 1)) && selectDate(dayNum + 1, false)"
                   >
                     {{ dayNum + 1 }}
                   </div>

@@ -6,7 +6,7 @@ export interface BookingDTO {
   checkOut: string;     // ISO date
   state: BookingState;  // estado normalizado
 }
-export type BookingState = 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'COMPLETED';
+export type BookingState = 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'COMPLETED' | 'REJECTED';
 export type Role = 'USER' | 'HOST';
 export interface BookingUserDTO {
   name: string;

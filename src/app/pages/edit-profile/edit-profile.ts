@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { API_BASE } from '../../core/api-base-token';
 import Swal from 'sweetalert2';
+import { validateImageFile } from '../../utils/image-file-validation';
 
 type ResponseDTO<T> = { error: boolean; message: T };
 
@@ -179,9 +180,12 @@ export class EditProfile implements OnInit {
     const file = input.files?.[0];
     if (!file) return;
 
-    const okType = /^image\/(jpeg|png|webp|gif|jpg)$/i.test(file.type);
-    if (!okType) { Swal.fire({icon:'warning',title:'Formato inválido',text:'Usa JPG, PNG, WEBP o GIF.'}); input.value=''; return; }
-    if (file.size > 5 * 1024 * 1024) { Swal.fire({icon:'warning',title:'Archivo muy grande',text:'Máximo 5 MB.'}); input.value=''; return; }
+    const validationError = validateImageFile(file);
+    if (validationError) {
+      Swal.fire({ icon: 'warning', title: 'Imagen no válida', text: validationError });
+      input.value = '';
+      return;
+    }
 
     // Preview instantáneo con blob:
     this.avatarUrl.set(URL.createObjectURL(file));

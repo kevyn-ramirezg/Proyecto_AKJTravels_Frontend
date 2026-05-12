@@ -62,7 +62,7 @@
 
         <!-- FAB (cámara) -->
         <label class="avatar-fab" aria-label="Cambiar foto">
-          <input type="file" accept="image/*" (change)="onAvatarChange($event)" hidden />
+          <input type="file" accept="image/jpeg,image/png,image/webp" (change)="onAvatarChange($event)" hidden />
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path
               d="M9.4 5.3 8 7H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-1.4-1.7A2 2 0 0 0 13.1 5H10.9a2 2 0 0 0-1.5.3ZM12 17a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm0-2.2a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6Z"
@@ -74,7 +74,7 @@
 
       <!-- Enlace auxiliar -->
       <label class="avatar-upload">
-        <input type="file" accept="image/*" (change)="onAvatarChange($event)" hidden />
+        <input type="file" accept="image/jpeg,image/png,image/webp" (change)="onAvatarChange($event)" hidden />
         <span class="camera-ico">📷</span> Cambiar foto
       </label>
     </div>

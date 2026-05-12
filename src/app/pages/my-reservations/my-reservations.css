@@ -159,10 +159,15 @@
   color: #ef4444;
 }
 
+.status-rechazada {
+  color: #d946ef;  /* Magenta/Fuchsia - rechazada por anfitrión */
+}
+
 /* Botones */
 .actions {
   display: flex;
   gap: 8px;
+  align-items: center;
 }
 
 .btn-gradient {
@@ -184,6 +189,24 @@
 
 .btn-small {
   padding-inline: 20px;
+}
+
+/* Badge de calificación completada */
+.badge-rated {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 10px 24px;
+  background: #d1fae5;  /* Verde claro */
+  color: #059669;       /* Verde oscuro */
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: default;
+  user-select: none;
 }
 
 /* Estado vacío / carga */

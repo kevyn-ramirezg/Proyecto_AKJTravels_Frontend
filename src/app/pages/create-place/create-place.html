@@ -182,7 +182,7 @@
                     <input class="form-control file-42"
                            type="file"
                            multiple
-                           accept="image/*"
+                           accept="image/jpeg,image/png,image/webp"
                            (change)="onFilesSelected($event)" />
                   </div>
 
@@ -211,74 +211,74 @@
 
                 <!-- Resumen del Alojamiento -->
                 <div class="summary-card">
-                    <!-- Encabezado del Resumen -->
-                    <div class="summary-header">
-                      <h3 class="summary-title">Tu alojamiento</h3>
-                    </div>
+                  <!-- Encabezado del Resumen -->
+                  <div class="summary-header">
+                    <h3 class="summary-title">Tu alojamiento</h3>
+                  </div>
 
-                    <!-- Título y Descripción -->
-                    <div class="summary-main">
-                      <h4 class="summary-place-title">{{ createPlaceForm.value.title || 'Alojamiento sin nombre' }}</h4>
-                      <p class="summary-description" *ngIf="createPlaceForm.value.description">
-                        {{ (createPlaceForm.value.description | slice:0:120) + (createPlaceForm.value.description.length > 120 ? '...' : '') }}
-                      </p>
-                    </div>
+                  <!-- Título y Descripción -->
+                  <div class="summary-main">
+                    <h4 class="summary-place-title">{{ createPlaceForm.value.title || 'Alojamiento sin nombre' }}</h4>
+                    <p class="summary-description" *ngIf="createPlaceForm.value.description">
+                      {{ (createPlaceForm.value.description | slice:0:120) + (createPlaceForm.value.description.length > 120 ? '...' : '') }}
+                    </p>
+                  </div>
 
-                    <!-- Info Grid: Tipo, Capacidad, Ubicación -->
-                    <div class="summary-grid">
-                      <div class="summary-info-item">
-                        <span class="material-symbols-rounded info-icon">home</span>
-                        <div class="info-content">
-                          <span class="info-label">Tipo</span>
-                          <span class="info-value">{{ createPlaceForm.value.placeType | titlecase }}</span>
-                        </div>
-                      </div>
-
-                      <div class="summary-info-item">
-                        <span class="material-symbols-rounded info-icon">group</span>
-                        <div class="info-content">
-                          <span class="info-label">Capacidad</span>
-                          <span class="info-value">{{ createPlaceForm.value.capacity }} huésped{{ createPlaceForm.value.capacity > 1 ? 'es' : '' }}</span>
-                        </div>
-                      </div>
-
-                      <div class="summary-info-item">
-                        <span class="material-symbols-rounded info-icon">location_on</span>
-                        <div class="info-content">
-                          <span class="info-label">Ciudad</span>
-                          <span class="info-value">{{ createPlaceForm.value.city || 'Armenia' }}</span>
-                        </div>
-                      </div>
-
-                      <div class="summary-info-item">
-                        <span class="material-symbols-rounded info-icon">attach_money</span>
-                        <div class="info-content">
-                          <span class="info-label">Precio</span>
-                          <span class="info-value">{{ currencyCOP(createPlaceForm.value.pricePerNight) }} / noche</span>
-                        </div>
+                  <!-- Info Grid: Tipo, Capacidad, Ubicación -->
+                  <div class="summary-grid">
+                    <div class="summary-info-item">
+                      <span class="material-symbols-rounded info-icon">home</span>
+                      <div class="info-content">
+                        <span class="info-label">Tipo</span>
+                        <span class="info-value">{{ createPlaceForm.value.placeType | titlecase }}</span>
                       </div>
                     </div>
 
-                    <!-- Divisor -->
-                    <div class="summary-divider"></div>
-
-                    <!-- Servicios Incluidos -->
-                    <div class="summary-services">
-                      <div class="services-header">
-                        <span class="material-symbols-rounded">verified</span>
-                        <h5>Servicios incluidos</h5>
+                    <div class="summary-info-item">
+                      <span class="material-symbols-rounded info-icon">group</span>
+                      <div class="info-content">
+                        <span class="info-label">Capacidad</span>
+                        <span class="info-value">{{ createPlaceForm.value.capacity }} huésped{{ createPlaceForm.value.capacity > 1 ? 'es' : '' }}</span>
                       </div>
-                      <div class="services-list">
-                        <ng-container *ngIf="hasSelectedAmenities(); else noServices">
-                          <span class="service-chip" *ngFor="let s of selectedServices">{{ s.label }}</span>
-                        </ng-container>
-                        <ng-template #noServices>
-                          <p class="no-services">Selecciona servicios para mostrarlos aquí</p>
-                        </ng-template>
+                    </div>
+
+                    <div class="summary-info-item">
+                      <span class="material-symbols-rounded info-icon">location_on</span>
+                      <div class="info-content">
+                        <span class="info-label">Ciudad</span>
+                        <span class="info-value">{{ createPlaceForm.value.city || 'Armenia' }}</span>
+                      </div>
+                    </div>
+
+                    <div class="summary-info-item">
+                      <span class="material-symbols-rounded info-icon">attach_money</span>
+                      <div class="info-content">
+                        <span class="info-label">Precio</span>
+                        <span class="info-value">{{ currencyCOP(createPlaceForm.value.pricePerNight) }} / noche</span>
                       </div>
                     </div>
                   </div>
+
+                  <!-- Divisor -->
+                  <div class="summary-divider"></div>
+
+                  <!-- Servicios Incluidos -->
+                  <div class="summary-services">
+                    <div class="services-header">
+                      <span class="material-symbols-rounded">verified</span>
+                      <h5>Servicios incluidos</h5>
+                    </div>
+                    <div class="services-list">
+                      <ng-container *ngIf="hasSelectedAmenities(); else noServices">
+                        <span class="service-chip" *ngFor="let s of selectedServices">{{ s.label }}</span>
+                      </ng-container>
+                      <ng-template #noServices>
+                        <p class="no-services">Selecciona servicios para mostrarlos aquí</p>
+                      </ng-template>
+                    </div>
+                  </div>
                 </div>
+              </div>
 
               <!-- Columna Derecha: Solo Mensaje -->
               <div class="col-span-12 col-lg-5">

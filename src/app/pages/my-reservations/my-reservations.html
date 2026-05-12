@@ -66,13 +66,23 @@
             Cancelar reserva
           </button>
 
+          <!-- Mostrar botón "Calificar" si aún no fue calificado -->
           <button
-            *ngIf="puedeCalificar(r)"
+            *ngIf="puedeCalificar(r) && !r.hasBeenRated"
             class="btn-gradient btn-small"
             (click)="abrirCalificar(r)"
           >
             Calificar
           </button>
+
+          <!-- Mostrar badge "✓ Calificado" si ya fue calificado -->
+          <span
+            *ngIf="r.hasBeenRated"
+            class="badge-rated"
+            title="Ya calificaste esta reserva"
+          >
+            ✓ Calificado
+          </span>
         </div>
       </div>
 

@@ -181,23 +181,29 @@ export default class DetailPlace implements OnInit, OnDestroy {
   }
 
   getCommentUserName(c: CommentDTO): string {
-    const u: any = c.user ?? {};
+    const u = c.user;
+    // ✅ FIX: Validar que user no sea null/undefined
+    if (!u) return 'Huésped';
+    
+    // ✅ FIX: Validar también strings vacíos
+    const fullName = u.fullName?.trim();
+    const name = u.name?.trim();
+    
     return (
-      u.fullName ??
-      u.name ??
-      u.nombreCompleto ??
-      u.username ??
+      (fullName && fullName.length > 0 ? fullName : undefined) ??
+      (name && name.length > 0 ? name : undefined) ??
       'Huésped'
     );
   }
 
   getCommentUserAvatar(c: CommentDTO): string | null {
-    const u: any = c.user ?? {};
+    const u = c.user;
+    // ✅ FIX: Validar que user no sea null/undefined
+    if (!u) return null;
+    
     return (
       u.profilePicUrl ??
       u.photoUrl ??
-      u.avatarUrl ??
-      u.imageUrl ??
       null
     );
   }
@@ -329,34 +335,39 @@ export default class DetailPlace implements OnInit, OnDestroy {
       return;
     }
 
+    // ✅ FIX: Bloquear si ya hay una petición en flight (prevenir race condition)
+    if (this.favoriteLoading) return;
+
     this.favoriteLoading = true;
     const placeId = this.place.id;
-    const obs = this.isFavorite
-      ? this.favoritesApi.remove(placeId)
-      : this.favoritesApi.add(placeId);
+    // ✅ FIX: Determinar estado ANTES de enviar para evitar inconsistencia
+    const newState = !this.isFavorite;
+    const obs = newState
+      ? this.favoritesApi.add(placeId)
+      : this.favoritesApi.remove(placeId);
 
     obs
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-      next: () => {
-        this.isFavorite = !this.isFavorite;
-        if (this.favoriteCount == null) this.favoriteCount = 0;
-        this.favoriteCount += this.isFavorite ? 1 : -1;
-        if (this.favoriteCount < 0) this.favoriteCount = 0;
-        this.favoriteLoading = false;
-        this.cdr.markForCheck();
-      },
-      error: (err) => {
-        console.error('[DetailPlace] toggleFavorite error', err);
-        this.favoriteLoading = false;
-        this.cdr.markForCheck();
-        Swal.fire({
-          icon: 'error',
-          title: 'No se pudo actualizar tu favorito',
-          text: 'Hubo un problema al procesar tu solicitud. Por favor intenta de nuevo.'
-        });
-      }
-    });
+        next: () => {
+          this.isFavorite = newState;  // ✅ Usar state predeterminado
+          if (this.favoriteCount == null) this.favoriteCount = 0;
+          this.favoriteCount += newState ? 1 : -1;
+          if (this.favoriteCount < 0) this.favoriteCount = 0;
+          this.favoriteLoading = false;
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          console.error('[DetailPlace] toggleFavorite error', err);
+          this.favoriteLoading = false;  // ✅ Desbloquear en error
+          this.cdr.markForCheck();
+          Swal.fire({
+            icon: 'error',
+            title: 'No se pudo actualizar tu favorito',
+            text: 'Hubo un problema al procesar tu solicitud. Por favor intenta de nuevo.'
+          });
+        }
+      });
   }
 
   // Construir dirección legible

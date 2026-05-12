@@ -37,11 +37,14 @@ export const routes: Routes = [
   },
   {
     path: 'edit-place/:id',
-    canActivate: [authGuard],
+    canActivate: [authGuard, roleGuard],
+    data: { expectedRole: ['HOST', 'ROLE_HOST'] },
     loadComponent: () => import('./pages/edit-place/edit-place').then(m => m.EditPlace)
   },
   {
     path: 'my-favorites',
+    canActivate: [authGuard, roleGuard],
+    data: { expectedRole: ['USER'] },
     loadComponent: () => import('./pages/my-favorites/my-favorites').then(m => m.MyFavorites)
   },
   {

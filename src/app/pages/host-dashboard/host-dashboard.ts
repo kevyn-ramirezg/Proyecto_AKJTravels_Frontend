@@ -20,7 +20,11 @@ import { FavoritesApiService } from '../../services/favorites-api-service';
 type Section = 'places' | 'metrics' | 'bookings' | 'comments';
 
 interface HostComment {
-  id: string;
+  /** ID real del comentario en backend. Se usa para POST /comments/{id}/reply. */
+  id: string | null;
+  /** ID estable solo para Angular/ngModel/track. Evita que varios textareas compartan el mismo borrador. */
+  draftKey: string;
+  placeId?: string | number | null;
   placeTitle: string;// nombre del alojamiento
   guestName: string;    // nombre del huésped
   rating: number;       // 1–5
@@ -428,18 +432,28 @@ export class HostDashboard implements OnInit {
 
   // Cuando escribes en el textarea
   onReplyDraftChange(comment: HostComment, value: string): void {
-    this.replyDrafts[comment.id] = value;
+    this.replyDrafts[comment.draftKey] = value;
   }
 
   //Click en el botón "Responder"
   onSendReply(comment: HostComment): void {
-    const text = (this.replyDrafts[comment.id] || '').trim();
+    const text = (this.replyDrafts[comment.draftKey] || '').trim();
 
     if (!text) {
       Swal.fire({
         icon: 'info',
         title: 'Escribe una respuesta',
         text: 'No puedes enviar una respuesta vacía.'
+      });
+      return;
+    }
+
+    if (!comment.id) {
+      console.error('[HostDashboard] Comentario sin id real de backend', comment);
+      Swal.fire({
+        icon: 'error',
+        title: 'No se pudo enviar la respuesta',
+        text: 'El comentario no tiene un identificador válido. Recarga los comentarios e inténtalo de nuevo.'
       });
       return;
     }
@@ -454,7 +468,7 @@ export class HostDashboard implements OnInit {
     this.commentsApi.reply(comment.id, text).subscribe({
       next: () => {
         comment.reply = text;           // ya queda visible
-        this.replyDrafts[comment.id] = '';
+        this.replyDrafts[comment.draftKey] = '';
         Swal.fire({
           icon: 'success',
           title: 'Respuesta enviada'
@@ -483,7 +497,7 @@ export class HostDashboard implements OnInit {
 
     const calls = places.map(p =>
       this.placesApi.listComments(String((p as any).id), 0).pipe(
-        map((list: any[]) => list.map(raw => this.mapToHostComment(raw, p))),
+        map((list: any[]) => list.map((raw, index) => this.mapToHostComment(raw, p, index))),
         catchError(err => {
           console.error('[HostDashboard] listComments error for place', p.id, err);
           // devolvemos lista vacía para no romper el forkJoin
@@ -512,15 +526,30 @@ export class HostDashboard implements OnInit {
   }
 
 
-  private mapToHostComment(raw: any, place?: PlaceListItemDTO | null): HostComment {
+  private mapToHostComment(raw: any, place?: PlaceListItemDTO | null, index = 0): HostComment {
     const user = raw.user ?? {};
     const commentDate: string = raw.commentDate ?? new Date().toISOString();
+    const placeId = place?.id ?? raw.placeId ?? raw.place?.id ?? null;
     const placeTitle =
       place?.title ??
       raw.placeTitle ??
+      raw.place?.title ??
       'Alojamiento';
+
+    // El backend actual envía `id`, pero dejamos aliases para tolerar respuestas viejas
+    // o cambios pequeños en el DTO. Este ID es el que necesita /api/comments/{id}/reply.
+    const commentId = raw.id ?? raw.commentId ?? raw.idComment ?? raw.comment_id ?? null;
+
+    // No usamos solo `commentId` como track/ngModel porque, si llega null/undefined,
+    // todos los textareas comparten la misma key y el texto se replica entre comentarios.
+    const draftKey = commentId
+      ? `comment-${commentId}`
+      : `comment-${placeId ?? 'place'}-${raw.bookingId ?? raw.booking?.id ?? index}-${commentDate}-${user.name ?? 'guest'}`;
+
     return {
-      id: raw.id,                                //
+      id: commentId,
+      draftKey,
+      placeId,
       placeTitle,
       guestName: user.name ?? 'Huésped',
       rating: raw.rating ?? 0,
@@ -546,16 +575,7 @@ export class HostDashboard implements OnInit {
         // Si el backend tira 404 cuando no hay comentarios, lo mapeamos a []
         catchError(() => of([] as CommentDTO[])),
         map((comments) =>
-          comments.map<HostComment>(c => ({
-            id: c.id,                        // ← CommentDTO.id
-            placeId: p.id,
-            placeTitle: p.title,
-            guestName: c.user?.name ?? 'Huésped',
-            rating: c.rating,
-            comment: c.comment,
-            date: c.commentDate,
-            reply: null
-          }))
+          comments.map<HostComment>((c, index) => this.mapToHostComment(c, p, index))
         )
       )
     );
@@ -604,7 +624,7 @@ export class HostDashboard implements OnInit {
     this.placesApi.listComments(String(pid), 0).subscribe({
       next: (list) => {
         const rawComments = list ?? [];
-        this.comments = rawComments.map(raw => this.mapToHostComment(raw, place));
+        this.comments = rawComments.map((raw, index) => this.mapToHostComment(raw, place, index));
         this.applyCommentFilters();  // reutilizamos tu filtro por texto/fechas
         this.commentsLoading = false;
       },
@@ -643,7 +663,7 @@ export class HostDashboard implements OnInit {
         results.forEach((list, index) => {
           const place = places[index];
           (list ?? []).forEach((raw: any) => {
-            all.push(this.mapToHostComment(raw, place)); // 👈 aquí entra reply también
+            all.push(this.mapToHostComment(raw, place, all.length)); // 👈 aquí entra reply también
           });
         });
 

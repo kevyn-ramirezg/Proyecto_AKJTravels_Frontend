@@ -12,6 +12,7 @@ import { PlacesApiService } from '../../services/places-api-service';
 import { PlaceDetailDTO } from '../../model/place-dto/place-detail-dto';
 import { EditPlaceDTO } from '../../model/place-dto/edit-place-dto';
 import { SERVICES_LIST, ServiceItem } from '../../constants/services';
+import { validateImageFile } from '../../utils/image-file-validation';
 
 @Component({
   selector: 'app-edit-place',
@@ -118,9 +119,32 @@ export class EditPlace implements OnInit, OnDestroy {
     this.addFiles(Array.from(e.dataTransfer.files));
   }
   private addFiles(list: File[]) {
-    const images = list.filter(f => f.type.startsWith('image/'));
+    const validFiles: File[] = [];
+    const invalidMessages: string[] = [];
+
+    list.forEach(file => {
+      const error = validateImageFile(file);
+      if (error) {
+        invalidMessages.push(`${file.name}: ${error}`);
+      } else {
+        validFiles.push(file);
+      }
+    });
+
+    if (invalidMessages.length > 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Imagen no válida',
+        html: invalidMessages.slice(0, 5).join('<br>')
+      });
+    }
+
     const remaining = Math.max(0, 10 - this.previews.length);
-    const toAdd = images.slice(0, remaining);
+    if (validFiles.length > remaining) {
+      Swal.fire({ icon: 'info', title: 'Límite de imágenes', text: 'Solo puedes subir máximo 10 imágenes por alojamiento.' });
+    }
+
+    const toAdd = validFiles.slice(0, remaining);
     toAdd.forEach(f => {
       this.files.push(f);
       const url = URL.createObjectURL(f);

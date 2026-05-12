@@ -15,4 +15,5 @@ export interface UserBookingDTO {
   placeTitle: string;
   mainImage: string | null;
   capacity: number;
+  hasBeenRated?: boolean; // Indica si ya fue calificada
 }

@@ -197,9 +197,7 @@
         <div class="description-title">
           Descripción del sitio
         </div>
-        <p class="description-text">
-          {{ p.description | safeHtml }}
-        </p>
+        <p class="description-text" [innerHTML]="p.description | safeHtml"></p>
       </div>
 
       <!-- SERVICIOS -->
@@ -280,10 +278,9 @@
               </div>
 
               <p class="comment-text">
-                {{ getCommentText(c) | safeHtml }}
+                {{ getCommentText(c) }}
               </p>
 
-              <!-- RESPUESTA DEL ANFITRIÓN -->
               <div class="comment-reply-section" *ngIf="getCommentReply(c)">
                 <div class="reply-header">
                   <span class="material-symbols-rounded reply-icon">admin_panel_settings</span>
@@ -292,8 +289,9 @@
                     {{ c.replyDate | date: 'dd/MM/yyyy' }}
                   </span>
                 </div>
+
                 <p class="reply-text">
-                  {{ getCommentReply(c) | safeHtml }}
+                  {{ getCommentReply(c) }}
                 </p>
               </div>
             </div>

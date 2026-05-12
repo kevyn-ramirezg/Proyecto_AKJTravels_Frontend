@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { Subject, interval } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import Swal from 'sweetalert2';
 
 import { PlacesApiService } from '../../services/places-api-service';
@@ -21,7 +23,7 @@ interface OccupiedRange {
   templateUrl: './create-booking.html',
   styleUrls: ['./create-booking.css']
 })
-export class CreateBooking implements OnInit {
+export class CreateBooking implements OnInit, OnDestroy {
 
   place!: PlaceDetailDTO;
   form!: FormGroup;
@@ -34,6 +36,9 @@ export class CreateBooking implements OnInit {
   
   servicesList: ServiceItem[] = SERVICES_LIST;
   mappedServices: ServiceItem[] = [];
+  
+  private destroy$ = new Subject<void>();
+  private placeId: string = '';
 
 
   constructor(
@@ -51,29 +56,66 @@ export class CreateBooking implements OnInit {
       return;
     }
 
-    this.placesApi.getDetail(placeId).subscribe({
-      next: place => {
-        this.place = place;
+    this.placeId = placeId;
 
-        // Mapear los códigos a iconos+labels
-        this.mappedServices = (place.services || [])
-          .map(code => this.servicesList.find(s => s.code === code))
-          .filter((s): s is ServiceItem => !!s);
-        
-        // Cargar reservas confirmadas para obtener fechas ocupadas
-        this.loadOccupiedRanges(String(place.id));
-      },
-      error: () => Swal.fire('Error', 'No se pudo cargar el lugar', 'error')
-    });
-
-    // Formulario
+    // ✅ FIX: Inicializar formulario ANTES de la suscripción
     this.form = this.fb.group({
       checkIn: ['', [Validators.required]],
       checkOut: ['', [Validators.required]],
       guests: [1, [Validators.required, Validators.min(1)]]
     }, { validators: this.bookingRangeValidator.bind(this) });
 
-    this.form.valueChanges.subscribe(() => this.calcularTotal());
+    this.form.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.calcularTotal());
+
+    this.placesApi.getDetail(placeId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: place => {
+          this.place = place;
+
+          // Mapear los códigos a iconos+labels
+          this.mappedServices = (place.services || [])
+            .map(code => this.servicesList.find(s => s.code === code))
+            .filter((s): s is ServiceItem => !!s);
+          
+          // ✅ FIX: Actualizar validador de guests con capacity del lugar
+          const guestControl = this.form.get('guests');
+          if (guestControl && place?.capacity) {
+            guestControl.setValidators([
+              Validators.required,
+              Validators.min(1),
+              Validators.max(place.capacity)
+            ]);
+            guestControl.updateValueAndValidity();
+          }
+          
+          // Cargar reservas confirmadas para obtener fechas ocupadas
+          this.loadOccupiedRanges(String(place.id));
+        },
+        error: () => Swal.fire('Error', 'No se pudo cargar el lugar', 'error')
+      });
+
+    // ✅ FIX: Detectar cuando el usuario vuelve a esta página y refrescar fechas ocupadas inmediatamente
+    // Esto cubre el caso: usuario crea reserva → navega a mis-reservaciones → cancela → vuelve atrás
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.placeId) {
+          this.loadOccupiedRanges(this.placeId);
+        }
+      });
+
+    // ✅ FIX: También refrescar automáticamente cada 15 segundos por si acaso
+    // Esto cubre el caso: usuario está viendo el calendario, otra pestaña cancela una reserva
+    interval(15000)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.placeId) {
+          this.loadOccupiedRanges(this.placeId);
+        }
+      });
   }
 
   private parseDateString(dateString: string): Date {
@@ -96,17 +138,19 @@ export class CreateBooking implements OnInit {
      * 2. Validación de solapamientos (bookingRangeValidator)
      * 3. Selección de fechas en el calendario (selectDate)
      */
-    this.bookingApi.listByPlace(placeId, { state: 'CONFIRMED', page: 0 }).subscribe({
-      next: ({ rows }) => {
-        this.occupiedRanges = rows.map(b => ({
-          checkIn: this.parseDateString(b.checkIn),
-          checkOut: this.parseDateString(b.checkOut)
-        }));
-      },
-      error: (err) => {
-        console.warn('No se pudieron cargar fechas ocupadas:', err);
-      }
-    });
+    this.bookingApi.listByPlace(placeId, { state: 'CONFIRMED', page: 0 })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: ({ rows }) => {
+          this.occupiedRanges = rows.map(b => ({
+            checkIn: this.parseDateString(b.checkIn),
+            checkOut: this.parseDateString(b.checkOut)
+          }));
+        },
+        error: (err) => {
+          console.warn('No se pudieron cargar fechas ocupadas:', err);
+        }
+      });
   }
 
   private bookingRangeValidator(): ValidationErrors | null {
@@ -184,7 +228,8 @@ export class CreateBooking implements OnInit {
   toggleCheckInCalendar(): void {
     if (this.form.get('checkIn')?.value) {
       const parts = this.form.get('checkIn')?.value.split('-');
-      this.currentCalendarMonth = new Date(parts[0], parseInt(parts[1]) - 1, 1);
+      // ✅ FIX: Parse year as number, not string
+      this.currentCalendarMonth = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, 1);
     } else {
       this.currentCalendarMonth = new Date();
     }
@@ -195,7 +240,8 @@ export class CreateBooking implements OnInit {
   toggleCheckOutCalendar(): void {
     if (this.form.get('checkOut')?.value) {
       const parts = this.form.get('checkOut')?.value.split('-');
-      this.currentCalendarMonth = new Date(parts[0], parseInt(parts[1]) - 1, 1);
+      // ✅ FIX: Parse year as number, not string
+      this.currentCalendarMonth = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, 1);
     } else {
       this.currentCalendarMonth = new Date();
     }
@@ -223,11 +269,13 @@ export class CreateBooking implements OnInit {
     const { checkIn, checkOut } = this.form.value;
     if (!checkIn || !checkOut) return;
 
-    const d1 = new Date(checkIn);
-    const d2 = new Date(checkOut);
+    // ✅ FIX: Use parseDateString for consistency (local time, not UTC)
+    const d1 = this.parseDateString(checkIn);
+    const d2 = this.parseDateString(checkOut);
 
     const diff = d2.getTime() - d1.getTime();
-    this.nights = diff / (1000 * 60 * 60 * 24);
+    // ✅ FIX: Round up nights (ceil, not floor) - 2.5 nights = 3 noches a pagar
+    this.nights = Math.ceil(diff / (1000 * 60 * 60 * 24));
 
     if (this.nights > 0 && this.place) {
       this.total = this.nights * this.place.price;
@@ -253,36 +301,44 @@ export class CreateBooking implements OnInit {
     const { checkIn, checkOut, guests } = this.form.value;
 
     const dto = {
-      checkIn: `${checkIn}T15:00:00`,
-      checkOut: `${checkOut}T11:00:00`,
+      // ✅ FIX: Use consistent times (midnight) to match backend convention
+      checkIn: `${checkIn}T00:00:00`,
+      checkOut: `${checkOut}T00:00:00`,
       guest_number: guests
     };
 
-    this.bookingApi.create(this.place.id, dto).subscribe({
-      next: () => {
-        // 👇 armamos info para la pantalla "Mis reservas"
-        const state = {
-          booking: {
-            checkIn,              // solo la fecha (para mostrarla bonita)
-            checkOut,
-            guest_number: guests,
-            total: this.total,
-            nights: this.nights
-          },
-          place: this.place
-        };
+    this.bookingApi.create(this.place.id, dto)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          // 👇 armamos info para la pantalla "Mis reservas"
+          const state = {
+            booking: {
+              checkIn,              // solo la fecha (para mostrarla bonita)
+              checkOut,
+              guest_number: guests,
+              total: this.total,
+              nights: this.nights
+            },
+            place: this.place
+          };
 
-        Swal.fire(
-          '¡Reserva creada!',
-          'Tu reserva ha sido registrada correctamente',
-          'success'
-        ).then(() => {
-          this.router.navigate(['/my-reservations'], { state });
-        });
-      },
-      error: err => {
-        Swal.fire('Error', 'No se pudo crear la reserva. Por favor intenta de nuevo.', 'error');
-      }
-    });
+          Swal.fire(
+            '¡Reserva creada!',
+            'Tu reserva ha sido registrada correctamente',
+            'success'
+          ).then(() => {
+            this.router.navigate(['/my-reservations'], { state });
+          });
+        },
+        error: err => {
+          Swal.fire('Error', 'No se pudo crear la reserva. Por favor intenta de nuevo.', 'error');
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
