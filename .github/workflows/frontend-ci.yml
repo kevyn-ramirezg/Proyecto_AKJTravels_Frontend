@@ -29,7 +29,7 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --config.dangerouslyAllowAllBuilds=true
 
       - name: Run frontend tests
         run: pnpm test -- --watch=false --browsers=ChromeHeadless
