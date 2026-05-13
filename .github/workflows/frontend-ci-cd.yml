@@ -1,0 +1,73 @@
+name: Frontend CI/CD
+
+on:
+  push:
+    branches:
+      - master2
+  pull_request:
+    branches:
+      - master2
+
+jobs:
+  test-build-and-deploy:
+    name: Test, build and deploy frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.1.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --config.dangerouslyAllowAllBuilds=true
+
+      - name: Run frontend tests
+        run: pnpm exec ng test --watch=false --browsers=ChromeHeadless
+
+      - name: Build frontend
+        run: pnpm run build
+
+      - name: Resolve build directory
+        id: build-dir
+        shell: bash
+        run: |
+          if [ -d "dist"/*/browser ]; then
+            echo "path=$(find dist -mindepth 2 -maxdepth 2 -type d -name browser | head -n 1)" >> "$GITHUB_OUTPUT"
+          else
+            echo "path=$(find dist -mindepth 1 -maxdepth 1 -type d | head -n 1)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Show resolved build directory
+        run: |
+          echo "Build directory: ${{ steps.build-dir.outputs.path }}"
+          ls -la "${{ steps.build-dir.outputs.path }}"
+
+      - name: Configure AWS credentials
+        if: github.event_name == 'push'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy to S3
+        if: github.event_name == 'push'
+        run: |
+          aws s3 sync "${{ steps.build-dir.outputs.path }}" "s3://${{ secrets.S3_BUCKET_NAME }}" --delete
+
+      - name: Invalidate CloudFront cache
+        if: github.event_name == 'push'
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --paths "/*"
